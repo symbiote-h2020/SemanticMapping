@@ -1,0 +1,4 @@
+SELECT * 
+WHERE {
+	?x a test:B.
+}

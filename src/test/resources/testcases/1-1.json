@@ -1,0 +1,66 @@
+{
+  "name" : "1:1 mappings",
+  "commonPrefixes" : {
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "test" : "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "dc" : "http://purl.org/dc/elements/1.1/"
+  },
+  "baseQuery" : "SELECT  *
+WHERE
+  { ?x  rdf:type       test:A ;
+        test:hasValue  STRING_VALUE
+  }",
+  "alternativeQueries" : [ "SELECT  *
+WHERE
+  { ?x  rdf:type       test:A ;
+        test:hasValue  STRING_VALUE
+  }", "SELECT  *
+WHERE
+  { ?x  test:hasValue  STRING_VALUE ;
+        rdf:type       test:A
+  }", "SELECT  *
+WHERE
+  { ?x  rdf:type  test:A
+    { ?x  test:hasValue  STRING_VALUE }
+  }", "SELECT  *
+WHERE
+  { { ?x  rdf:type  test:A }
+    { ?x  test:hasValue  STRING_VALUE }
+  }", "SELECT  *
+WHERE
+  { ?x  rdf:type  test:A
+    { SELECT  ?x
+      WHERE
+        { ?x  test:hasValue  STRING_VALUE }
+    }
+  }" ],
+  "expectedResult" : "SELECT  *
+WHERE
+  { ?x  rdf:type       test:B ;
+        test:hasValue  STRING_VALUE
+  }",
+  "mapping" : {
+    "mappingRules" : [ "java.util.ArrayList", [ {
+      "condition" : [ "eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition", {
+        "propertyCondition" : null,
+        "uri" : {
+          "type" : "URI",
+          "id" : "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#A"
+        }
+      } ],
+      "production" : [ "eu.h2020.symbiote.semantics.mapping.model.production.ClassProduction", {
+        "uri" : {
+          "type" : "URI",
+          "id" : "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#B"
+        },
+        "properties" : [ "java.util.ArrayList", [ ] ]
+      } ]
+    } ] ]
+  },
+  "replacements" : [
+    { "STRING_VALUE" : "\"test\""  }
+  ]
+}

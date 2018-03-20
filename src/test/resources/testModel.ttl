@@ -1,0 +1,53 @@
+@prefix : <http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+
+<http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#> rdf:type owl:Ontology ;                                             
+                                             rdfs:label "symbIoTe Test Model for testing semantic mapping component"@en ;                                             
+                                             owl:versionInfo "v 1.0.0 2018/01/26 12:00:00"^^xsd:string .
+
+
+#################################################################
+#
+#    Object Properties
+#
+#################################################################
+
+
+#################################################################
+#
+#    Data properties
+#
+#################################################################
+
+:hasValue rdf:type owl:DatatypeProperty .
+:hasValue2 rdf:type owl:DatatypeProperty .
+
+#################################################################
+#
+#    Classes
+#
+#################################################################
+
+
+:A rdf:type owl:Class .
+    
+:B rdf:type owl:Class ;
+    rdfs:subClassOf :A .
+
+
+#################################################################
+#
+#    Individuals
+#
+#################################################################
+
+
+:instanceOfA rdf:type :A ,
+                  owl:NamedIndividual .
+
+:instanceOfB rdf:type :B ,
+                  owl:NamedIndividual .

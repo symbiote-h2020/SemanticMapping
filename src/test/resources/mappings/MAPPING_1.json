@@ -1,0 +1,18 @@
+{
+    "mappingRules": ["java.util.ArrayList", [{
+                "condition": ["eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition", {
+                        "propertyConditions": ["java.util.ArrayList", []],
+                        "uri": {
+                            "type": "URI",
+                            "id": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#A"
+                        }
+                    }],
+                "production": ["eu.h2020.symbiote.semantics.mapping.model.production.ClassProduction", {
+                        "uri": {
+                            "type": "URI",
+                            "id": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#B"
+                        },
+                        "properties": ["java.util.ArrayList", []]
+                    }]
+            }]]
+}

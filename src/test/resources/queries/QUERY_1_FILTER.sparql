@@ -1,0 +1,6 @@
+SELECT * 
+WHERE {
+	?x a test:A.
+	?x test:hasValue ?val .
+        FILTER(?val = [STRING_VALUE])
+}

@@ -1,0 +1,9 @@
+SELECT * 
+WHERE {
+    {
+        ?x a test:A .
+    }
+    {
+        ?x test:hasValue [STRING_VALUE] .
+    }
+}

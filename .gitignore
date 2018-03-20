@@ -67,6 +67,7 @@ dist/
 nbdist/
 nbactions.xml
 .nb-gradle/
+.nb-gradle-properties
 ### Java template
 
 # Mobile Tools for Java (J2ME)

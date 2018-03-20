@@ -1,0 +1,33 @@
+{
+  "name" : "1:1 individual mapping with subject match",
+  "commonPrefixes" : {
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "test" : "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "dc" : "http://purl.org/dc/elements/1.1/"
+  },
+  "baseQuery" : "SELECT  * WHERE { <http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#instanceOfA>  test:hasValue  STRING_VALUE . }",
+  "alternativeQueries" : [ ],
+  "expectedResult" : "SELECT  * WHERE { <http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#instanceOfB>  test:hasValue  STRING_VALUE . }",
+  "mapping" : {
+    "mappingRules": ["java.util.ArrayList", [{
+                "condition": ["eu.h2020.symbiote.semantics.mapping.model.condition.IndividualCondition", {
+                        "uri": {
+                            "type": "URI",
+                            "id": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#instanceOfA"
+                        }
+                    }],
+                "production": ["eu.h2020.symbiote.semantics.mapping.model.production.IndividualProduction", {
+                        "uri": {
+                            "type": "URI",
+                            "id": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#instanceOfB"
+                        }
+                    }]
+            }]]
+},
+  "replacements" : [
+    { "STRING_VALUE" : "\"test\""  }
+  ]
+}
