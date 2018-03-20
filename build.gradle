@@ -1,0 +1,92 @@
+// initial extensions to gradle
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath group: 'com.cinnober.gradle', name: 'semver-git', version: '2.2.2'
+        classpath 'org.owasp:dependency-check-gradle:3.0.2'
+    }
+}
+
+// code
+apply plugin: 'java'
+
+// code quality
+apply plugin: 'jacoco'
+apply plugin: 'org.owasp.dependencycheck'
+
+// IDEs
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+// publishing
+apply plugin: 'com.cinnober.gradle.semver-git'
+apply plugin: 'maven-publish'
+
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'eu.h2020.symbiote'
+            version = project.version
+            from components.java
+        }
+    }
+}
+
+// dependencies section
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    // Symbiote Security section
+    compile('com.github.symbiote-h2020:SymbIoTeLibraries:[5.8,5.999]'){ changing = true }
+    // allows to select the downloaded matching sources in IntelliJ Idea as it fails to do so automatically from jitpack repo
+
+    // common testing
+    testCompile('junit:junit:[4.12,4.999]')
+    testCompile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
+}
+
+// code quality below
+task generateJavaDocs(type: Javadoc) {
+    source = sourceSets.main.allJava
+    classpath = configurations.compileClasspath
+    destinationDir = reporting.file("javadocs")
+
+    options {
+        setMemberLevel JavadocMemberLevel.PUBLIC
+        setAuthor true
+
+        links "https://docs.oracle.com/javase/8/docs/api/"
+    }
+}
+
+// jacoco configuration section
+jacoco {
+    toolVersion = "0.7.9"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+// owasp config
+dependencyCheck {
+    outputDirectory = file("$rootDir/build/reports/security")
+}
+
+// including code quality extensions into the build
+check.dependsOn(jacocoTestReport)//, 'dependencyCheck')
