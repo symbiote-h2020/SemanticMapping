@@ -4,32 +4,32 @@ import eu.h2020.symbiote.semantics.mapping.sparql.SparqlMapper;
 import eu.h2020.symbiote.semantics.mapping.model.Mapping;
 import eu.h2020.symbiote.semantics.mapping.model.MappingRule;
 import eu.h2020.symbiote.semantics.mapping.model.UnsupportedMappingException;
-import eu.h2020.symbiote.semantics.mapping.model.condition.IndividualCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationType;
+import eu.h2020.symbiote.semantics.mapping.model.condition.Comparator;
+import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyTypeCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyValueCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyAggregationCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyAndCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyPathCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.ValueCondition;
+import eu.h2020.symbiote.semantics.mapping.model.production.ClassProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.DataPropertyProduction;
-import eu.h2020.symbiote.semantics.mapping.model.production.IndividualProduction;
-import eu.h2020.symbiote.semantics.mapping.model.production.PropertyProduction;
+import eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue;
 import eu.h2020.symbiote.semantics.mapping.model.value.ReferenceValue;
+import eu.h2020.symbiote.semantics.mapping.model.value.TransformationValue;
 import eu.h2020.symbiote.semantics.mapping.test.ontology.TEST_MODEL;
 import eu.h2020.symbiote.semantics.mapping.test.sparql.model.TestCase;
 import eu.h2020.symbiote.semantics.mapping.test.sparql.model.TestSuite;
-import eu.h2020.symbiote.semantics.mapping.sparql.utils.ElementCompare;
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.QueryCompare;
 import eu.h2020.symbiote.semantics.mapping.test.sparql.util.Utils;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import org.apache.jena.query.Query;
 import org.junit.Test;
 import java.util.List;
-import java.util.Map;
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.sparql.expr.E_Equals;
-import org.apache.jena.sparql.expr.E_LogicalAnd;
-import org.apache.jena.sparql.expr.Expr;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
-import org.apache.jena.sparql.syntax.ElementFilter;
+import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.datatypes.xsd.XSDDatatype;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -41,7 +41,7 @@ import org.apache.jena.sparql.syntax.ElementFilter;
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
 public class SparqlMapperQueryRewritingTest {
-
+    
     private void generateMapping() throws IOException {
         // COUNT aggregation
 //        Mapping mapping = new Mapping(
@@ -56,22 +56,39 @@ public class SparqlMapperQueryRewritingTest {
 //                                new DataPropertyTypeCondition(TEST_MODEL.hasValue.toString(), XSDDatatype.XSDstring))),
 //                new ClassProduction(TEST_MODEL.B.asNode()))
 //        );
-        //
+///////////////////
 //        Mapping mapping = new Mapping(
 //                new MappingRule(
-//                        new PropertyPathCondition(TEST_MODEL.hasValue.toString()),
-//                        new DataPropertyProduction(TEST_MODEL.hasValue2.toString(), new ReferenceValue())
-//        );
-//        mapping.save("xyz.json");
+//                        new UriClassCondition(
+//                                TEST_MODEL.A.asNode(),
+//                                new PropertyAndCondition(
+//                                        new DataPropertyValueCondition(
+//                                                TEST_MODEL.hasValue.toString(),
+//                                                new ValueCondition(Comparator.Equal, new ConstantValue("test"))),
+//                                        new DataPropertyValueCondition(
+//                                                TEST_MODEL.hasValue2.toString(),
+//                                                new ValueCondition(Comparator.Equal, new ConstantValue(42))))),
+//                        new ClassProduction(TEST_MODEL.B.asNode())));
+///////////////////        
+        String fctToString = "return parameters[0].toString();";
+        Mapping mapping = new Mapping(
+                new MappingRule(
+                        new UriClassCondition(TEST_MODEL.A.asNode(), 
+                                new DataPropertyTypeCondition(TEST_MODEL.hasValue.toString(), XSDDatatype.XSDstring)),
+                        new ClassProduction(TEST_MODEL.B.asNode(), 
+                                new DataPropertyProduction(TEST_MODEL.hasValue2.toString(), 
+                                        new TransformationValue(fctToString, 
+                                                new ReferenceValue(TEST_MODEL.hasValue.getLocalName()))))));
+        mapping.save("xyz.json");
     }
-
+    
     @Test
     public void runTestCases() throws UnsupportedMappingException, IOException, URISyntaxException {
 //        generateMapping();
         SparqlMapper mapper = new SparqlMapper();
         List<TestSuite> testSuites = Utils.getTestCases();
         int failCountSuites = 0;
-
+        
         for (TestSuite testSuite : testSuites) {
             System.out.println("starting TestSuite: " + testSuite.getName());
             int failCount = 0;
@@ -95,8 +112,7 @@ public class SparqlMapperQueryRewritingTest {
         System.out.println(failCountSuites + "/" + testSuites.size() + " TestSuites failed");
         assert (failCountSuites == 0);
     }
-
-
+    
     private boolean evaluateMapping(Mapping mapping, Query input, Query expected) {
         boolean result = false;
         try {
@@ -115,5 +131,5 @@ public class SparqlMapperQueryRewritingTest {
         }
         return result;
     }
-
+    
 }

@@ -29,6 +29,7 @@ import eu.h2020.symbiote.semantics.mapping.sparql.model.TriplePathMatch;
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.JenaHelper;
 import eu.h2020.symbiote.semantics.mapping.utils.Utils;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -52,18 +53,18 @@ public class SparqlConditionVisitor extends AbstractConditionVisitor<List<Sparql
     public List<SparqlMatch> visit(IndividualCondition condition, Query query) {
         List<SparqlMatch> matchesAsSubject = toSparqlMatch(JenaHelper.findMatchesPerSubject(query, x -> x.getSubject().equals(condition.getUri())),
                 x -> {
-                    TriplePathMatch tripleMatch = (TriplePathMatch)x;
+                    TriplePathMatch tripleMatch = (TriplePathMatch) x;
                     return new IndividualMatch(tripleMatch.getPathBlock(), tripleMatch.getPath(), IndividualMatch.Position.Subject);
                 });
-        
+
         List<SparqlMatch> matchesAsPredicate = toSparqlMatch(JenaHelper.findMatchesPerPredicate(query, x -> x.getObject().equals(condition.getUri())),
                 x -> {
-                    TriplePathMatch tripleMatch = (TriplePathMatch)x;
+                    TriplePathMatch tripleMatch = (TriplePathMatch) x;
                     return new IndividualMatch(tripleMatch.getPathBlock(), tripleMatch.getPath(), IndividualMatch.Position.Predicate);
                 });
         List<SparqlMatch> matchesAsObject = toSparqlMatch(JenaHelper.findMatchesPerSubject(query, x -> x.getObject().equals(condition.getUri())),
                 x -> {
-                    TriplePathMatch tripleMatch = (TriplePathMatch)x;
+                    TriplePathMatch tripleMatch = (TriplePathMatch) x;
                     return new IndividualMatch(tripleMatch.getPathBlock(), tripleMatch.getPath(), IndividualMatch.Position.Object);
                 });
         return Utils.combine(matchesAsSubject, matchesAsPredicate, matchesAsObject);
@@ -82,8 +83,8 @@ public class SparqlConditionVisitor extends AbstractConditionVisitor<List<Sparql
                 .map(x -> new SparqlMatch(x.getKey(), x.getValue()))
                 .collect(Collectors.toList());
     }
-    
-        private List<SparqlMatch> toSparqlMatch(Map<Node, List<SparqlElementMatch>> matches, Function<SparqlElementMatch, SparqlElementMatch> transformation) {
+
+    private List<SparqlMatch> toSparqlMatch(Map<Node, List<SparqlElementMatch>> matches, Function<SparqlElementMatch, SparqlElementMatch> transformation) {
         return matches.entrySet().stream()
                 .map(x -> new SparqlMatch(x.getKey(), x.getValue().stream().map(transformation).collect(Collectors.toList())))
                 .collect(Collectors.toList());
@@ -160,8 +161,16 @@ public class SparqlConditionVisitor extends AbstractConditionVisitor<List<Sparql
     @Override
 
     public List<SparqlMatch> visit(DataPropertyTypeCondition condition, Query query) {
-        // Literal with explicit datatype or Filter with datattype?
-        return null;
+        List<SparqlMatch> tripleMatches = toSparqlMatch(Utils.combine(new HashMap<>(), JenaHelper.findTriplesPerSubject(query,
+                x -> x.getSubject().isVariable(),
+                x -> x.getPath().equals(condition.getPath()),
+                x -> x.getObject().isLiteral() && x.getObject().getLiteralDatatype().equals(condition.getDatatype()))));
+
+        List<SparqlMatch> filterMatches = toSparqlMatch(JenaHelper.findPropertyTypeRestrictionInFiltersPerSubject(query, condition.getPath(), condition.getDatatype()));
+        // check if all conditions are matched
+        // for now we only count total number of matches per Node which is known to not be correct as multiple hits per condition 
+        // (e.g. in triples and in filter) can even out missing matches
+        return Utils.combine(tripleMatches, filterMatches);
     }
 
     @Override

@@ -5,11 +5,13 @@
  */
 package eu.h2020.symbiote.semantics.mapping.sparql.model;
 
+import javafx.util.Pair;
+import org.apache.jena.graph.impl.LiteralLabel;
 import org.apache.jena.query.Query;
+import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementFilter;
-import org.apache.jena.sparql.syntax.ElementPathBlock;
 import org.apache.jena.sparql.syntax.syntaxtransform.ElementTransformCopyBase;
 import org.apache.jena.sparql.syntax.syntaxtransform.ElementTransformer;
 
@@ -21,6 +23,7 @@ public class FilterMatch implements SparqlElementMatch {
 
     private ElementFilter filter;
     private Expr expr;
+    private Pair<String, LiteralLabel> value = null;
 
     public FilterMatch(ElementFilter filter, Expr expr) {
         this.filter = filter;
@@ -59,7 +62,6 @@ public class FilterMatch implements SparqlElementMatch {
     public void removeFromQuery(Query query) {
         Element result = ElementTransformer.transform(query.getQueryPattern(), new ElementTransformCopyBase() {
 
-
             @Override
             public Element transform(ElementFilter el, Expr expr2) {
                 if (filter.equals(el) && expr.equals(el.getExpr())) {
@@ -75,5 +77,19 @@ public class FilterMatch implements SparqlElementMatch {
     @Override
     public Element getSourceElement() {
         return filter;
+    }
+
+    public void setValue(Pair<String, LiteralLabel> value) {
+        this.value = value;
+    }
+
+    @Override
+    public boolean hasValue() {
+        return value != null;
+    }
+
+    @Override
+    public Pair<String, LiteralLabel> getValue() {
+        return value;
     }
 }

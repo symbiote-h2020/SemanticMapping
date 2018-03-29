@@ -13,6 +13,16 @@ import org.apache.jena.graph.Node;
  */
 public class ReferenceValue implements Value {
 
+    private String name;
+
+    private ReferenceValue() {
+        
+    }
+    
+    public ReferenceValue(String name) {
+        this.name = name;
+    }
+
     @Override
     public Node asNode() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -21,6 +31,14 @@ public class ReferenceValue implements Value {
     @Override
     public boolean validate() {
         return false;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
 }

@@ -35,13 +35,16 @@ import eu.h2020.symbiote.semantics.mapping.utils.Utils;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javafx.util.Pair;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.ext.com.google.common.base.Objects;
 import org.apache.jena.query.QueryException;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.Syntax;
+import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.shared.PrefixMapping;
+import org.apache.jena.sparql.expr.E_Datatype;
 import org.apache.jena.sparql.path.PathParser;
 import org.apache.jena.sparql.syntax.ElementAssign;
 import org.apache.jena.sparql.syntax.ElementBind;
@@ -361,7 +364,7 @@ public class JenaHelper {
         for (TriplePathMatch matchingTriple : matchingTriples) {
             List<SparqlElementMatch> matchesPerVar = new ArrayList<>();
             for (ValueCondition valueRestriction : valueRestrictions) {
-                Optional<FilterMatch> match = findFilter(query, (Var) matchingTriple.getPath().getObject(), valueRestriction);
+                Optional<FilterMatch> match = findFilter(query, (Var) matchingTriple.getPath().getObject(), valueRestriction, path);
                 if (match.isPresent()) {
                     matchesPerVar.add(match.get());
                 }
@@ -381,7 +384,7 @@ public class JenaHelper {
                 x -> x.getObject().isVariable());
         for (TriplePathMatch matchingTriple : matchingTriples) {
             for (ValueCondition valueRestriction : valueRestrictions) {
-                Optional<FilterMatch> match = findFilter(query, (Var) matchingTriple.getPath().getObject(), valueRestriction);
+                Optional<FilterMatch> match = findFilter(query, (Var) matchingTriple.getPath().getObject(), valueRestriction, path);
                 if (match.isPresent()) {
                     if (!result.containsKey(matchingTriple.getPath().getSubject())) {
                         result.put(matchingTriple.getPath().getSubject(), new ArrayList<>());
@@ -389,6 +392,25 @@ public class JenaHelper {
                     result.get(matchingTriple.getPath().getSubject()).add(matchingTriple);
                     result.get(matchingTriple.getPath().getSubject()).add(match.get());
                 }
+            }
+        }
+        return result;
+    }
+
+    public static Map<Node, List<SparqlElementMatch>> findPropertyTypeRestrictionInFiltersPerSubject(Query query, Path path, RDFDatatype datatype) {
+        Map<Node, List<SparqlElementMatch>> result = new HashMap<>();
+        List<TriplePathMatch> matchingTriples = JenaHelper.findTriples(query,
+                x -> x.getSubject().isVariable(),
+                x -> x.getPath().equals(path),
+                x -> x.getObject().isVariable());
+        for (TriplePathMatch matchingTriple : matchingTriples) {
+            Optional<FilterMatch> match = findFilter(query, (Var) matchingTriple.getPath().getObject(), datatype, path);
+            if (match.isPresent()) {
+                if (!result.containsKey(matchingTriple.getPath().getSubject())) {
+                    result.put(matchingTriple.getPath().getSubject(), new ArrayList<>());
+                }
+                result.get(matchingTriple.getPath().getSubject()).add(matchingTriple);
+                result.get(matchingTriple.getPath().getSubject()).add(match.get());
             }
         }
         return result;
@@ -403,18 +425,12 @@ public class JenaHelper {
                     x -> x.getObject().equals(valueRestriction.getValue().asNode()));
             if (!matchingTriples.isEmpty()) {
                 Utils.merge(result, matchingTriples);
-//                for (Map.Entry<Node, List<TriplePathMatch>> entry : matchingTriples.entrySet()) {
-//                    if (!result.containsKey(entry.getKey())) {
-//                        result.put(entry.getKey(), new ArrayList<>());
-//                    }
-//                    result.get(entry.getKey()).addAll(entry.getValue());
-//                }
             }
         }
         return result;
     }
 
-    private static Optional<FilterMatch> findFilter(Query query, Var var, ValueCondition valueRestriction) {
+    private static Optional<FilterMatch> findFilter(Query query, Var var, ValueCondition valueRestriction, Path path) {
         FilterMatch result = new FilterMatch(null, Expr.NONE);
         ElementWalker.walk(query.getQueryPattern(), new ElementVisitorBase() {
             @Override
@@ -440,8 +456,54 @@ public class JenaHelper {
                 if (varArg.equals(var)
                         && value.equals(valueRestriction.getValue().asNode())) {
                     result.setExpr(expr);
+                    if (value.isLiteral()) {
+                        String valueName = path.toString().substring(path.toString().lastIndexOf('#') + 1, path.toString().length() - 1);
+                        result.setValue(new Pair(valueName, value.getLiteral()));
+                    }
                     result.setFilter(el);
                 }
+            }
+        });
+        if (result.getExpr().equals(Expr.NONE)) {
+            return Optional.empty();
+        }
+        return Optional.of(result);
+    }
+
+    private static Optional<FilterMatch> findFilter(Query query, Var var, RDFDatatype datatype, Path path) {
+        FilterMatch result = new FilterMatch(null, Expr.NONE);
+        ElementWalker.walk(query.getQueryPattern(), new ElementVisitorBase() {
+            @Override
+            public void visit(ElementFilter el) {
+                if (!(el.getExpr() instanceof ExprFunction2)) {
+                    return;
+                }
+                ExprFunction2 expr = (ExprFunction2) el.getExpr();
+//                if (!expr.getOpName().equals(valueRestriction.getComparator().getSymbol())) {
+//                    return;
+//                }
+                Var varArg;
+                Node value;
+                if (expr.getArg1().isVariable() && expr.getArg2().isConstant()) {
+                    // case FILTER(?var = "value"^^type)
+                    varArg = expr.getArg1().asVar();
+                    value = expr.getArg2().getConstant().asNode();
+                    if (varArg.equals(var) && value.isLiteral() && value.getLiteralDatatype().equals(datatype)) {
+                        result.setExpr(expr);
+                        result.setFilter(el);
+                        String valueName = path.toString().substring(path.toString().lastIndexOf('#') + 1, path.toString().length() - 1);
+                        result.setValue(new Pair(valueName, value.getLiteral()));
+                    }
+                } else if (expr.getArg1() instanceof E_Datatype && expr.getArg2().isConstant()){
+                    // case FILTER(datatype(?var)=type)
+                    varArg = ((E_Datatype)expr.getArg1()).getArg().asVar();
+                    RDFDatatype filterType = TypeMapper.getInstance().getSafeTypeByName(expr.getArg2().getConstant().asNode().getURI());
+                    if (varArg.equals(var) && filterType.equals(datatype)) {
+                        result.setExpr(expr);
+                        result.setFilter(el);
+                    }
+                }
+
             }
         });
         if (result.getExpr().equals(Expr.NONE)) {

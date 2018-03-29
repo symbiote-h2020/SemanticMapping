@@ -11,6 +11,7 @@ import eu.h2020.symbiote.semantics.mapping.model.production.DataPropertyProducti
 import eu.h2020.symbiote.semantics.mapping.model.production.IndividualProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyTypeProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyValueProduction;
+import eu.h2020.symbiote.semantics.mapping.model.value.TransformationValue;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.IndividualMatch;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlElementMatch;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlMatch;
@@ -90,12 +91,24 @@ public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, Li
             remove(query, x.getMatchedElements());
             add(query, x.getMatchedNode(), RDF.type, production.getUri());
         });
+        production.getProperties().forEach(x -> x.accept(this, temp));
         return null;
     }
 
     @Override
     public Void visit(DataPropertyProduction production, List<SparqlMatch> temp) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        for (SparqlMatch match : temp) {
+            Node value = null;
+            if (production.getValue() instanceof TransformationValue) {
+                TransformationValue transform = ((TransformationValue)production.getValue());
+                value = transform.eval(match.getValues()).asNode();
+            } else {
+                value = production.getValue().asNode();
+            }
+            remove(query, match.getMatchedElements());
+            add(query, match.getMatchedNode(), production.getPath(), value);             
+        }
+        return null;
     }
 
     @Override

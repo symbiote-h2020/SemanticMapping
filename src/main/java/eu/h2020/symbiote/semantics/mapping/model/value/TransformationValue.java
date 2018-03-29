@@ -5,10 +5,17 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.value;
 
+import eu.h2020.symbiote.semantics.mapping.model.transformation.TransformationRegistry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javafx.util.Pair;
 import org.apache.jena.graph.Node;
+import org.apache.jena.graph.impl.LiteralLabel;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.ResourceFactory;
 
 /**
  *
@@ -16,30 +23,42 @@ import org.apache.jena.graph.Node;
  */
 public class TransformationValue implements Value {
 
-    private String transformationFunction;
+    private String name;
     private List<Value> parameters;
 
-    public TransformationValue(String transformationFunction) {
-        this.transformationFunction = transformationFunction;
+    protected TransformationValue() {
         this.parameters = new ArrayList<>();
     }
 
-    public TransformationValue(String transformationFunction, Value... parameters) {
-        this.transformationFunction = transformationFunction;
+    public TransformationValue(String name) {
+        this.name = name;
+        this.parameters = new ArrayList<>();
+    }
+
+    public TransformationValue(String name, Value... parameters) {
+        this.name = name;
         this.parameters = Arrays.asList(parameters);
     }
 
     @Override
     public Node asNode() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("use eval(List<Pair<String, LiteralLabel>> input) instead"); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public String getTransformationFunction() {
-        return transformationFunction;
+    protected Object[] filterInputParameters(List<Pair<String, LiteralLabel>> inputParameters) {
+        Set<String> parameterNames = parameters.stream()
+                .filter(x -> x instanceof ReferenceValue)
+                .map(x -> (ReferenceValue) x)
+                .map(x -> x.getName())
+                .collect(Collectors.toSet());
+        return inputParameters.stream()
+                .filter(x -> parameterNames.contains(x.getKey()))
+                .map(x -> x.getValue().getValue())
+                .toArray();
     }
 
-    public void setTransformationFunction(String transformationFunction) {
-        this.transformationFunction = transformationFunction;
+    public Literal eval(List<Pair<String, LiteralLabel>> inputParameters) {
+        return ResourceFactory.createTypedLiteral(TransformationRegistry.getInstance().evaluateTransformation(getName(), filterInputParameters(inputParameters)));
     }
 
     public List<Value> getParameters() {
@@ -56,8 +75,16 @@ public class TransformationValue implements Value {
 
     @Override
     public boolean validate() {
-        return transformationFunction != null
+        return getName() != null
                 && parameters != null
                 && parameters.stream().allMatch(x -> x.validate());
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

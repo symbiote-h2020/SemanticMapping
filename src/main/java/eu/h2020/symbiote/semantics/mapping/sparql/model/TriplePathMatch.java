@@ -6,7 +6,10 @@
 package eu.h2020.symbiote.semantics.mapping.sparql.model;
 
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.JenaHelper;
+import javafx.util.Pair;
+import org.apache.jena.graph.impl.LiteralLabel;
 import org.apache.jena.query.Query;
+import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementPathBlock;
@@ -66,5 +69,18 @@ public class TriplePathMatch implements SparqlElementMatch {
     @Override
     public Element getSourceElement() {
         return pathBlock;
+    }
+
+    @Override
+    public boolean hasValue() {
+        return path != null && path.getObject().isLiteral();
+    }
+
+    @Override
+    public Pair<String, LiteralLabel> getValue() {
+        if (!hasValue()) {
+            return null;
+        }
+        return new Pair(path.getPredicate().getLocalName(), path.getObject().getLiteral());
     }
 }

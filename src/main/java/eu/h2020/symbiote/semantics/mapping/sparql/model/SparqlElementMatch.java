@@ -5,7 +5,10 @@
  */
 package eu.h2020.symbiote.semantics.mapping.sparql.model;
 
+import javafx.util.Pair;
+import org.apache.jena.graph.impl.LiteralLabel;
 import org.apache.jena.query.Query;
+import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.sparql.syntax.Element;
 
 /**
@@ -15,4 +18,12 @@ import org.apache.jena.sparql.syntax.Element;
 public interface SparqlElementMatch {
     public Element getSourceElement();
     public void removeFromQuery(Query query);
+    
+    public default boolean hasValue() {
+        return false;
+    }
+    
+    public default Pair<String, LiteralLabel> getValue() {
+        return null;
+    }
 }

@@ -7,7 +7,10 @@ package eu.h2020.symbiote.semantics.mapping.sparql.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import javafx.util.Pair;
 import org.apache.jena.graph.Node;
+import org.apache.jena.graph.impl.LiteralLabel;
 
 /**
  *
@@ -42,5 +45,12 @@ public class SparqlMatch {
 
     public void setMatchedElements(List<SparqlElementMatch> matchedElements) {
         this.matchedElements = matchedElements;
+    }
+    
+    public List<Pair<String, LiteralLabel>> getValues() {
+        return matchedElements.stream()
+                .map(x -> x.getValue())
+                .filter(x -> x != null)
+                .collect(Collectors.toList());
     }
 }
