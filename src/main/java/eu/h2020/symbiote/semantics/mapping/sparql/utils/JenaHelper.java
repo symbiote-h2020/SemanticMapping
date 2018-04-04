@@ -5,6 +5,8 @@
  */
 package eu.h2020.symbiote.semantics.mapping.sparql.utils;
 
+import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationType;
+import eu.h2020.symbiote.semantics.mapping.model.condition.Comparator;
 import eu.h2020.symbiote.semantics.mapping.model.condition.ValueCondition;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.FilterMatch;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.TriplePathMatch;
@@ -31,7 +33,13 @@ import org.apache.jena.sparql.syntax.ElementVisitorBase;
 import org.apache.jena.sparql.syntax.ElementWalker;
 import org.apache.jena.vocabulary.RDF;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlElementMatch;
+import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlHavingExpressionMatch;
+import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlMatch;
 import eu.h2020.symbiote.semantics.mapping.utils.Utils;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,9 +50,17 @@ import org.apache.jena.ext.com.google.common.base.Objects;
 import org.apache.jena.query.QueryException;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.Syntax;
-import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.shared.PrefixMapping;
+import org.apache.jena.sparql.algebra.OpVars;
+import org.apache.jena.sparql.algebra.walker.Walker;
 import org.apache.jena.sparql.expr.E_Datatype;
+import org.apache.jena.sparql.expr.ExprAggregator;
+import org.apache.jena.sparql.expr.ExprList;
+import org.apache.jena.sparql.expr.ExprVar;
+import org.apache.jena.sparql.expr.ExprVars;
+import org.apache.jena.sparql.expr.ExprVisitorBase;
+import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.expr.aggregate.Aggregator;
 import org.apache.jena.sparql.path.PathParser;
 import org.apache.jena.sparql.syntax.ElementAssign;
 import org.apache.jena.sparql.syntax.ElementBind;
@@ -439,18 +455,20 @@ public class JenaHelper {
                     return;
                 }
                 ExprFunction2 expr = (ExprFunction2) el.getExpr();
-                if (!expr.getOpName().equals(valueRestriction.getComparator().getSymbol())) {
-                    return;
-                }
                 Var varArg;
                 Node value;
+                Comparator comparator = valueRestriction.getComparator();
                 if (expr.getArg1().isVariable() && expr.getArg2().isConstant()) {
                     varArg = expr.getArg1().asVar();
                     value = expr.getArg2().getConstant().asNode();
                 } else if (expr.getArg2().isVariable() && expr.getArg1().isConstant()) {
+                    comparator = Comparator.invert(comparator);
                     varArg = expr.getArg2().asVar();
                     value = expr.getArg1().getConstant().asNode();
                 } else {
+                    return;
+                }
+                if (!expr.getOpName().equals(comparator.getSymbol())) {
                     return;
                 }
                 if (varArg.equals(var)
@@ -468,6 +486,77 @@ public class JenaHelper {
             return Optional.empty();
         }
         return Optional.of(result);
+    }
+
+    public static List<SparqlMatch> findHaving(Query query, Map<AggregationType, List<ValueCondition>> restrictions) {
+        return Utils.combineMatchesKeysMatch(restrictions.entrySet().stream()
+                .map(x -> findHaving(query, x.getKey(), x.getValue())));
+    }
+
+    public static List<SparqlMatch> findHaving(Query query, AggregationType aggregationType, List<ValueCondition> valueConditions) {
+        List<SparqlMatch> result = new ArrayList<>();
+        final Set<Var> vars = new HashSet<>();
+        Walker.walk(ExprList.create(query.getHavingExprs()), new ExprVisitorBase() {
+            @Override
+            public void visit(ExprAggregator eAgg) {
+                vars.addAll(ExprVars.getNonOpVarsMentioned(eAgg.getAggregator().getExprList()));
+            }
+        });
+        for (Var var : vars) {
+            SparqlMatch match = new SparqlMatch(var);
+            Boolean[] matched = new Boolean[valueConditions.size()];
+            Arrays.fill(matched, false);
+            for (Expr expr : query.getHavingExprs()) {
+                Walker.walk(expr, new ExprVisitorBase() {
+                    @Override
+                    public void visit(ExprFunction2 expr2) {
+                        Aggregator aggregator;
+                        Node value;
+                        boolean invertOperator = false;
+                        if (expr2.getArg1() instanceof ExprAggregator && expr2.getArg2() instanceof NodeValue) {
+                            aggregator = ((ExprAggregator) expr2.getArg1()).getAggregator();
+                            value = ((NodeValue) expr2.getArg2()).asNode();
+                        } else if (expr2.getArg2() instanceof ExprAggregator && expr2.getArg1() instanceof NodeValue) {
+                            invertOperator = true;
+                            aggregator = ((ExprAggregator) expr2.getArg2()).getAggregator();
+                            value = ((NodeValue) expr2.getArg1()).asNode();
+                        } else {
+                            return;
+                        }
+                        Node n = aggregator.getValueEmpty();
+                        if (aggregator.getExprList().size() != 1) {
+                            return;
+                        }
+                        Expr exprVar = aggregator.getExprList().get(0);
+                        if (!exprVar.isVariable()) {
+                            return;
+                        }
+                        if (!exprVar.asVar().equals(var)) {
+                            return;
+                        }
+                        if (!aggregationType.toString().equals(aggregator.getName())) {
+                            return;
+                        }
+                        // check operator & value
+                        for (int i = 0; i < valueConditions.size(); i++) {
+                            ValueCondition valueCondition = valueConditions.get(i);
+                            Comparator comparator = invertOperator
+                                    ? Comparator.invert(valueCondition.getComparator())
+                                    : valueCondition.getComparator();
+                            if (expr2.getOpName().equals(comparator.getSymbol())
+                                    && value.equals(valueCondition.getValue().asNode())) {
+                                match.getMatchedElements().add(new SparqlHavingExpressionMatch(expr));
+                                matched[i] = true;
+                            }
+                        }
+                    }
+                });
+            }
+            if (Arrays.stream(matched).allMatch(x -> x)) {
+                result.add(match);
+            }
+        }
+        return result;
     }
 
     private static Optional<FilterMatch> findFilter(Query query, Var var, RDFDatatype datatype, Path path) {
@@ -494,9 +583,9 @@ public class JenaHelper {
                         String valueName = path.toString().substring(path.toString().lastIndexOf('#') + 1, path.toString().length() - 1);
                         result.setValue(new Pair(valueName, value.getLiteral()));
                     }
-                } else if (expr.getArg1() instanceof E_Datatype && expr.getArg2().isConstant()){
+                } else if (expr.getArg1() instanceof E_Datatype && expr.getArg2().isConstant()) {
                     // case FILTER(datatype(?var)=type)
-                    varArg = ((E_Datatype)expr.getArg1()).getArg().asVar();
+                    varArg = ((E_Datatype) expr.getArg1()).getArg().asVar();
                     RDFDatatype filterType = TypeMapper.getInstance().getSafeTypeByName(expr.getArg2().getConstant().asNode().getURI());
                     if (varArg.equals(var) && filterType.equals(datatype)) {
                         result.setExpr(expr);
@@ -513,6 +602,9 @@ public class JenaHelper {
     }
 
     private static Predicate<TriplePath> isVarOfType(Node type) {
+        if (type.equals(Node.ANY)) {
+            return x -> true;
+        }
         return x -> x.isTriple()
                 && x.getSubject().isVariable()
                 && x.getPredicate().equals(RDF.type.asNode())

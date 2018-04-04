@@ -1,0 +1,60 @@
+{
+  "name" : "Transformation of int to string with globally defined Jva tranformation",
+  "commonPrefixes" : {
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "test" : "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "dc" : "http://purl.org/dc/elements/1.1/"
+  },
+  "baseQuery" : "SELECT ?x WHERE 
+  { 
+	?x a test:A .
+	?x test:hasValue INT_VALUE .
+  }",
+  "alternativeQueries" : [ "SELECT ?x WHERE 
+  { 
+	?x a test:A .
+	?x test:hasValue ?y.
+	FILTER(?y=INT_VALUE) .
+  }"],
+  "expectedResult" : "SELECT ?x WHERE 
+  { 
+	?x a test:B.
+	?x test:hasValue2 STRING_VALUE .
+  }",
+"mapping" : {
+    "mappingRules": ["java.util.ArrayList", [{
+                "condition": ["eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition", {
+                        "propertyCondition": ["eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyTypeCondition", {
+                                "path": "<http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#hasValue>",
+                                "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                            }],
+                        "uri": {
+                            "type": "URI",
+                            "id": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#A"
+                        }
+                    }],
+                "production": ["eu.h2020.symbiote.semantics.mapping.model.production.ClassProduction", {
+                        "uri": {
+                            "type": "URI",
+                            "id": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#B"
+                        },
+                        "properties": ["java.util.ArrayList", [["eu.h2020.symbiote.semantics.mapping.model.production.DataPropertyProduction", {
+                                        "path": "<http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#hasValue2>",
+                                        "value": ["eu.h2020.symbiote.semantics.mapping.model.value.TransformationValue", {
+                                                "name": "toString",
+                                                "parameters": ["java.util.ArrayList", [["eu.h2020.symbiote.semantics.mapping.model.value.ReferenceValue", {
+                                                                "name": "hasValue"
+                                                            }]]]
+                                            }]
+                                    }]]]
+                    }]
+            }]]
+},
+  "replacements" : [
+    { "STRING_VALUE" : "\"42\"^^xsd:string",
+	  "INT_VALUE" : "\"42\"^^xsd:integer"}
+  ]
+}

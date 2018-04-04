@@ -20,7 +20,7 @@ import org.apache.jena.graph.Node;
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
 public class NodeSerializer extends AbstractTypeSerializer<Node> {
-    
+
     public NodeSerializer() {
         this(null);
     }
@@ -31,12 +31,15 @@ public class NodeSerializer extends AbstractTypeSerializer<Node> {
 
     @Override
     public void serialize(Node value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        gen.writeStartObject();        
-        gen.writeStringField(TAG_NODE_TYPE, getNodeType(value).toString());
-        gen.writeStringField(TAG_NODE_ID, value.getURI());
+        gen.writeStartObject();
+        NodeType nodeType = getNodeType(value);
+        gen.writeStringField(TAG_NODE_TYPE, nodeType.toString());
+        if (nodeType != NodeType.ANY) {
+            gen.writeStringField(TAG_NODE_ID, value.getURI());
+        }
         gen.writeEndObject();
     }
-    
+
     private NodeType getNodeType(Node node) {
         if (node.isBlank()) {
             return NodeType.BLANK;
@@ -49,6 +52,9 @@ public class NodeSerializer extends AbstractTypeSerializer<Node> {
         }
         if (node.isURI()) {
             return NodeType.URI;
+        }
+        if (node.equals(Node.ANY)) {
+            return NodeType.ANY;
         }
         throw new IllegalStateException("unkown node state");
     }

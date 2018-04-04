@@ -1,0 +1,78 @@
+{
+  "name" : "Transformation concatting two values",
+  "commonPrefixes" : {
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "test" : "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "dc" : "http://purl.org/dc/elements/1.1/"
+  },
+  "baseQuery" : "SELECT ?x WHERE 
+  { 
+	?x a test:B.
+	?x test:name \"Michael Jacoby\"^^xsd:string .	
+  }",
+  "alternativeQueries" : [ ],
+  "expectedResult" : "SELECT ?x WHERE 
+  { 
+	?x a test:A ;
+	 test:firstName \"Michael\"^^xsd:string ;
+	 test:lastName \"Jacoby\"^^xsd:string .
+  }",
+"mapping" : {
+    "mappingRules": ["java.util.ArrayList", [{
+                "condition": ["eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition", {
+                        "propertyCondition": ["eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyTypeCondition", {
+                                "path": "<http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#name>",
+                                "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                            }],
+                        "uri": {
+                            "type": "URI",
+                            "id": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#B"
+                        }
+                    }],
+                "production": ["eu.h2020.symbiote.semantics.mapping.model.production.ClassProduction", {
+                        "uri": {
+                            "type": "URI",
+                            "id": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#A"
+                        },
+                        "properties": ["java.util.ArrayList", [["eu.h2020.symbiote.semantics.mapping.model.production.DataPropertyProduction", {
+                                        "path": "<http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#firstName>",
+                                        "value": ["eu.h2020.symbiote.semantics.mapping.model.value.InlineTransformationValue", {
+                                                "name": "ba40e8f3-3b07-4ee9-b5f8-4b24cc9ed5be",
+                                                "parameters": ["java.util.ArrayList", [["eu.h2020.symbiote.semantics.mapping.model.value.ReferenceValue", {
+                                                                "name": "name"
+                                                            }], ["eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue", {
+                                                                "value": " ",
+                                                                "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                                                            }], ["eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue", {
+                                                                "value": 0,
+                                                                "datatype": "http://www.w3.org/2001/XMLSchema#int"
+                                                            }]]],
+                                                "code": "parameters[0].split(parameters[1])[parameters[2]]"
+                                            }]
+                                    }], ["eu.h2020.symbiote.semantics.mapping.model.production.DataPropertyProduction", {
+                                        "path": "<http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#lastName>",
+                                        "value": ["eu.h2020.symbiote.semantics.mapping.model.value.InlineTransformationValue", {
+                                                "name": "96701ed6-5007-453e-84f0-b0a331cb4121",
+                                                "parameters": ["java.util.ArrayList", [["eu.h2020.symbiote.semantics.mapping.model.value.ReferenceValue", {
+                                                                "name": "name"
+                                                            }], ["eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue", {
+                                                                "value": " ",
+                                                                "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                                                            }], ["eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue", {
+                                                                "value": 1,
+                                                                "datatype": "http://www.w3.org/2001/XMLSchema#int"
+                                                            }]]],
+                                                "code": "parameters[0].split(parameters[1])[parameters[2]]"
+                                            }]
+                                    }]]]
+                    }]
+            }]]
+},
+  "replacements" : [
+    { "FIRST_NAME" : "\"Michael\"^^xsd:string",
+	  "LAST_NAME" : "\"Jacoby\"^^xsd:integer"}
+  ]
+}

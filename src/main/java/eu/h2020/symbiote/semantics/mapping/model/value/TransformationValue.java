@@ -11,7 +11,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javafx.util.Pair;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.impl.LiteralLabel;
 import org.apache.jena.rdf.model.Literal;
@@ -43,6 +45,14 @@ public class TransformationValue implements Value {
     @Override
     public Node asNode() {
         throw new UnsupportedOperationException("use eval(List<Pair<String, LiteralLabel>> input) instead"); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    protected Object[] appendStaticParameters(Object[] data) {               
+        Object[] contantParams = parameters.stream()
+                .filter(x -> x instanceof ConstantValue)
+                .map(x -> ((ConstantValue) x).getValue())
+                .toArray();
+        return ArrayUtils.addAll(data, contantParams);
     }
 
     protected Object[] filterInputParameters(List<Pair<String, LiteralLabel>> inputParameters) {

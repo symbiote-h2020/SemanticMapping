@@ -16,6 +16,8 @@
 #
 #################################################################
 
+:hasChild rdf:type owl:ObjectProperty ;
+    rdfs:range :Person .
 
 #################################################################
 #
@@ -25,6 +27,13 @@
 
 :hasValue rdf:type owl:DatatypeProperty .
 :hasValue2 rdf:type owl:DatatypeProperty .
+:firstName rdf:type owl:DatatypeProperty .
+:lastName rdf:type owl:DatatypeProperty .
+:name rdf:type owl:DatatypeProperty .
+
+:age rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:integer .
 
 #################################################################
 #
@@ -32,6 +41,8 @@
 #
 #################################################################
 
+:Person rdf:type owl:Class .
+:PersonWithTwoAdultChildren rdf:type owl:Class .
 
 :A rdf:type owl:Class .
     

@@ -34,9 +34,12 @@ public class NodeDeserializer extends AbstractTypeDeserializer<Node> {
     @Override
     public Node deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         JsonNode node = p.getCodec().readTree(p);          
-        String type = node.get(TAG_NODE_TYPE).textValue();
+        NodeType nodeType = NodeType.valueOf(node.get(TAG_NODE_TYPE).textValue());
+        if (nodeType == NodeType.ANY) {
+            return Node.ANY;
+        }
         String id = node.get(TAG_NODE_ID).textValue();
-        return createNode(NodeType.valueOf(type), id);
+        return createNode(nodeType, id);
         
     }
     

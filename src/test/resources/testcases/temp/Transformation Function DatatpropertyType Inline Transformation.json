@@ -1,5 +1,5 @@
 {
-  "name" : "Transformation of  int to string",
+  "name" : "Transformation of int to string with locally defined/inline JavaScript tranformation",
   "commonPrefixes" : {
     "xsd" : "http://www.w3.org/2001/XMLSchema#",
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
@@ -43,8 +43,8 @@
                         },
                         "properties": ["java.util.ArrayList", [["eu.h2020.symbiote.semantics.mapping.model.production.DataPropertyProduction", {
                                         "path": "<http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#hasValue2>",
-                                        "value": ["eu.h2020.symbiote.semantics.mapping.model.value.TransformationValue", {
-                                                "name": "toString",
+                                        "value": ["eu.h2020.symbiote.semantics.mapping.model.value.InlineTransformationValue", {
+                                                "code": "parameters[0].toString();",
                                                 "parameters": ["java.util.ArrayList", [["eu.h2020.symbiote.semantics.mapping.model.value.ReferenceValue", {
                                                                 "name": "hasValue"
                                                             }]]]

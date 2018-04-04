@@ -6,18 +6,13 @@ import eu.h2020.symbiote.semantics.mapping.model.MappingRule;
 import eu.h2020.symbiote.semantics.mapping.model.UnsupportedMappingException;
 import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationType;
 import eu.h2020.symbiote.semantics.mapping.model.condition.Comparator;
-import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyTypeCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyValueCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.ObjectPropertyTypeCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyAggregationCondition;
-import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyAndCondition;
-import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyPathCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.ValueCondition;
 import eu.h2020.symbiote.semantics.mapping.model.production.ClassProduction;
-import eu.h2020.symbiote.semantics.mapping.model.production.DataPropertyProduction;
 import eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue;
-import eu.h2020.symbiote.semantics.mapping.model.value.ReferenceValue;
-import eu.h2020.symbiote.semantics.mapping.model.value.TransformationValue;
 import eu.h2020.symbiote.semantics.mapping.test.ontology.TEST_MODEL;
 import eu.h2020.symbiote.semantics.mapping.test.sparql.model.TestCase;
 import eu.h2020.symbiote.semantics.mapping.test.sparql.model.TestSuite;
@@ -25,11 +20,12 @@ import eu.h2020.symbiote.semantics.mapping.sparql.utils.QueryCompare;
 import eu.h2020.symbiote.semantics.mapping.test.sparql.util.Utils;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import org.apache.jena.query.Query;
 import org.junit.Test;
 import java.util.List;
-import org.apache.jena.datatypes.RDFDatatype;
-import org.apache.jena.datatypes.xsd.XSDDatatype;
+import java.util.Map;
+import org.apache.jena.graph.Node;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -41,7 +37,7 @@ import org.apache.jena.datatypes.xsd.XSDDatatype;
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
 public class SparqlMapperQueryRewritingTest {
-    
+
     private void generateMapping() throws IOException {
         // COUNT aggregation
 //        Mapping mapping = new Mapping(
@@ -70,25 +66,64 @@ public class SparqlMapperQueryRewritingTest {
 //                                                new ValueCondition(Comparator.Equal, new ConstantValue(42))))),
 //                        new ClassProduction(TEST_MODEL.B.asNode())));
 ///////////////////        
-        String fctToString = "return parameters[0].toString();";
+        String fctToString = "return parameters.join(\" \");";
+        String fctConcat = "Array.prototype.join.call(parameters, ' ');";
+        // 0= value, 1=split char, 2=number
+        String fctSplit = "parameters[0].split(parameters[1])[parameters[2]]";
+//        Mapping mapping = new Mapping(
+//                new MappingRule(
+//                        new UriClassCondition(TEST_MODEL.A.asNode(),
+//                                new PropertyAndCondition(
+//                                        new DataPropertyTypeCondition(TEST_MODEL.firstName.toString(), XSDDatatype.XSDstring),
+//                                        new DataPropertyTypeCondition(TEST_MODEL.lastName.toString(), XSDDatatype.XSDstring))),
+//                        new ClassProduction(TEST_MODEL.B.asNode(),
+//                                new DataPropertyProduction(TEST_MODEL.name.toString(),
+//                                        new InlineTransformationValue(fctConcat,
+//                                                new ReferenceValue(TEST_MODEL.firstName.getLocalName()),
+//                                                new ReferenceValue(TEST_MODEL.lastName.getLocalName())))))
+//        );
+        // function Split
+//        Mapping mapping = new Mapping(
+//                new MappingRule(
+//                        new UriClassCondition(TEST_MODEL.B.asNode(),
+//                                new DataPropertyTypeCondition(TEST_MODEL.name.toString(), XSDDatatype.XSDstring)),
+//                        new ClassProduction(TEST_MODEL.A.asNode(),
+//                                new DataPropertyProduction(TEST_MODEL.firstName.toString(),
+//                                        new InlineTransformationValue(fctSplit,
+//                                                new ReferenceValue(TEST_MODEL.name.getLocalName()),
+//                                                new ConstantValue(" "),
+//                                                new ConstantValue(0))),
+//                                new DataPropertyProduction(TEST_MODEL.lastName.toString(),
+//                                        new InlineTransformationValue(fctSplit,
+//                                                new ReferenceValue(TEST_MODEL.name.getLocalName()),
+//                                                new ConstantValue(" "),
+//                                                new ConstantValue(1)))))
+//        );
+        PropertyAggregationCondition propertyAggregationCondition = new PropertyAggregationCondition(
+                AggregationType.COUNT,
+                new ValueCondition(Comparator.GreaterEqual, new ConstantValue(2)),
+                new DataPropertyValueCondition(TEST_MODEL.age.toString(),
+                        new ValueCondition(Comparator.GreaterEqual, new ConstantValue(18))));
+        propertyAggregationCondition.addCondition(AggregationType.COUNT, new ValueCondition(Comparator.LessThan, new ConstantValue(5)));
         Mapping mapping = new Mapping(
                 new MappingRule(
-                        new UriClassCondition(TEST_MODEL.A.asNode(), 
-                                new DataPropertyTypeCondition(TEST_MODEL.hasValue.toString(), XSDDatatype.XSDstring)),
-                        new ClassProduction(TEST_MODEL.B.asNode(), 
-                                new DataPropertyProduction(TEST_MODEL.hasValue2.toString(), 
-                                        new TransformationValue(fctToString, 
-                                                new ReferenceValue(TEST_MODEL.hasValue.getLocalName()))))));
+                        new UriClassCondition(TEST_MODEL.Person.asNode(),
+                                new ObjectPropertyTypeCondition(TEST_MODEL.hasChild.toString(),
+                                        new UriClassCondition(
+                                                Node.ANY,
+                                                propertyAggregationCondition))),
+                        new ClassProduction(TEST_MODEL.PersonWithTwoAdultChildren.asNode()))
+        );
         mapping.save("xyz.json");
     }
-    
+
     @Test
     public void runTestCases() throws UnsupportedMappingException, IOException, URISyntaxException {
 //        generateMapping();
         SparqlMapper mapper = new SparqlMapper();
         List<TestSuite> testSuites = Utils.getTestCases();
         int failCountSuites = 0;
-        
+
         for (TestSuite testSuite : testSuites) {
             System.out.println("starting TestSuite: " + testSuite.getName());
             int failCount = 0;
@@ -112,7 +147,7 @@ public class SparqlMapperQueryRewritingTest {
         System.out.println(failCountSuites + "/" + testSuites.size() + " TestSuites failed");
         assert (failCountSuites == 0);
     }
-    
+
     private boolean evaluateMapping(Mapping mapping, Query input, Query expected) {
         boolean result = false;
         try {
@@ -131,5 +166,5 @@ public class SparqlMapperQueryRewritingTest {
         }
         return result;
     }
-    
+
 }

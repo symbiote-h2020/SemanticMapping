@@ -13,5 +13,6 @@ public enum NodeType {
     LITERAL,
     BLANK,
     URI,
-    VAR
+    VAR,
+    ANY
 }

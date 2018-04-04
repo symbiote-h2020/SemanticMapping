@@ -27,6 +27,21 @@ public enum Comparator {
         return symbol;
     }
     
+    public static Comparator invert(Comparator comparator) {
+        switch(comparator) {
+            case GreaterThan:
+                return LessThan;
+            case GreaterEqual:
+                return LessEqual;
+            case LessThan:
+                return GreaterThan;
+            case LessEqual:
+                return GreaterEqual;
+            default:
+                return comparator;
+        }
+    }
+    
     public static Comparator fromSymbol(String symbol) {
         for (Comparator comparator : Comparator.values()) {
             if (comparator.getSymbol().equals(symbol)) {

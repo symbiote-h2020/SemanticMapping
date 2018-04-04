@@ -47,7 +47,7 @@ public class InlineTransformationValue extends TransformationValue {
     @Override
     public Literal eval(List<Pair<String, LiteralLabel>> inputParameters) {
         return ResourceFactory.createTypedLiteral(
-                new JavaScriptTransformation(code).evaluate(filterInputParameters(inputParameters)));
+                new JavaScriptTransformation(code).evaluate(appendStaticParameters(filterInputParameters(inputParameters))));
     }
 
 }

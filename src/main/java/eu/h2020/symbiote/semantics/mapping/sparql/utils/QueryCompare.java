@@ -16,8 +16,15 @@ import javafx.util.Pair;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.Query;
+import org.apache.jena.sparql.algebra.walker.Walker;
 import org.apache.jena.sparql.core.ComparisonException;
+import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.core.VarExprList;
+import org.apache.jena.sparql.engine.binding.BindingHashMap;
+import org.apache.jena.sparql.graph.NodeTransform;
+import org.apache.jena.sparql.graph.NodeTransformExpr;
 import org.apache.jena.sparql.syntax.PatternVars;
+import org.apache.jena.sparql.syntax.syntaxtransform.NodeTransformSubst;
 import org.apache.jena.sparql.syntax.syntaxtransform.QueryTransformOps;
 import org.apache.jena.sparql.util.Iso;
 import org.apache.jena.sparql.util.NodeIsomorphismMap;
@@ -61,6 +68,10 @@ public class QueryCompare extends org.apache.jena.sparql.core.QueryCompare {
         query2.setResultVars();
         Pair<Query, List<Node>> query1Renamed = convertVarsToBlankNodes(query1);
         Pair<Query, List<Node>> query2Renamed = convertVarsToBlankNodes(query2);
+        if (query1Renamed.getValue().size() != query2Renamed.getValue().size()) {
+            // not same number of vars
+            return false;
+        }
         List<Map<Node, Node>> permutationMaps = getPermutationMaps(query1Renamed, query2Renamed);
         if (permutationMaps.isEmpty()) {
             return equal(query1, query2, new HashMap<>());
@@ -77,6 +88,18 @@ public class QueryCompare extends org.apache.jena.sparql.core.QueryCompare {
 
     private QueryCompare(Query query2, Map<Node, Node> map) {
         this(query2, map, null);
+    }
+
+    @Override
+    public void visitGroupBy(Query query1) {
+        VarExprList groupByRenamed = new VarExprList();
+        query1.getGroupBy().forEachExpr((v, e) -> {
+            groupByRenamed.add(v, Walker.transform(e, new NodeTransformExpr((Node node)
+                    -> map.containsKey(node)
+                    ? map.get(node)
+                    : node)));
+        });
+        check("GROUP BY", groupByRenamed, query2.getGroupBy());
     }
 
     private QueryCompare(Query query2, Map<Node, Node> map, NodeIsomorphismMap isoMap) {

@@ -1,4 +1,29 @@
 {
+  "name" : "Transformation concatting two values",
+  "commonPrefixes" : {
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "test" : "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "dc" : "http://purl.org/dc/elements/1.1/"
+  },
+  "baseQuery" : "SELECT ?parent WHERE 
+  { 
+	?parent a test:Person.
+	?parent test:hasChild ?child .	
+	?child test:age ?age .
+	FILTER(?age >= 18)
+  }
+  GROUP BY ?parent
+  HAVING (COUNT(?child) >= 2)",
+  "alternativeQueries" : [ ],
+  "expectedResult" : "SELECT ?parent WHERE 
+  { 
+	?parent a test:PersonWithTwoAdultChildren .
+  }
+  GROUP BY ?parent",
+"mapping" : {
     "mappingRules": ["java.util.ArrayList", [{
                 "condition": ["eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition", {
                         "propertyCondition": ["eu.h2020.symbiote.semantics.mapping.model.condition.ObjectPropertyTypeCondition", {
@@ -11,7 +36,7 @@
                                                                             "comparator": "GreaterEqual",
                                                                             "value": ["eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue", {
                                                                                     "value": 18,
-                                                                                    "datatype": "http://www.w3.org/2001/XMLSchema#int"
+                                                                                    "datatype": "http://www.w3.org/2001/XMLSchema#integer"
                                                                                 }]
                                                                         }]]
                                                             }]]],
@@ -20,13 +45,7 @@
                                                                     "comparator": "GreaterEqual",
                                                                     "value": ["eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue", {
                                                                             "value": 2,
-                                                                            "datatype": "http://www.w3.org/2001/XMLSchema#int"
-                                                                        }]
-                                                                }, {
-                                                                    "comparator": "LessThan",
-                                                                    "value": ["eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue", {
-                                                                            "value": 5,
-                                                                            "datatype": "http://www.w3.org/2001/XMLSchema#int"
+                                                                            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
                                                                         }]
                                                                 }]]
                                                     }]
@@ -49,4 +68,9 @@
                         "properties": ["java.util.ArrayList", []]
                     }]
             }]]
+},
+  "replacements" : [
+    { "FIRST_NAME" : "\"Michael\"^^xsd:string",
+	  "LAST_NAME" : "\"Jacoby\"^^xsd:integer"}
+  ]
 }
