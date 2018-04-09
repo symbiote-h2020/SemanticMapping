@@ -1,4 +1,25 @@
 {
+  "name" : "Multi Rule",
+  "commonPrefixes" : {
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "test" : "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "dc" : "http://purl.org/dc/elements/1.1/"
+  },
+  "baseQuery" : "SELECT ?x WHERE 
+  { 
+	?x a test:A ;
+		test:hasValue STRING_VALUE .
+  }",
+  "alternativeQueries" : [ ],
+  "expectedResult" : "SELECT ?x WHERE 
+  { 
+	?x a test:B;
+	  test:hasValue2 REVERSE_STRING_VALUE.	
+  }",
+"mapping" : {
     "mappingRules": ["java.util.ArrayList", [{
                 "condition": ["eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition", {
                         "propertyCondition": null,
@@ -29,4 +50,10 @@
                             }]
                     }]
             }]]
+},
+  "replacements" : [
+    { "REVERSE_STRING_VALUE" : "\"tset\"",
+	"STRING_VALUE" : "\"test\"",
+	  "INT_VALUE" : "\"42\"^^xsd:integer"}
+  ]
 }

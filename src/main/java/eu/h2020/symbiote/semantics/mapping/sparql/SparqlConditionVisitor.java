@@ -6,10 +6,8 @@
 package eu.h2020.symbiote.semantics.mapping.sparql;
 
 import eu.h2020.symbiote.semantics.mapping.model.condition.AbstractConditionVisitor;
-import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationType;
 import eu.h2020.symbiote.semantics.mapping.model.condition.ClassAndCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.ClassOrCondition;
-import eu.h2020.symbiote.semantics.mapping.model.condition.Comparator;
 import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyTypeCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyValueCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.IndividualCondition;
@@ -20,7 +18,6 @@ import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyAndCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyOrCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyPathCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition;
-import eu.h2020.symbiote.semantics.mapping.model.condition.ValueCondition;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.IndividualMatch;
 import java.util.List;
 import java.util.Map;
@@ -32,16 +29,9 @@ import eu.h2020.symbiote.semantics.mapping.sparql.model.TriplePathMatch;
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.JenaHelper;
 import eu.h2020.symbiote.semantics.mapping.utils.Utils;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.apache.jena.sparql.expr.Expr;
-import org.apache.jena.sparql.expr.ExprAggregator;
-import org.apache.jena.sparql.expr.ExprFunction2;
-import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.expr.aggregate.Aggregator;
 
 /**
  *
@@ -192,17 +182,34 @@ public class SparqlConditionVisitor extends AbstractConditionVisitor<List<Sparql
 
     @Override
     public List<SparqlMatch> visit(PropertyAggregationCondition condition, Query query) {
-//// TODO check logic - was just copied & pasted
         List<List<SparqlMatch>> results = new ArrayList<>();
         condition.getElements().forEach(x -> results.add(x.accept(this, query)));
-        // WRONG - need to check ValueRestrictions --> Interface ConditionVisitor needs additional method      
-        // results.add(visit(condition, query));
-        results.add(JenaHelper.findHaving(query, condition.getValueRestrictions()));
+        List<SparqlMatch> matchesHaving = JenaHelper.findHaving(query, condition.getValueRestrictions());
+        // combine and rewrite matched node
+        boolean hadMatch = false;
+        if (results.size() == 1) {
+            for (SparqlMatch match : results.get(0)) {
+                List<Node> objects = match.getMatchedElements().stream()
+                        .filter(x -> x instanceof TriplePathMatch)
+                        .map(x -> ((TriplePathMatch) x).getPath().getObject())
+                        .distinct().collect(Collectors.toList());
+                if (objects.size() == 1) {
+                    List<SparqlMatch> matchingObjects = matchesHaving.stream()
+                            .filter(x -> x.getMatchedNode().equals(objects.get(0)))
+                            .collect(Collectors.toList());
+                    if (!matchingObjects.isEmpty()) {
+                        hadMatch = true;
+                        matchingObjects.forEach(x -> match.getMatchedElements().addAll(x.getMatchedElements()));
+                    }
+                }
+            }
+            if (hadMatch) {
+                return results.get(0);
+            }
+        }
+        results.add(matchesHaving);
         results.removeIf(x -> x.isEmpty());
         List<SparqlMatch> result = Utils.combineMatchesKeysMatch(results);
         return result;
     }
-
-    
-
 }

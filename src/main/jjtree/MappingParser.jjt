@@ -1,0 +1,410 @@
+PARSER_BEGIN(MappingParser)
+
+package eu.h2020.symbiote.semantics.mapping.parser;
+
+import eu.h2020.symbiote.semantics.mapping.model.*;
+import eu.h2020.symbiote.semantics.mapping.model.condition.*;
+import eu.h2020.symbiote.semantics.mapping.model.production.*;
+import eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue;
+import eu.h2020.symbiote.semantics.mapping.model.value.Value;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.graph.Node;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.jena.sparql.path.Path;
+import eu.h2020.symbiote.semantics.mapping.sparql.utils.JenaHelper;
+import java.util.HashMap;
+import java.util.Map;
+
+
+public class MappingParser extends AbstractMappingParser{
+
+}
+
+PARSER_END(MappingParser)
+
+TOKEN :
+{
+    <#WS: " " | "\t" | "\r" | "\n" | "\f">
+}
+
+SKIP :
+{
+    <WHITESPACE: <WS>>
+}
+
+TOKEN:
+{
+	<#PN_CHARS_BASE:
+          ["A"-"Z"] | ["a"-"z"] |
+          ["\u00C0"-"\u00D6"] | ["\u00D8"-"\u00F6"] | ["\u00F8"-"\u02FF"] |
+          ["\u0370"-"\u037D"] | ["\u037F"-"\u1FFF"] |
+          ["\u200C"-"\u200D"] | ["\u2070"-"\u218F"] | ["\u2C00"-"\u2FEF"] |
+          ["\u3001"-"\uD7FF"] | ["\uF900"-"\uFFFD"]>
+|	<#PN_CHARS_U: <PN_CHARS_BASE> | "_">
+|	<#PN_CHARS: (<PN_CHARS_U> | "-" | ["0"-"9"] | "\u00B7" | ["\u0300"-"\u036F"] | ["\u203F"-"\u2040"] )>
+|	<#PN_PREFIX: <PN_CHARS_BASE> ((<PN_CHARS>|".")* <PN_CHARS>)? >
+|	<#PN_LOCAL: (<PN_CHARS_U> | ":" | ["0"-"9"] | <PLX> )
+              ( (<PN_CHARS> | "." |":" | <PLX> )*
+                (<PN_CHARS> | ":" | <PLX>) )? >
+|	<#PN_LOCAL_ESC: "\\"
+          ( "_" |
+            "~" | "." | "-" | "!" | "$" | "&" | "'" |
+           "(" | ")" | "*" | "+" | "," | ";" | "=" |
+           "/" | "?" | "#" | "@" | "%" ) >
+|	<#PLX: <PERCENT> | <PN_LOCAL_ESC>>
+|	<#PERCENT: "%" <HEX> <HEX> >
+|	<#HEX: ["0"-"9"] | ["A"-"F"] | ["a"-"f"]>
+}
+
+TOKEN:
+{
+	<COLON: ":">
+|	<SEMICOLON: ";">
+|	<COMMA: ",">
+|       <QUOTE: "\"">
+|	<LB: "(">
+| 	<RB: ")">
+|       <LBRACKET: "[">
+|       <RBRACKET: "]">
+| 	<INTEGER: ("-")?(["0"-"9"])+>
+| 	<DOUBLE: ("-")?(["0"]|["1"-"9"](["0"-"9"])*)("."(["0"-"9"])+)?(["E"]("-")?(["0"-"9"])+)?>
+| 	<IRIABS: "<" (~[ ">","<", "\"", "{", "}", "^", "\\", "|", "`", "\u0000"-"\u0020"])* ">">
+|	<PNAME_NS: (<PN_PREFIX>)? ":">
+|	<PNAME_LN: <PNAME_NS> <PN_LOCAL>>
+}
+
+TOKEN [IGNORE_CASE] :
+{
+        <BASE: "base">
+|	<PREFIX: "prefix">
+|	<RULE: "rule">
+|	<CONDITION: "condition">
+|	<PRODUCTION: "production">
+|	<INDIVIDUAL: "individual">
+|	<CLASS: "class">
+|	<AND: "and">
+|	<OR: "or">
+|	<VALUE: "value">
+|	<TYPE: "type">
+|       <EQUAL: "=">
+|       <NOT_EQUAL: "!=">
+|       <GREATER_EQUAL: ">=">
+|       <GREATER_THAN: ">">
+|       <LESS_EQUAL: "<=">
+|       <LESS_THAN: "<">
+|       <SUM: "sum">
+|       <AVG: "avg">
+|       <MIN: "min">
+|       <MAX: "max">
+|       <COUNT: "count">
+|       <AGGREGATION: "aggregation">
+}
+
+
+/** Main production. */
+Mapping Mapping() : {Mapping m = new Mapping(); MappingRule r = null;}
+{
+    (
+        (Base())?
+        (Prefix())*
+        (r=Rule(){m.getMappingRules().add(r);})+
+    )
+    {
+        return m;
+    }
+}
+
+void Base() : {Token ti;}
+{
+    (<BASE> ti = <IRIABS>)
+    {
+        addPrefix("", stripQuotes(ti.image));
+    }    
+}
+
+void Prefix() : {Token tp; Token ti;}
+{
+    (<PREFIX> tp = <PNAME_NS> ti = <IRIABS>)
+    {
+        addPrefix(tp.image, stripQuotes(ti.image));
+    }    
+}
+
+MappingRule Rule() : {Condition c = null; Production p = null;}
+{
+    (<RULE> c=Condition() Production())
+    {
+        return new MappingRule(c, p);
+    }
+}
+
+Condition Condition() : {Condition c = null;}
+{
+(<CONDITION> 
+    (c=ConditionIndividual() { return c; }
+    |c=ClassCondition() { return c; }))	 
+}
+
+ClassCondition ClassCondition() : {ClassCondition c = null; PropertyCondition p = null;}
+{
+    (( LOOKAHEAD(200)c=ClassConditionAnd() 
+    | LOOKAHEAD(200)c=ClassConditionOr()  
+    | LOOKAHEAD(200)c=ClassConditionUnary() ) 
+    (LOOKAHEAD(200)p = ConditionProperty())?)
+    {
+        if (p != null)
+        {
+            c.setPropertyCondition(p);
+        }
+        return c;
+    }
+}
+
+ClassAndCondition ClassConditionAnd() : { ClassCondition c = null; List<ClassCondition> cs = new ArrayList<ClassCondition>();}
+{
+    (c=ClassConditionUnary() {cs.add(c);} <AND> c=ClassConditionUnary() {cs.add(c);} (LOOKAHEAD(200)<AND> c=ClassConditionUnary() {cs.add(c);})*)
+    {
+        return new ClassAndCondition(cs);
+    }
+}
+
+ClassOrCondition ClassConditionOr() : { ClassCondition c = null; List<ClassCondition> cs = new ArrayList<ClassCondition>();}
+{
+    (c=ClassConditionUnary() {cs.add(c);} <OR> c=ClassConditionUnary() {cs.add(c);} (LOOKAHEAD(200)<OR> c=ClassConditionUnary() {cs.add(c);})*)
+    {
+        return new ClassOrCondition(cs);
+    }
+}
+
+ClassCondition ClassConditionUnary() : {ClassCondition c = null;}
+{
+    (c = ClassConditionUri() | (<LB> c = ClassCondition() <RB>))
+    {	
+        return c;
+    }
+}
+
+UriClassCondition ClassConditionUri() : {Node n = null;}
+{
+    (<CLASS> n=IRI())
+    {
+        return new UriClassCondition(n);
+    }
+}
+
+IndividualCondition ConditionIndividual() : {Node n = null;}
+{
+    (<INDIVIDUAL> n=IRI())
+    {
+        return new IndividualCondition(n);
+    }
+}
+
+PropertyCondition ConditionPropertyUnary() : {PropertyCondition c = null;}
+{
+    ( LOOKAHEAD(3) c=ConditionPropertyDataValue() 
+    | LOOKAHEAD(3) c=ConditionPropertyDataType()
+    | LOOKAHEAD(3) c=ConditionPropertyObjectValue()
+    | LOOKAHEAD(3) c=ConditionPropertyObjectType()
+    | c=ConditionPropertyPath()
+    | (<LB> c = ConditionProperty() <RB>))
+    {
+        return c;
+    }
+}
+
+PropertyAndCondition ConditionPropertyAnd() : { PropertyCondition c = null; List<PropertyCondition> cs = new ArrayList<PropertyCondition>();}
+{
+    (c=ConditionPropertyUnary() {cs.add(c);} <AND> c=ConditionPropertyUnary() {cs.add(c);} (LOOKAHEAD(200)<AND> c=ConditionPropertyUnary() {cs.add(c);})*)
+    {
+        return new PropertyAndCondition(cs);
+    }
+}
+
+PropertyOrCondition ConditionPropertyOr() : { PropertyCondition c = null; List<PropertyCondition> cs = new ArrayList<PropertyCondition>();}
+{
+    (c=ConditionPropertyUnary() {cs.add(c);} <OR> c=ConditionPropertyUnary() {cs.add(c);} (LOOKAHEAD(200)<OR> c=ConditionPropertyUnary() {cs.add(c);})*)
+    {
+        return new PropertyOrCondition(cs);
+    }
+}
+
+PropertyAggregationCondition ConditionPropertyAggregation() : 
+{ 
+    PropertyCondition c = null; 
+    AggregationType t = null;
+    List<ValueCondition> vs = new ArrayList<ValueCondition>();
+    Map<AggregationType, List<ValueCondition>> rs = new HashMap<AggregationType, 
+    List<ValueCondition>>(); List<PropertyCondition> cs = new ArrayList<PropertyCondition>();}
+{
+    <AGGREGATION> 
+    (t=AggregationType() vs=ValueConditions()) { rs.put(t, vs); } 
+    (<SEMICOLON> (t=AggregationType() vs=ValueConditions() { rs.put(t, vs); }))*
+    (LOOKAHEAD(200)c=ConditionProperty() {cs.add(c);})+
+    {
+        return new PropertyAggregationCondition(rs, cs);
+    }
+}
+
+AggregationType AggregationType() :{Token t = null;}
+{
+    ( t=<SUM>
+    | t=<AVG>
+    | t=<MIN>
+    | t=<MAX>
+    | t=<COUNT> )
+    {
+        return AggregationType.valueOf(t.image);
+    }
+}
+
+PropertyCondition ConditionProperty() :{PropertyCondition c = null;}
+{
+    ( LOOKAHEAD(200) c=ConditionPropertyAnd() 
+    | LOOKAHEAD(200) c=ConditionPropertyOr()
+    | LOOKAHEAD(200) c=ConditionPropertyUnary()
+    | LOOKAHEAD(200) c=ConditionPropertyAggregation() ) 
+    {
+        return c;
+    }
+}
+
+PropertyPathCondition ConditionPropertyPath() :{Path p = null;}
+{
+    p = Property()
+    {
+        return new PropertyPathCondition(p);
+    }
+}
+
+DataPropertyValueCondition ConditionPropertyDataValue() :{Path p = null; List<ValueCondition> cs = new ArrayList<ValueCondition>();}
+{
+    p=Property() <VALUE> cs=ValueConditions()
+    {
+        return new DataPropertyValueCondition(p, cs);
+    }
+}
+
+DataPropertyTypeCondition ConditionPropertyDataType() :{Path p = null; Node n;}
+{
+    p=Property() <TYPE> n=IRI()
+    {
+        return new DataPropertyTypeCondition(p, n.toString());
+    }
+}
+
+ObjectPropertyValueCondition ConditionPropertyObjectValue() :{Path p = null; Node n;}
+{
+    p=Property() <VALUE> n=IRI()
+    {
+        return new ObjectPropertyValueCondition(p, n);
+    }
+}
+
+ObjectPropertyTypeCondition ConditionPropertyObjectType() :{Path p = null; ClassCondition c;}
+{
+    p=Property() <TYPE> c=ClassCondition()
+    {
+        return new ObjectPropertyTypeCondition(p, c);
+    }
+}
+
+List<ValueCondition> ValueConditions() : {ValueCondition c; List<ValueCondition> cs = new ArrayList<ValueCondition>();}
+{
+    (c=ValueCondition() { cs.add(c); } (<COMMA> c=ValueCondition() { cs.add(c); })*)
+    {
+        return cs;
+    }
+}
+
+Path Property() : {Node n = null;}
+{
+    n=IRI()
+    {
+        return JenaHelper.parsePath(n.toString());
+    }
+}
+
+void Production() : {}
+{
+    <PRODUCTION> 
+}
+
+
+Node IRI() : {Node n = null;}
+{
+    (n = IRIAbs() | n = IRIPrefix())
+    {
+            return n;
+    }
+}
+
+Node IRIAbs() : {Token t;}
+{
+    t=<IRIABS>	
+    {
+            return NodeFactory.createURI(stripQuotes(t.image));
+    }
+}
+
+Node IRIPrefix() : {Token t;}
+{
+    t=<PNAME_LN>	
+    {
+            return expand(t.image);
+    }
+}
+
+ValueCondition ValueCondition() : {Comparator c; Value v;}
+{
+    (c=Comparator() v=Value())
+    {
+        return new ValueCondition(c, v);
+    }
+}
+
+Comparator Comparator() : {Token t;}
+{
+    ( t=<EQUAL>
+    | t=<NOT_EQUAL>
+    | t=<GREATER_EQUAL>
+    | t=<GREATER_THAN>
+    | t=<LESS_EQUAL>
+    | t=<LESS_THAN> )
+    {
+        return Comparator.fromSymbol(t.image);
+    }
+}
+
+Value Value() : {Value v;}
+{
+    (v=NumericValue())
+    {
+        return v;
+    }
+}
+
+Value NumericValue() : {Value v;}
+{
+    (v=IntegerValue() | v=DoubleValue())
+    {
+        return v;
+    }
+}
+
+Value IntegerValue() : {Token t;}
+{
+    t = <INTEGER> 
+    {
+        return ConstantValue.fromInt(Integer.parseInt(t.image));
+    }
+}
+
+Value DoubleValue() : {Token t;}
+{
+    t = <DOUBLE> 
+    {
+        return ConstantValue.fromDouble(Double.parseDouble(t.image));
+    }
+}

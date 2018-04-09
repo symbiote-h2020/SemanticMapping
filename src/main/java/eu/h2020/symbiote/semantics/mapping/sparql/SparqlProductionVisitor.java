@@ -16,12 +16,16 @@ import eu.h2020.symbiote.semantics.mapping.sparql.model.IndividualMatch;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlElementMatch;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlMatch;
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.JenaHelper;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.Query;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.core.VarAlloc;
 import org.apache.jena.sparql.expr.E_Equals;
 import org.apache.jena.sparql.expr.ExprVar;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
@@ -100,25 +104,36 @@ public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, Li
         for (SparqlMatch match : temp) {
             Node value = null;
             if (production.getValue() instanceof TransformationValue) {
-                TransformationValue transform = ((TransformationValue)production.getValue());
+                TransformationValue transform = ((TransformationValue) production.getValue());
                 value = transform.eval(match.getValues()).asNode();
             } else {
                 value = production.getValue().asNode();
             }
             remove(query, match.getMatchedElements());
-            add(query, match.getMatchedNode(), production.getPath(), value);             
+            add(query, match.getMatchedNode(), production.getPath(), value);
         }
         return null;
     }
 
     @Override
     public Void visit(ObjectPropertyTypeProduction production, List<SparqlMatch> temp) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<SparqlMatch> copy = new ArrayList<>(temp);
+        for (SparqlMatch match : copy) {
+            Node tempNode = VarAlloc.getVarAllocator().allocVar();
+            add(query, match.getMatchedNode(), production.getPath(), tempNode);
+            match.setMatchedNode(tempNode);
+            production.getDatatype().accept(this, Arrays.asList(match));            
+        }
+        return null;
     }
 
     @Override
     public Void visit(ObjectPropertyValueProduction production, List<SparqlMatch> temp) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        for (SparqlMatch match : temp) {
+            remove(query, match.getMatchedElements());
+            add(query, match.getMatchedNode(), production.getPath(), production.getUri());
+        }
+        return null;
     }
 
     @Override
@@ -173,7 +188,7 @@ public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, Li
                 remove(query, match.getMatchedElements());
                 if (query.getProjectVars().contains(var)) {
                     JenaHelper.addElementToQuery(query, new ElementFilter(new E_Equals(new ExprVar(var), new NodeValueNode(production.getUri()))));
-                } else {                    
+                } else {
                     JenaHelper.replaceInQuery(query, var, production.getUri());
                 }
             }

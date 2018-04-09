@@ -1,5 +1,5 @@
 {
-  "name" : "N:1 individual mapping with object match",
+  "name" : "multi result test",
   "commonPrefixes" : {
     "xsd" : "http://www.w3.org/2001/XMLSchema#",
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
@@ -18,8 +18,8 @@
   "alternativeQueries" : [ ],
   "expectedResult" : "SELECT ?x ?y WHERE 
   { 
-	?x test:hasValue ?y .
-	FILTER(?y = <http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#instanceOfB>)
+	?x a test:B;
+		test:hasValue2 test:instanceOfB .
   }",
 "mapping" : {
     "mappingRules": ["java.util.ArrayList", [{
@@ -55,7 +55,13 @@
                             "type": "URI",
                             "id": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#B"
                         },
-                        "properties": ["java.util.ArrayList", []]
+                        "properties": ["java.util.ArrayList", [["eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyValueProduction", {
+                                        "path": "<http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#hasValue2>",
+                                        "uri": {
+                                            "type": "URI",
+                                            "id": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#instanceOfB"
+                                        }
+                                    }]]]
                     }]
             }]]
 },

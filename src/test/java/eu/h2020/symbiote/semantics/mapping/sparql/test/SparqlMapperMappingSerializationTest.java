@@ -1,4 +1,4 @@
-package eu.h2020.symbiote.semantics.mapping.test.sparql;
+package eu.h2020.symbiote.semantics.mapping.sparql.test;
 
 import eu.h2020.symbiote.semantics.mapping.model.Mapping;
 import eu.h2020.symbiote.semantics.mapping.model.MappingRule;

@@ -10,6 +10,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.Validate;
 import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.ResourceFactory;
 
@@ -30,20 +31,43 @@ public class ConstantValue implements Value {
         this.datatype = JenaHelper.datatypeFromString(value);
     }
 
+    public static ConstantValue fromString(String value) {
+        return new ConstantValue(value, XSDDatatype.XSDstring);
+    }
+
+    public static ConstantValue fromInt(int value) {
+        return new ConstantValue(value, XSDDatatype.XSDinteger);
+    }
+
+    public static ConstantValue fromInt(Integer value) {
+        return new ConstantValue(value, XSDDatatype.XSDinteger);
+    }
+
+    public static ConstantValue fromDouble(double value) {
+        return new ConstantValue(value, XSDDatatype.XSDdouble);
+    }
+
+    public static ConstantValue fromInt(Double value) {
+        return new ConstantValue(value, XSDDatatype.XSDdouble);
+    }
+
     public ConstantValue(Object value) {
         this.value = value;
         this.datatype = JenaHelper.datatypeFromValue(value);
     }
 
-    public ConstantValue(String value, RDFDatatype datatype) {
+    public ConstantValue(Object value, RDFDatatype datatype) {
         Validate.notNull(datatype, "datatype most be non-null");
         try {
-            this.value = datatype.parse(value);
+            this.value = datatype.parse(value.toString());
         } catch (DatatypeFormatException e) {
             throw new IllegalArgumentException("value does not match datatype (value: " + value + ", datatype: " + datatype, e);
         }
         this.datatype = datatype;
+    }
 
+    public ConstantValue(String value, RDFDatatype datatype) {
+        this((Object) value, datatype);
     }
 
     public Object getValue() {

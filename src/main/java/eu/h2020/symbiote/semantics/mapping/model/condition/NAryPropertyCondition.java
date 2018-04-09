@@ -22,6 +22,11 @@ public abstract class NAryPropertyCondition implements PropertyCondition {
         this.elements = new ArrayList<>();
     }
 
+    protected NAryPropertyCondition(List<PropertyCondition> elements) {
+        this();
+        this.elements.addAll(elements);
+    }
+    
     protected NAryPropertyCondition(PropertyCondition... elements) {
         this.elements = Arrays.asList(elements);
     }

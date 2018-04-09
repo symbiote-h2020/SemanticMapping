@@ -1,0 +1,61 @@
+{
+  "name" : "HAVING SUM",
+  "commonPrefixes" : {
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "test" : "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "dc" : "http://purl.org/dc/elements/1.1/"
+  },
+  "baseQuery" : "SELECT ?person WHERE 
+  { 
+	?person a test:Person ;
+		test:hasValue ?money .
+	FILTER(datatype(?money) = xsd:integer)
+  }
+  GROUP BY ?person
+  HAVING (SUM(?money) > 100)",
+  "alternativeQueries" : [ ],
+  "expectedResult" : "SELECT ?person WHERE 
+  { 
+	?person a test:RichPerson .
+  }
+  GROUP BY ?person",
+"mapping" : {
+    "mappingRules": ["java.util.ArrayList", [{
+                "condition": ["eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition", {
+                        "propertyCondition": ["eu.h2020.symbiote.semantics.mapping.model.condition.PropertyAggregationCondition", {
+                                "elements": ["java.util.ArrayList", [["eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyTypeCondition", {
+                                                "path": "<http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#hasValue>",
+                                                "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                                            }]]],
+                                "valueRestrictions": ["java.util.HashMap", {
+                                        "SUM": ["java.util.ArrayList", [{
+                                                    "comparator": "GreaterThan",
+                                                    "value": ["eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue", {
+                                                            "value": 100,
+                                                            "datatype": "http://www.w3.org/2001/XMLSchema#integer"
+                                                        }]
+                                                }]]
+                                    }]
+                            }],
+                        "uri": {
+                            "type": "URI",
+                            "id": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#Person"
+                        }
+                    }],
+                "production": ["eu.h2020.symbiote.semantics.mapping.model.production.ClassProduction", {
+                        "uri": {
+                            "type": "URI",
+                            "id": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#RichPerson"
+                        },
+                        "properties": ["java.util.ArrayList", []]
+                    }]
+            }]]
+},
+  "replacements" : [
+    { "FIRST_NAME" : "\"Michael\"^^xsd:string",
+	  "LAST_NAME" : "\"Jacoby\"^^xsd:integer"}
+  ]
+}

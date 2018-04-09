@@ -8,7 +8,7 @@ package eu.h2020.symbiote.semantics.mapping.test.sparql.util;
 import eu.h2020.symbiote.semantics.mapping.model.Mapping;
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.QueryCompare;
 import eu.h2020.symbiote.semantics.mapping.test.ontology.TEST_MODEL;
-import eu.h2020.symbiote.semantics.mapping.test.sparql.model.TestSuite;
+import eu.h2020.symbiote.semantics.mapping.sparql.model.test.TestSuite;
 import static eu.h2020.symbiote.semantics.mapping.test.sparql.util.Constants.PREFIX_TEST;
 import java.io.File;
 import java.io.IOException;

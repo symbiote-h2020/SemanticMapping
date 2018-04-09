@@ -43,6 +43,7 @@
 
 :Person rdf:type owl:Class .
 :PersonWithTwoAdultChildren rdf:type owl:Class .
+:RichPerson rdf:type owl:Class .
 
 :A rdf:type owl:Class .
     

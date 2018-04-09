@@ -125,3 +125,33 @@ task generateOntology {
         }      
     }
 }
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "gradle.plugin.com.intershop.gradle.javacc:javacc-gradle-plugin:2.0.0"
+    }
+}
+apply plugin: 'com.intershop.gradle.javacc'
+
+javacc {
+    configs {
+        MappingParser {
+            inputFile = file('src/main/jjtree/MappingParser.jjt')
+            outputDir = file(project.buildDir.absolutePath + '/generated-sources/javacc')
+            packageName = 'eu.h2020.symbiote.semantics.mapping.parser'            
+            staticParam = 'false'
+//            lookahead = '3'
+            jjtree {
+                multi = 'true'                
+//                visitor = 'false'
+//                visitorDataType = 'eu.h2020.symbiote.semantics.mapping.model.Mapping'
+//                visitorReturnType = 'eu.h2020.symbiote.semantics.mapping.model.Mapping'
+//                staticParam = 'false'               
+            }
+        }
+        
+    }
+}

@@ -1,0 +1,61 @@
+{
+  "name" : "ObjectPropertyTypeProduction",
+  "commonPrefixes" : {
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "test" : "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "dc" : "http://purl.org/dc/elements/1.1/"
+  },
+  "baseQuery" : "SELECT ?x WHERE 
+  { 
+	?x a test:A .
+  }",
+  "alternativeQueries" : [ ],
+  "expectedResult" : "SELECT ?x WHERE 
+  { 
+	?x a test:B;
+	  test:hasChild [
+		a test:Person;		
+		test:hasValue STRING_VALUE
+	].	
+  }",
+"mapping" : {
+    "mappingRules": ["java.util.ArrayList", [{
+                "condition": ["eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition", {
+                        "propertyCondition": null,
+                        "uri": {
+                            "type": "URI",
+                            "id": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#A"
+                        }
+                    }],
+                "production": ["eu.h2020.symbiote.semantics.mapping.model.production.ClassProduction", {
+                        "uri": {
+                            "type": "URI",
+                            "id": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#B"
+                        },
+                        "properties": ["java.util.ArrayList", [["eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyTypeProduction", {
+                                        "path": "<http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#hasChild>",
+                                        "datatype": {
+                                            "uri": {
+                                                "type": "URI",
+                                                "id": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#Person"
+                                            },
+                                            "properties": ["java.util.ArrayList", [["eu.h2020.symbiote.semantics.mapping.model.production.DataPropertyProduction", {
+                                                            "path": "<http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#hasValue>",
+                                                            "value": ["eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue", {
+                                                                    "value": "test",
+                                                                    "datatype": "http://www.w3.org/2001/XMLSchema#string"
+                                                                }]
+                                                        }]]]
+                                        }
+                                    }]]]
+                    }]
+            }]]
+},
+  "replacements" : [
+    { "STRING_VALUE" : "\"test\"",
+	  "INT_VALUE" : "\"42\"^^xsd:integer"}
+  ]
+}

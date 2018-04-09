@@ -22,6 +22,11 @@ public abstract class NAryClassCondition extends ClassCondition {
         this.elements = new ArrayList<>();
     }
 
+    protected NAryClassCondition(List<ClassCondition> elements) {
+        this();
+        this.elements.addAll(elements);
+    }
+    
     protected NAryClassCondition(ClassCondition... elements) {
         this.elements = Arrays.asList(elements);
     }

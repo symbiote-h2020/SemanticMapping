@@ -5,6 +5,8 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.condition;
 
+import java.util.List;
+
 /**
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
@@ -16,6 +18,10 @@ public class PropertyAndCondition extends NAryPropertyCondition {
     }
     
     public PropertyAndCondition(PropertyCondition... elements) {
+        super(elements);
+    }
+    
+    public PropertyAndCondition(List<PropertyCondition> elements) {
         super(elements);
     }
 

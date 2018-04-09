@@ -29,7 +29,17 @@ public class PropertyAggregationCondition extends NAryPropertyCondition {
         this.valueRestrictions = valueRestrictions;
     }
     
+        public PropertyAggregationCondition(Map<AggregationType, List<ValueCondition>> valueRestrictions, List<PropertyCondition> elements) {
+        super(elements);
+        this.valueRestrictions = valueRestrictions;
+    }
+    
     public PropertyAggregationCondition(AggregationType aggregationType, ValueCondition valueRestrictions, PropertyCondition... elements) {
+        super(elements);
+        addCondition(aggregationType, valueRestrictions);
+    }
+    
+    public PropertyAggregationCondition(AggregationType aggregationType, ValueCondition valueRestrictions, List<PropertyCondition> elements) {
         super(elements);
         addCondition(aggregationType, valueRestrictions);
     }

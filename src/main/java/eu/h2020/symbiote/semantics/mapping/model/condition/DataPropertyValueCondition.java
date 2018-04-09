@@ -34,7 +34,17 @@ public class DataPropertyValueCondition extends DataPropertyCondition {
         init();
     }
 
-    public DataPropertyValueCondition(Path path, ValueCondition... valueRestrictions) {
+    public DataPropertyValueCondition(Path path, List<ValueCondition> valueRestrictions) {
+        this(path);
+        this.valueRestrictions.addAll(valueRestrictions);
+    }
+
+    public DataPropertyValueCondition(String path, List<ValueCondition> valueRestrictions) {
+        this(path);
+        this.valueRestrictions.addAll(valueRestrictions);
+    }
+    
+        public DataPropertyValueCondition(Path path, ValueCondition... valueRestrictions) {
         super(path);
         this.valueRestrictions = Arrays.asList(valueRestrictions);
     }
