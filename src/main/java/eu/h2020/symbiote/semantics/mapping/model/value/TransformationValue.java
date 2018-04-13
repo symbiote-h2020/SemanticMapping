@@ -5,11 +5,14 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.value;
 
+import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
 import eu.h2020.symbiote.semantics.mapping.model.transformation.TransformationRegistry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javafx.util.Pair;
@@ -36,6 +39,16 @@ public class TransformationValue implements Value {
         this.name = name;
         this.parameters = new ArrayList<>();
     }
+    
+    @Override
+    public <T> void accept(ValueVisitor visitor, T parameter) {
+        visitor.visit(this, parameter);
+    }
+
+    public TransformationValue(String name, List<Value> parameters) {
+        this(name);
+        this.parameters.addAll(parameters);
+    }
 
     public TransformationValue(String name, Value... parameters) {
         this.name = name;
@@ -47,7 +60,7 @@ public class TransformationValue implements Value {
         throw new UnsupportedOperationException("use eval(List<Pair<String, LiteralLabel>> input) instead"); //To change body of generated methods, choose Tools | Templates.
     }
 
-    protected Object[] appendStaticParameters(Object[] data) {               
+    protected Object[] appendStaticParameters(Object[] data) {
         Object[] contantParams = parameters.stream()
                 .filter(x -> x instanceof ConstantValue)
                 .map(x -> ((ConstantValue) x).getValue())
@@ -67,8 +80,9 @@ public class TransformationValue implements Value {
                 .toArray();
     }
 
-    public Literal eval(List<Pair<String, LiteralLabel>> inputParameters) {
-        return ResourceFactory.createTypedLiteral(TransformationRegistry.getInstance().evaluateTransformation(getName(), filterInputParameters(inputParameters)));
+    public Literal eval(MappingContext context, List<Pair<String, LiteralLabel>> inputParameters) {
+        return ResourceFactory.createTypedLiteral(context.getTransformationRegistry().evaluateTransformation(getName(), 
+                appendStaticParameters(filterInputParameters(inputParameters))));
     }
 
     public List<Value> getParameters() {
@@ -96,5 +110,41 @@ public class TransformationValue implements Value {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner joiner = new StringJoiner(", ");
+        parameters.forEach(x -> joiner.add(x.toString()));
+        return name + "( " + joiner + " )";
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final TransformationValue other = (TransformationValue) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.parameters, other.parameters)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 83 * hash + Objects.hashCode(this.name);
+        hash = 83 * hash + Objects.hashCode(this.parameters);
+        return hash;
     }
 }

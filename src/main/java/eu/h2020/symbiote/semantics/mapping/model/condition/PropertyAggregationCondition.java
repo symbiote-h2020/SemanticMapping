@@ -28,17 +28,17 @@ public class PropertyAggregationCondition extends NAryPropertyCondition {
         super(elements);
         this.valueRestrictions = valueRestrictions;
     }
-    
-        public PropertyAggregationCondition(Map<AggregationType, List<ValueCondition>> valueRestrictions, List<PropertyCondition> elements) {
+
+    public PropertyAggregationCondition(Map<AggregationType, List<ValueCondition>> valueRestrictions, List<PropertyCondition> elements) {
         super(elements);
         this.valueRestrictions = valueRestrictions;
     }
-    
+
     public PropertyAggregationCondition(AggregationType aggregationType, ValueCondition valueRestrictions, PropertyCondition... elements) {
         super(elements);
         addCondition(aggregationType, valueRestrictions);
     }
-    
+
     public PropertyAggregationCondition(AggregationType aggregationType, ValueCondition valueRestrictions, List<PropertyCondition> elements) {
         super(elements);
         addCondition(aggregationType, valueRestrictions);
@@ -51,7 +51,7 @@ public class PropertyAggregationCondition extends NAryPropertyCondition {
     public void setValueRestrictions(Map<AggregationType, List<ValueCondition>> valueRestrictions) {
         this.valueRestrictions = valueRestrictions;
     }
-    
+
     public void addCondition(AggregationType aggregationType, ValueCondition... valueRestrictions) {
         if (this.valueRestrictions == null) {
             this.valueRestrictions = new HashMap<>();
@@ -93,5 +93,4 @@ public class PropertyAggregationCondition extends NAryPropertyCondition {
                 && valueRestrictions.keySet().stream().distinct().count() == valueRestrictions.size() // no duplicate aggregation types
                 && valueRestrictions.entrySet().stream().flatMap(x -> x.getValue().stream()).allMatch(x -> x.validate()); // all ValueConditions valid
     }
-
 }

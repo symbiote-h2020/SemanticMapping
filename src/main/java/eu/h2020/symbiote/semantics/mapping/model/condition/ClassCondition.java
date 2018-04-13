@@ -33,6 +33,10 @@ public abstract class ClassCondition implements Condition {
         this.propertyCondition = propertyCondition;
     }
 
+    public boolean hasPropertyCondition() {
+        return propertyCondition != null;
+    }
+    
     @Override
     public boolean validate() {
         return (propertyCondition == null)

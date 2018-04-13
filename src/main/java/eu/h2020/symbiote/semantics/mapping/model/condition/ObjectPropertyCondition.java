@@ -5,6 +5,8 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.condition;
 
+import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.ontology.OntProperty;
 import org.apache.jena.sparql.path.Path;
 
 /**
@@ -23,6 +25,10 @@ public abstract class ObjectPropertyCondition extends PropertyPathCondition {
 
     public ObjectPropertyCondition(Path path) {
         super(path);
+    }
+
+    public ObjectPropertyCondition(OntProperty property) {
+        super(property);
     }
 
     @Override

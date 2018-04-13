@@ -20,7 +20,7 @@ public class ClassOrCondition extends NAryClassCondition {
     public ClassOrCondition(ClassCondition... elements) {
         super(elements);
     }
-    
+
     public ClassOrCondition(List<ClassCondition> elements) {
         super(elements);
     }

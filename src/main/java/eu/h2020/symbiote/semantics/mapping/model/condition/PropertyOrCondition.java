@@ -20,7 +20,7 @@ public class PropertyOrCondition extends NAryPropertyCondition {
     public PropertyOrCondition(List<PropertyCondition> elements) {
         super(elements);
     }
-    
+
     public PropertyOrCondition(PropertyCondition... elements) {
         super(elements);
     }

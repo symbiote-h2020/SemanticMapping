@@ -5,14 +5,12 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.value;
 
-import org.apache.jena.graph.Node;
-
 /**
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public interface Value {
-    public boolean validate();
-    public Node asNode();     
-    public <T> void accept(ValueVisitor visitor, T parameter);
+public interface ValueVisitor<T> {
+    public void visit(ConstantValue value, T parameter);
+    public void visit(ReferenceValue value, T parameter);
+    public void visit(TransformationValue value, T parameter);
 }

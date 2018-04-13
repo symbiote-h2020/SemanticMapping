@@ -7,6 +7,10 @@ package eu.h2020.symbiote.semantics.mapping.utils;
 
 import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlElementMatch;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlMatch;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -311,6 +315,30 @@ public class Utils {
         return result;
     }
 
+    public static <T> List<List<T>> powerset(Collection<T> list) {
+        List<List<T>> ps = new ArrayList<>();
+        ps.add(new ArrayList<>());   // add the empty set
+
+        // for every item in the original list
+        for (T item : list) {
+            List<List<T>> newPs = new ArrayList<>();
+
+            for (List<T> subset : ps) {
+                // copy all of the current powerset's subsets
+                newPs.add(subset);
+
+                // plus the subsets appended with the current item
+                List<T> newSubset = new ArrayList<>(subset);
+                newSubset.add(item);
+                newPs.add(newSubset);
+            }
+
+            // powerset is now powerset of list.subList(0, list.indexOf(item)+1)
+            ps = newPs;
+        }
+        return ps;
+    }
+
     private static <T> List<List<T>> permutateList(List<? extends T> data, List<Integer> used) {
         List<List<T>> result = new ArrayList<>();
         if (data == null) {
@@ -386,6 +414,14 @@ public class Utils {
             }
         });
         return result;
+    }
+
+    public static String readFile(File file) throws IOException {
+        return new String(Files.readAllBytes(file.toPath()));
+    }
+
+    public static void writeFile(File file, String content) throws IOException {
+        Files.write(file.toPath(), content.getBytes(), StandardOpenOption.CREATE);
     }
 
 }

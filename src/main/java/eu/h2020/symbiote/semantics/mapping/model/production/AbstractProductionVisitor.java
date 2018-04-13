@@ -5,10 +5,12 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.production;
 
+import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
+
 /**
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
-* @param <I> input type
+ * @param <I> input type
  * @param <TC> temp result type of condition visitor
  * @param <TP> temp result type of production visitor
  * @param <O> output type
@@ -23,8 +25,8 @@ public abstract class AbstractProductionVisitor<I, TC, TP, O> implements Product
     }
 
     @Override
-    public TP visit(Production production, TC temp) {
-        return production.accept(this, temp);
+    public TP visit(MappingContext context, Production production, TC temp) {
+        return production.accept(context, this, temp);
     }
 
 }

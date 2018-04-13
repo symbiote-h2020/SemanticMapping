@@ -18,6 +18,7 @@ import eu.h2020.symbiote.semantics.mapping.model.production.ClassProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.DataPropertyProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyTypeProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyValueProduction;
+import eu.h2020.symbiote.semantics.mapping.model.serialize.MappingPrinter;
 import eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue;
 import eu.h2020.symbiote.semantics.mapping.model.value.InlineTransformationValue;
 import eu.h2020.symbiote.semantics.mapping.model.value.ReferenceValue;
@@ -27,6 +28,7 @@ import eu.h2020.symbiote.semantics.mapping.sparql.model.test.TestCase;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.test.TestSuite;
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.QueryCompare;
 import eu.h2020.symbiote.semantics.mapping.test.sparql.util.Utils;
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -46,21 +48,21 @@ import org.apache.jena.datatypes.xsd.XSDDatatype;
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
 public class SparqlMapperQueryRewritingTest {
-
+    
     private void generateMapping() throws IOException {
         // COUNT aggregation
-//        Mapping mapping = new Mapping(
-//                new MappingRule(
-//                        new UriClassCondition(
-//                                TEST_MODEL.A.asNode(),
-//                                new PropertyAggregationCondition(
-//                                        AggregationType.COUNT,
-//                                        new ValueCondition(
-//                                                Comparator.GreaterEqual,
-//                                                new ConstantValue(2)),
-//                                new DataPropertyTypeCondition(TEST_MODEL.hasValue.toString(), XSDDatatype.XSDstring))),
-//                new ClassProduction(TEST_MODEL.B.asNode()))
-//        );
+        Mapping mapping = new Mapping(
+                new MappingRule(
+                        new UriClassCondition(
+                                TEST_MODEL.A.asNode(),
+                                new PropertyAggregationCondition(
+                                        AggregationType.COUNT,
+                                        new ValueCondition(
+                                                Comparator.GreaterEqual,
+                                                new ConstantValue(2)),
+                                        new DataPropertyTypeCondition(TEST_MODEL.hasValue.toString(), XSDDatatype.XSDstring))),
+                        new ClassProduction(TEST_MODEL.B.asNode()))
+        );
 ///////////////////
 //        Mapping mapping = new Mapping(
 //                new MappingRule(
@@ -156,30 +158,32 @@ public class SparqlMapperQueryRewritingTest {
 //                                                TEST_MODEL.hasValue.toString(), 
 //                                                ConstantValue.fromString("test"))))))
 //        );
-        String fctReverse = " var o = [];\n"
-                + "  for (var i = parameters[0].length - 1, j = 0; i >= 0; i--, j++)\n"
-                + "    o[j] = parameters[0][i];\n"
-                + "  o.join('');";
-        Mapping mapping = new Mapping(
-                new MappingRule(
-                        new UriClassCondition(TEST_MODEL.A.asNode()),
-                        new ClassProduction(TEST_MODEL.B.asNode())),
-                new MappingRule(
-                        new PropertyPathCondition(TEST_MODEL.hasValue.toString()),
-                        new DataPropertyProduction(
-                                TEST_MODEL.hasValue2.toString(), 
-                                new InlineTransformationValue(fctReverse, 
-                                        new ReferenceValue("hasValue")))));
-        mapping.save("xyz.json");
+//        String fctReverse = " var o = [];\n"
+//                + "  for (var i = parameters[0].length - 1, j = 0; i >= 0; i--, j++)\n"
+//                + "    o[j] = parameters[0][i];\n"
+//                + "  o.join('');";
+//        Mapping mapping = new Mapping(
+//                new MappingRule(
+//                        new UriClassCondition(TEST_MODEL.A.asNode()),
+//                        new ClassProduction(TEST_MODEL.B.asNode())),
+//                new MappingRule(
+//                        new PropertyPathCondition(TEST_MODEL.hasValue.toString()),
+//                        new DataPropertyProduction(
+//                                TEST_MODEL.hasValue2.toString(), 
+//                                new InlineTransformationValue(fctReverse, 
+//                                        new ReferenceValue("hasValue")))));
+//        mapping.save("xyz.json");
+//        String test = mapping.toString();
+        String test = MappingPrinter.print(mapping);
+        String P = "";
     }
-
+    
     @Test
     public void runTestCases() throws UnsupportedMappingException, IOException, URISyntaxException {
-//        generateMapping();
+        generateMapping();
         SparqlMapper mapper = new SparqlMapper();
         List<TestSuite> testSuites = Utils.getTestCases();
         int failCountSuites = 0;
-
         for (TestSuite testSuite : testSuites) {
             System.out.println("starting TestSuite: " + testSuite.getName());
             int failCount = 0;
@@ -203,7 +207,7 @@ public class SparqlMapperQueryRewritingTest {
         System.out.println(failCountSuites + "/" + testSuites.size() + " TestSuites failed");
         assert (failCountSuites == 0);
     }
-
+    
     private boolean evaluateMapping(Mapping mapping, Query input, Query expected) {
         boolean result = false;
         try {
@@ -222,5 +226,5 @@ public class SparqlMapperQueryRewritingTest {
         }
         return result;
     }
-
+    
 }

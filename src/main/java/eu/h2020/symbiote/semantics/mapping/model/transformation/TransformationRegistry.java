@@ -22,20 +22,30 @@ import org.reflections.Reflections;
  */
 public class TransformationRegistry {
 
-    private static volatile TransformationRegistry instance;
+    private static volatile TransformationRegistry globalInstance;
     private final Map<String, Transformation> registry;
 
-    public static synchronized TransformationRegistry getInstance() {
-        if (instance == null) {
-            instance = new TransformationRegistry();
+    public static synchronized TransformationRegistry getGlobal() {
+        if (globalInstance == null) {
+            globalInstance = new TransformationRegistry();
+            globalInstance.findDefineTransformation();
         }
-        return instance;
+        return globalInstance;
+    }
+
+    public static TransformationRegistry getCopy() {
+        TransformationRegistry result = new TransformationRegistry();
+        result.registry.putAll(getGlobal().registry);
+        return result;
     }
 
     private TransformationRegistry() {
         registry = new HashMap<>();
-        Reflections reflections = new Reflections("eu.h2020.symbiote.semantics.mapping");
-        reflections.getSubTypesOf(Transformation.class).stream()
+    }
+
+    private void findDefineTransformation() {
+        new Reflections("eu.h2020.symbiote.semantics.mapping")
+                .getSubTypesOf(Transformation.class).stream()
                 .filter(x -> x.isAnnotationPresent(Name.class))
                 .filter(x -> Stream.of(x.getDeclaredConstructors()).anyMatch(c -> c.getParameterCount() == 0))
                 .forEach(x -> {
@@ -47,6 +57,10 @@ public class TransformationRegistry {
                         Logger.getLogger(TransformationRegistry.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 });
+    }
+
+    public void register(List<? extends Transformation> transformations) {
+        transformations.forEach(x -> TransformationRegistry.this.register(x));
     }
 
     public void register(Transformation transformation) {

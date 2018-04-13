@@ -5,6 +5,7 @@
  */
 package eu.h2020.symbiote.semantics.mapping.sparql;
 
+import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
 import eu.h2020.symbiote.semantics.mapping.model.production.AbstractProductionVisitor;
 import eu.h2020.symbiote.semantics.mapping.model.production.ClassProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.DataPropertyProduction;
@@ -20,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.Query;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.sparql.core.TriplePath;
@@ -90,22 +90,22 @@ public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, Li
     }
 
     @Override
-    public Void visit(ClassProduction production, List<SparqlMatch> temp) {
+    public Void visit(MappingContext context, ClassProduction production, List<SparqlMatch> temp) {
         temp.forEach(x -> {
             remove(query, x.getMatchedElements());
             add(query, x.getMatchedNode(), RDF.type, production.getUri());
         });
-        production.getProperties().forEach(x -> x.accept(this, temp));
+        production.getProperties().forEach(x -> x.accept(context, this, temp));
         return null;
     }
 
     @Override
-    public Void visit(DataPropertyProduction production, List<SparqlMatch> temp) {
+    public Void visit(MappingContext context, DataPropertyProduction production, List<SparqlMatch> temp) {
         for (SparqlMatch match : temp) {
             Node value = null;
             if (production.getValue() instanceof TransformationValue) {
                 TransformationValue transform = ((TransformationValue) production.getValue());
-                value = transform.eval(match.getValues()).asNode();
+                value = transform.eval(context, match.getValues()).asNode();
             } else {
                 value = production.getValue().asNode();
             }
@@ -116,19 +116,19 @@ public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, Li
     }
 
     @Override
-    public Void visit(ObjectPropertyTypeProduction production, List<SparqlMatch> temp) {
+    public Void visit(MappingContext context, ObjectPropertyTypeProduction production, List<SparqlMatch> temp) {
         List<SparqlMatch> copy = new ArrayList<>(temp);
         for (SparqlMatch match : copy) {
             Node tempNode = VarAlloc.getVarAllocator().allocVar();
             add(query, match.getMatchedNode(), production.getPath(), tempNode);
             match.setMatchedNode(tempNode);
-            production.getDatatype().accept(this, Arrays.asList(match));            
+            production.getDatatype().accept(context, this, Arrays.asList(match));            
         }
         return null;
     }
 
     @Override
-    public Void visit(ObjectPropertyValueProduction production, List<SparqlMatch> temp) {
+    public Void visit(MappingContext context, ObjectPropertyValueProduction production, List<SparqlMatch> temp) {
         for (SparqlMatch match : temp) {
             remove(query, match.getMatchedElements());
             add(query, match.getMatchedNode(), production.getPath(), production.getUri());
@@ -137,7 +137,7 @@ public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, Li
     }
 
     @Override
-    public Void visit(IndividualProduction production, List<SparqlMatch> temp) {
+    public Void visit(MappingContext context, IndividualProduction production, List<SparqlMatch> temp) {
         if (temp == null || temp.isEmpty()) {
             return null;
         }

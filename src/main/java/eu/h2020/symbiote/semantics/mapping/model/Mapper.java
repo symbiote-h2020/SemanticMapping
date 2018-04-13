@@ -7,6 +7,7 @@ package eu.h2020.symbiote.semantics.mapping.model;
 
 import eu.h2020.symbiote.semantics.mapping.model.condition.ConditionVisitor;
 import eu.h2020.symbiote.semantics.mapping.model.production.ProductionVisitor;
+import eu.h2020.symbiote.semantics.mapping.model.transformation.TransformationRegistry;
 import java.util.Map;
 
 /**
@@ -40,10 +41,12 @@ public abstract class Mapper<I, TC, TP, O> {
             mappingSupportedChecker.checkMappingSupported(mapping);
         }
         productionVisitor.init(input);
+        MappingContext context = new MappingContext();
+        context.register(mapping.getTransformations());
         O result = null;
         for (MappingRule rule : mapping.getMappingRules()) {
             TC conditionMatches = conditionVisitor.visit(rule.getCondition(), input);
-            productionVisitor.visit(rule.getProduction(), conditionMatches);
+            productionVisitor.visit(context, rule.getProduction(), conditionMatches);
         }
         return productionVisitor.getResult();
     }

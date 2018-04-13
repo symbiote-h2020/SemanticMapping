@@ -81,6 +81,6 @@ public class TriplePathMatch implements SparqlElementMatch {
         if (!hasValue()) {
             return null;
         }
-        return new Pair(path.getPredicate().getLocalName(), path.getObject().getLiteral());
+        return new Pair(JenaHelper.getParameterName(path.getPredicate()), path.getObject().getLiteral());
     }
 }

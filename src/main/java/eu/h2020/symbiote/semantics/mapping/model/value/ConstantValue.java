@@ -70,6 +70,11 @@ public class ConstantValue implements Value {
         this((Object) value, datatype);
     }
 
+    @Override
+    public <T> void accept(ValueVisitor visitor, T parameter) {
+        visitor.visit(this, parameter);
+    }
+
     public Object getValue() {
         return value;
     }
@@ -117,6 +122,20 @@ public class ConstantValue implements Value {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        if (datatype.equals(XSDDatatype.XSDstring)) {
+            return "\"" + value + "\"";
+        }
+        if (datatype.equals(XSDDatatype.XSDint)) {
+            return value.toString();
+        }
+        if (datatype.equals(XSDDatatype.XSDdouble)) {
+            return value.toString();
+        }
+        return "\"" + value + "\"^^" + datatype.getURI();
     }
 
 }

@@ -8,6 +8,7 @@ package eu.h2020.symbiote.semantics.mapping.model.condition;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.ext.com.google.common.base.Objects;
+import org.apache.jena.ontology.OntProperty;
 import org.apache.jena.sparql.path.Path;
 
 /**
@@ -28,6 +29,11 @@ public class DataPropertyTypeCondition extends DataPropertyCondition {
 
     public DataPropertyTypeCondition(String path, RDFDatatype datatype) {
         super(path);
+        this.datatype = datatype;
+    }
+
+    public DataPropertyTypeCondition(OntProperty property, RDFDatatype datatype) {
+        super(property);
         this.datatype = datatype;
     }
 

@@ -5,13 +5,15 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.production;
 
+import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
+
 /**
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
 public interface Production {
 
-    public <I, TC, TP, O> TP accept(ProductionVisitor<I, TC, TP, O> visitor, TC args);
+    public <I, TC, TP, O> TP accept(MappingContext context, ProductionVisitor<I, TC, TP, O> visitor, TC args);
     public boolean validate();
     public boolean looseEquals(Object o);
 }

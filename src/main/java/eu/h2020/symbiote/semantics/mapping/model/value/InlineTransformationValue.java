@@ -5,9 +5,10 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.value;
 
+import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
 import eu.h2020.symbiote.semantics.mapping.model.transformation.JavaScriptTransformation;
-import eu.h2020.symbiote.semantics.mapping.model.transformation.TransformationRegistry;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import javafx.util.Pair;
 import org.apache.jena.graph.impl.LiteralLabel;
@@ -45,9 +46,34 @@ public class InlineTransformationValue extends TransformationValue {
     }
 
     @Override
-    public Literal eval(List<Pair<String, LiteralLabel>> inputParameters) {
+    public Literal eval(MappingContext context, List<Pair<String, LiteralLabel>> inputParameters) {
         return ResourceFactory.createTypedLiteral(
                 new JavaScriptTransformation(code).evaluate(appendStaticParameters(filterInputParameters(inputParameters))));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final InlineTransformationValue other = (InlineTransformationValue) obj;
+        if (!Objects.equals(this.code, other.code)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 37 * hash + Objects.hashCode(this.code);
+        return hash;
     }
 
 }

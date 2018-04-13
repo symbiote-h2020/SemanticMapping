@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import org.apache.jena.ontology.OntProperty;
 import org.apache.jena.sparql.path.Path;
 
 /**
@@ -34,6 +35,10 @@ public class DataPropertyValueCondition extends DataPropertyCondition {
         init();
     }
 
+    public DataPropertyValueCondition(OntProperty property) {
+        super(property);
+    }
+
     public DataPropertyValueCondition(Path path, List<ValueCondition> valueRestrictions) {
         this(path);
         this.valueRestrictions.addAll(valueRestrictions);
@@ -43,14 +48,19 @@ public class DataPropertyValueCondition extends DataPropertyCondition {
         this(path);
         this.valueRestrictions.addAll(valueRestrictions);
     }
-    
-        public DataPropertyValueCondition(Path path, ValueCondition... valueRestrictions) {
+
+    public DataPropertyValueCondition(Path path, ValueCondition... valueRestrictions) {
         super(path);
         this.valueRestrictions = Arrays.asList(valueRestrictions);
     }
 
     public DataPropertyValueCondition(String path, ValueCondition... valueRestrictions) {
         super(path);
+        this.valueRestrictions = Arrays.asList(valueRestrictions);
+    }
+
+    public DataPropertyValueCondition(OntProperty property, ValueCondition... valueRestrictions) {
+        super(property);
         this.valueRestrictions = Arrays.asList(valueRestrictions);
     }
 
@@ -96,5 +106,4 @@ public class DataPropertyValueCondition extends DataPropertyCondition {
                 && valueRestrictions.stream().allMatch(x -> x.validate())
                 && super.validate();
     }
-
 }

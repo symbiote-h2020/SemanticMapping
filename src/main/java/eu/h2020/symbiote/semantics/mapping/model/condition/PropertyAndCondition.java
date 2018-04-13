@@ -16,11 +16,11 @@ public class PropertyAndCondition extends NAryPropertyCondition {
     private PropertyAndCondition() {
         super();
     }
-    
+
     public PropertyAndCondition(PropertyCondition... elements) {
         super(elements);
     }
-    
+
     public PropertyAndCondition(List<PropertyCondition> elements) {
         super(elements);
     }
@@ -47,5 +47,4 @@ public class PropertyAndCondition extends NAryPropertyCondition {
         }
         return true;
     }
-
 }

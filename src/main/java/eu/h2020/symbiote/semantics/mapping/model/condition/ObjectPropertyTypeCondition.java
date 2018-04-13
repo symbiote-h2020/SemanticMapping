@@ -6,6 +6,7 @@
 package eu.h2020.symbiote.semantics.mapping.model.condition;
 
 import java.util.Objects;
+import org.apache.jena.ontology.OntProperty;
 import org.apache.jena.sparql.path.Path;
 
 /**
@@ -27,6 +28,11 @@ public class ObjectPropertyTypeCondition extends ObjectPropertyCondition {
 
     public ObjectPropertyTypeCondition(String path, ClassCondition type) {
         super(path);
+        this.type = type;
+    }
+
+    public ObjectPropertyTypeCondition(OntProperty property, ClassCondition type) {
+        super(property);
         this.type = type;
     }
 
@@ -67,5 +73,4 @@ public class ObjectPropertyTypeCondition extends ObjectPropertyCondition {
         return super.validate()
                 && type.validate();
     }
-
 }

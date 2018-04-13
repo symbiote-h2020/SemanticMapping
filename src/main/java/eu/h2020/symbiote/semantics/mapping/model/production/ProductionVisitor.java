@@ -5,6 +5,8 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.production;
 
+import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
+
 /**
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
@@ -17,10 +19,10 @@ public interface ProductionVisitor<I, TC, TP, O> {
     
     public void init(I input);
     public O getResult();
-    public TP visit(Production production, TC temp);
-    public TP visit(IndividualProduction production, TC temp);
-    public TP visit(ClassProduction production, TC temp);    
-    public TP visit(DataPropertyProduction production, TC temp);
-    public TP visit(ObjectPropertyTypeProduction production, TC temp);
-    public TP visit(ObjectPropertyValueProduction production, TC temp);
+    public TP visit(MappingContext context, Production production, TC temp);
+    public TP visit(MappingContext context, IndividualProduction production, TC temp);
+    public TP visit(MappingContext context, ClassProduction production, TC temp);    
+    public TP visit(MappingContext context, DataPropertyProduction production, TC temp);
+    public TP visit(MappingContext context, ObjectPropertyTypeProduction production, TC temp);
+    public TP visit(MappingContext context, ObjectPropertyValueProduction production, TC temp);
 }

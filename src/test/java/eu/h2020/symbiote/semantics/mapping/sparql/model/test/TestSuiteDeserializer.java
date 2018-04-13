@@ -15,9 +15,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.h2020.symbiote.semantics.mapping.model.Mapping;
 import eu.h2020.symbiote.semantics.mapping.model.serialize.AbstractTypeDeserializer;
 import eu.h2020.symbiote.semantics.mapping.model.serialize.JenaModule;
+import eu.h2020.symbiote.semantics.mapping.parser.ParseException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.jena.query.Query;
 
 /**
@@ -76,9 +79,13 @@ public class TestSuiteDeserializer extends AbstractTypeDeserializer<TestSuite> {
         result.setAlternativeQueries(alternativeQueries);
 
         mapper.enableDefaultTyping();
-        JsonParser parserMapping = node.get("mapping").traverse(p.getCodec());
-        Mapping mapping = mapper.readValue(parserMapping, Mapping.class);
-        result.setMapping(mapping);
+        Mapping mapping;
+        try {
+            mapping = Mapping.parse(node.get("mapping").textValue());
+            result.setMapping(mapping);
+        } catch (ParseException ex) {
+            throw new IOException("error parsing mapping definition", ex);
+        }        
         mapper.disableDefaultTyping();
         
         JsonParser parserExpectedResult = node.get("expectedResult").traverse(p.getCodec());

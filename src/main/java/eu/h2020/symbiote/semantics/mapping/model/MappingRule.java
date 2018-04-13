@@ -7,6 +7,7 @@ package eu.h2020.symbiote.semantics.mapping.model;
 
 import eu.h2020.symbiote.semantics.mapping.model.condition.Condition;
 import eu.h2020.symbiote.semantics.mapping.model.production.Production;
+import eu.h2020.symbiote.semantics.mapping.model.serialize.MappingPrinter;
 import java.util.Objects;
 
 /**
@@ -77,6 +78,5 @@ public class MappingRule {
         }
         return true;
     }
-    
-    
+
 }

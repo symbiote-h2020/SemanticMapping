@@ -5,12 +5,14 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.production;
 
+import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.ontology.OntClass;
 
 /**
  *
@@ -25,6 +27,11 @@ public class ClassProduction implements Production {
         this.properties = new ArrayList<>();
     }
 
+    public ClassProduction(OntClass ontClass) {
+        this();
+        this.uri = ontClass.asNode();
+    }
+    
     public ClassProduction(Node uri) {
         this();
         this.uri = uri;
@@ -41,6 +48,11 @@ public class ClassProduction implements Production {
 
     public ClassProduction(Node uri, PropertyProduction... properties) {
         this(properties);
+        this.uri = uri;
+    }
+
+    public ClassProduction(Node uri, List<PropertyProduction> properties) {
+        this.properties = new ArrayList<>(properties);
         this.uri = uri;
     }
 
@@ -111,7 +123,7 @@ public class ClassProduction implements Production {
     }
 
     @Override
-    public <I, TC, TP, O> TP accept(ProductionVisitor<I, TC, TP, O> visitor, TC args) {
-        return visitor.visit(this, args);
+    public <I, TC, TP, O> TP accept(MappingContext context, ProductionVisitor<I, TC, TP, O> visitor, TC args) {
+        return visitor.visit(context, this, args);
     }
 }

@@ -6,6 +6,7 @@
 package eu.h2020.symbiote.semantics.mapping.model.condition;
 
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  *
@@ -20,7 +21,7 @@ public class ClassAndCondition extends NAryClassCondition {
     public ClassAndCondition(List<ClassCondition> elements) {
         super(elements);
     }
-    
+
     public ClassAndCondition(ClassCondition... elements) {
         super(elements);
     }

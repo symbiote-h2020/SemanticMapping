@@ -7,6 +7,8 @@ package eu.h2020.symbiote.semantics.mapping.model.condition;
 
 import java.util.Objects;
 import org.apache.jena.graph.Node;
+import org.apache.jena.ontology.OntProperty;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.sparql.path.Path;
 
 /**
@@ -29,6 +31,12 @@ public class ObjectPropertyValueCondition extends ObjectPropertyCondition {
     public ObjectPropertyValueCondition(String path, Node value) {
         super(path);
         this.value = value;
+    }
+    
+    
+    public ObjectPropertyValueCondition(OntProperty property, Resource value) {
+        super(property);        
+        this.value = value.asNode();
     }
 
     @Override
@@ -69,5 +77,4 @@ public class ObjectPropertyValueCondition extends ObjectPropertyCondition {
                 && value != null
                 && value.isURI();
     }
-
 }

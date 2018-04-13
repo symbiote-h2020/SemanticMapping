@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import eu.h2020.symbiote.semantics.mapping.model.serialize.AbstractTypeSerializer;
 import eu.h2020.symbiote.semantics.mapping.model.serialize.JenaModule;
+import eu.h2020.symbiote.semantics.mapping.model.serialize.MappingPrinter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,9 @@ public class TestSuiteSerializer extends AbstractTypeSerializer<TestSuite> {
         mapper.writeValue(gen, value.getExpectedResult());
 
         mapper.enableDefaultTyping();
-        provider.defaultSerializeField("mapping", value.getMapping(), gen);
+        //provider.defaultSerializeField("mapping", MappingPrinter.print(value.getMapping()), gen);
+        gen.writeFieldName("mapping");
+        mapper.writeValue(gen, MappingPrinter.print(value.getMapping()));
         mapper.disableDefaultTyping();
 
         gen.writeFieldName("replacements");

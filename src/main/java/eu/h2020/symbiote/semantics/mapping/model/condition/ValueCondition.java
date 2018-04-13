@@ -13,12 +13,13 @@ import java.util.Objects;
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
 public class ValueCondition {
+
     private Comparator comparator;
     private Value value;
-    
-    private ValueCondition() {        
+
+    private ValueCondition() {
     }
-    
+
     public ValueCondition(Comparator comparator, Value value) {
         this.comparator = comparator;
         this.value = value;
@@ -39,9 +40,9 @@ public class ValueCondition {
     public void setValue(Value value) {
         this.value = value;
     }
-    
+
     public boolean validate() {
-        return comparator != null 
+        return comparator != null
                 && value.validate();
     }
 
@@ -73,6 +74,4 @@ public class ValueCondition {
         }
         return true;
     }
-    
-    
 }

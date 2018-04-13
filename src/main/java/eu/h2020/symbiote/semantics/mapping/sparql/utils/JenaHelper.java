@@ -475,8 +475,7 @@ public class JenaHelper {
                         && value.equals(valueRestriction.getValue().asNode())) {
                     result.setExpr(expr);
                     if (value.isLiteral()) {
-                        String valueName = path.toString().substring(path.toString().lastIndexOf('#') + 1, path.toString().length() - 1);
-                        result.setValue(new Pair(valueName, value.getLiteral()));
+                        result.setValue(new Pair(getParameterName(path), value.getLiteral()));
                     }
                     result.setFilter(el);
                 }
@@ -559,6 +558,22 @@ public class JenaHelper {
         return result;
     }
 
+    public static String getParameterName(String string) {
+        return string;
+    }
+
+    public static String getParameterName(Path path) {
+        return stripQuotes(path.toString());
+    }
+
+    private static String stripQuotes(String s) {
+        return s.substring(1, s.length() - 1);
+    }
+
+    public static String getParameterName(Node node) {
+        return node.toString();
+    }
+
     private static Optional<FilterMatch> findFilter(Query query, Var var, RDFDatatype datatype, Path path) {
         FilterMatch result = new FilterMatch(null, Expr.NONE);
         ElementWalker.walk(query.getQueryPattern(), new ElementVisitorBase() {
@@ -581,7 +596,7 @@ public class JenaHelper {
                         result.setExpr(expr);
                         result.setFilter(el);
                         String valueName = path.toString().substring(path.toString().lastIndexOf('#') + 1, path.toString().length() - 1);
-                        result.setValue(new Pair(valueName, value.getLiteral()));
+                        result.setValue(new Pair(getParameterName(path), value.getLiteral()));
                     }
                 } else if (expr.getArg1() instanceof E_Datatype && expr.getArg2().isConstant()) {
                     // case FILTER(datatype(?var)=type)

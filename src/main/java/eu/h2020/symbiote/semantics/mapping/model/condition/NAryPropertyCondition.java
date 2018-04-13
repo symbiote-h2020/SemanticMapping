@@ -26,7 +26,7 @@ public abstract class NAryPropertyCondition implements PropertyCondition {
         this();
         this.elements.addAll(elements);
     }
-    
+
     protected NAryPropertyCondition(PropertyCondition... elements) {
         this.elements = Arrays.asList(elements);
     }
@@ -69,6 +69,9 @@ public abstract class NAryPropertyCondition implements PropertyCondition {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
         return getClass() == obj.getClass() && looseEquals(obj);
     }
 

@@ -5,7 +5,9 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.transformation;
 
+import eu.h2020.symbiote.semantics.mapping.model.Mapping;
 import eu.h2020.symbiote.semantics.mapping.model.value.TransformationValue;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,11 +22,11 @@ import javax.script.ScriptException;
 public class JavaScriptTransformation implements Transformation {
 
     private final String name;
-    private final String jsCode;
+    private final String code;
 
     public JavaScriptTransformation(String name, String jsCode) {
         this.name = name;
-        this.jsCode = jsCode;
+        this.code = jsCode;
     }
 
     public JavaScriptTransformation(String jsCode) {
@@ -37,7 +39,7 @@ public class JavaScriptTransformation implements Transformation {
         ScriptEngine engine = manager.getEngineByName("JavaScript");
         engine.put("parameters", parameters);
         try {
-            return engine.eval(getJsCode());
+            return engine.eval(getCode());
         } catch (ScriptException ex) {
             Logger.getLogger(TransformationValue.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -49,8 +51,37 @@ public class JavaScriptTransformation implements Transformation {
         return name;
     }
 
-    public String getJsCode() {
-        return jsCode;
+    public String getCode() {
+        return code;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final JavaScriptTransformation other = (JavaScriptTransformation) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.code, other.code)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 97 * hash + Objects.hashCode(this.name);
+        hash = 97 * hash + Objects.hashCode(this.code);
+        return hash;
     }
 
 }

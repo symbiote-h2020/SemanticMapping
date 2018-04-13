@@ -6,12 +6,14 @@
 package eu.h2020.symbiote.semantics.mapping.test.sparql.util;
 
 import eu.h2020.symbiote.semantics.mapping.model.Mapping;
+import eu.h2020.symbiote.semantics.mapping.parser.ParseException;
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.QueryCompare;
 import eu.h2020.symbiote.semantics.mapping.test.ontology.TEST_MODEL;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.test.TestSuite;
 import static eu.h2020.symbiote.semantics.mapping.test.sparql.util.Constants.PREFIX_TEST;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,7 +45,7 @@ public class Utils {
         return result;
     }
 
-    public static Mapping getMapping(String filename) throws IOException, URISyntaxException {
+    public static Mapping getMapping(String filename) throws IOException, URISyntaxException, MalformedURLException, ParseException {
         //String content = IOUtils.toString(Utils.class.getResourceAsStream(getMappingFile(filename)), Charset.defaultCharset());
         return Mapping.load(getMappingFile(filename));
     }

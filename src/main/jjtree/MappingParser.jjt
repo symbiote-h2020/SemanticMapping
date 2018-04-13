@@ -5,6 +5,7 @@ package eu.h2020.symbiote.semantics.mapping.parser;
 import eu.h2020.symbiote.semantics.mapping.model.*;
 import eu.h2020.symbiote.semantics.mapping.model.condition.*;
 import eu.h2020.symbiote.semantics.mapping.model.production.*;
+import eu.h2020.symbiote.semantics.mapping.model.transformation.JavaScriptTransformation;
 import eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue;
 import eu.h2020.symbiote.semantics.mapping.model.value.Value;
 import org.apache.jena.graph.NodeFactory;
@@ -13,12 +14,27 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.jena.sparql.path.Path;
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.JenaHelper;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.nio.charset.Charset;
+import org.apache.jena.datatypes.TypeMapper;
+import eu.h2020.symbiote.semantics.mapping.model.value.ReferenceValue;
+import eu.h2020.symbiote.semantics.mapping.model.value.TransformationValue;
 
 
 public class MappingParser extends AbstractMappingParser{
+    private static final Charset DEFAULT_ENCODING = Charset.forName("UTF-8");
 
+    public static Mapping parse(String mapping) throws ParseException {
+        return parse(mapping, DEFAULT_ENCODING);
+    }
+
+    public static Mapping parse(String mapping, Charset encoding) throws ParseException {
+        InputStream is = new ByteArrayInputStream(mapping.getBytes(encoding));
+        return new MappingParser(is, encoding.name()).Mapping();
+    }
 }
 
 PARSER_END(MappingParser)
@@ -57,57 +73,64 @@ TOKEN:
 |	<#HEX: ["0"-"9"] | ["A"-"F"] | ["a"-"f"]>
 }
 
-TOKEN:
-{
-	<COLON: ":">
-|	<SEMICOLON: ";">
-|	<COMMA: ",">
-|       <QUOTE: "\"">
-|	<LB: "(">
-| 	<RB: ")">
-|       <LBRACKET: "[">
-|       <RBRACKET: "]">
-| 	<INTEGER: ("-")?(["0"-"9"])+>
-| 	<DOUBLE: ("-")?(["0"]|["1"-"9"](["0"-"9"])*)("."(["0"-"9"])+)?(["E"]("-")?(["0"-"9"])+)?>
-| 	<IRIABS: "<" (~[ ">","<", "\"", "{", "}", "^", "\\", "|", "`", "\u0000"-"\u0020"])* ">">
-|	<PNAME_NS: (<PN_PREFIX>)? ":">
-|	<PNAME_LN: <PNAME_NS> <PN_LOCAL>>
-}
 
 TOKEN [IGNORE_CASE] :
 {
-        <BASE: "base">
-|	<PREFIX: "prefix">
-|	<RULE: "rule">
-|	<CONDITION: "condition">
-|	<PRODUCTION: "production">
-|	<INDIVIDUAL: "individual">
-|	<CLASS: "class">
-|	<AND: "and">
-|	<OR: "or">
-|	<VALUE: "value">
-|	<TYPE: "type">
+        <BASE: "BASE">
+|	<PREFIX: "PREFIX">
+|	<RULE: "RULE">
+|	<CONDITION: "CONDITION">
+|	<PRODUCTION: "PRODUCTION">
+|	<INDIVIDUAL: "INDIVIDUAL">
+|	<CLASS: "CLASS">
+|	<AND: "AND">
+|	<OR: "OR">
+|	<VALUE: "VALUE">
+|	<TYPE: "TYPE">
 |       <EQUAL: "=">
 |       <NOT_EQUAL: "!=">
 |       <GREATER_EQUAL: ">=">
 |       <GREATER_THAN: ">">
 |       <LESS_EQUAL: "<=">
 |       <LESS_THAN: "<">
-|       <SUM: "sum">
-|       <AVG: "avg">
-|       <MIN: "min">
-|       <MAX: "max">
-|       <COUNT: "count">
-|       <AGGREGATION: "aggregation">
+|       <SUM: "SUM">
+|       <AVG: "AVG">
+|       <MIN: "MIN">
+|       <MAX: "MAX">
+|       <COUNT: "COUNT">
+|       <AGGREGATION: "AGGREGATION">
+|       <TRANSFORMATION: "TRANSFORMATION">
+|       <REFERENCE: "REFERENCE">
+|       <ANY: "ANY">
 }
+
+TOKEN:
+{
+	<COLON: ":">
+|	<SEMICOLON: ";">
+|	<COMMA: ",">
+|	<LB: "(">
+| 	<RB: ")">
+|       <LBRACKET: "[">
+|       <RBRACKET: "]">
+|       <DATATYPE: "^^">
+| 	<INTEGER: ("-")?(["0"-"9"])+>
+| 	<DOUBLE: ("-")?(["0"]|["1"-"9"](["0"-"9"])*)("."(["0"-"9"])+)?(["E"]("-")?(["0"-"9"])+)?>
+| 	<IRIABS: "<" (~[ ">","<", "\"", "{", "}", "^", "\\", "|", "`", "\u0000"-"\u0020"])* ">">
+|       <PNAME_NS: (<PN_PREFIX>)? ":">
+|	<PNAME_LN: <PNAME_NS> <PN_LOCAL>>
+|	<FCT_NAME: (<PN_CHARS_BASE>)+>
+}
+
 
 
 /** Main production. */
 Mapping Mapping() : {Mapping m = new Mapping(); MappingRule r = null;}
 {
     (
-        (Base())?
+        (Base(m))?
         (Prefix())*
+        (Transformation(m))*
         (r=Rule(){m.getMappingRules().add(r);})+
     )
     {
@@ -115,10 +138,11 @@ Mapping Mapping() : {Mapping m = new Mapping(); MappingRule r = null;}
     }
 }
 
-void Base() : {Token ti;}
+void Base(Mapping m) : {Token ti;}
 {
     (<BASE> ti = <IRIABS>)
     {
+        m.setBase(stripQuotes(ti.image));
         addPrefix("", stripQuotes(ti.image));
     }    
 }
@@ -131,9 +155,32 @@ void Prefix() : {Token tp; Token ti;}
     }    
 }
 
+TOKEN_MGR_DECLS : {
+    int bracketNestingDepth ;
+    int quotesNestingDepth ;
+}
+
+SKIP : {  "{" { bracketNestingDepth = 1 ; } : JS_CODE }
+<JS_CODE>  SKIP : {  "{" { bracketNestingDepth += 1 ; } }
+<JS_CODE>  TOKEN : {  <CODE:"}"> { bracketNestingDepth -= 1; SwitchTo( bracketNestingDepth==0 ? DEFAULT : JS_CODE ) ; }}
+<JS_CODE>  MORE : {  < ~[] > }
+
+void Transformation(Mapping m) : {Token name; Token t;}
+{
+    (
+        <TRANSFORMATION> 
+        name = <FCT_NAME> 
+        t = <CODE>
+    )
+    {
+        String code = t.image.substring(0, t.image.length()-1).trim();
+        m.getTransformations().add(new JavaScriptTransformation(name.image, code));
+    }    
+}
+
 MappingRule Rule() : {Condition c = null; Production p = null;}
 {
-    (<RULE> c=Condition() Production())
+    (<RULE> c=Condition() p=Production())
     {
         return new MappingRule(c, p);
     }
@@ -141,29 +188,27 @@ MappingRule Rule() : {Condition c = null; Production p = null;}
 
 Condition Condition() : {Condition c = null;}
 {
-(<CONDITION> 
-    (c=ConditionIndividual() { return c; }
-    |c=ClassCondition() { return c; }))	 
-}
-
-ClassCondition ClassCondition() : {ClassCondition c = null; PropertyCondition p = null;}
-{
-    (( LOOKAHEAD(200)c=ClassConditionAnd() 
-    | LOOKAHEAD(200)c=ClassConditionOr()  
-    | LOOKAHEAD(200)c=ClassConditionUnary() ) 
-    (LOOKAHEAD(200)p = ConditionProperty())?)
-    {
-        if (p != null)
-        {
-            c.setPropertyCondition(p);
-        }
-        return c;
+    (<CONDITION> 
+        (LOOKAHEAD(2)c=ConditionIndividual()
+        |LOOKAHEAD(2)c=ClassCondition()
+        |LOOKAHEAD(200)c=ConditionProperty()))	 
+    { 
+        return c; 
     }
 }
 
 ClassAndCondition ClassConditionAnd() : { ClassCondition c = null; List<ClassCondition> cs = new ArrayList<ClassCondition>();}
 {
-    (c=ClassConditionUnary() {cs.add(c);} <AND> c=ClassConditionUnary() {cs.add(c);} (LOOKAHEAD(200)<AND> c=ClassConditionUnary() {cs.add(c);})*)
+    (   <LB>
+        c=ClassCondition() {cs.add(c);} 
+        <AND> 
+        c=ClassCondition() {cs.add(c);}         
+        (
+            LOOKAHEAD(200)
+            <AND> 
+            c=ClassCondition() {cs.add(c);})*
+        <RB>
+    )
     {
         return new ClassAndCondition(cs);
     }
@@ -171,16 +216,37 @@ ClassAndCondition ClassConditionAnd() : { ClassCondition c = null; List<ClassCon
 
 ClassOrCondition ClassConditionOr() : { ClassCondition c = null; List<ClassCondition> cs = new ArrayList<ClassCondition>();}
 {
-    (c=ClassConditionUnary() {cs.add(c);} <OR> c=ClassConditionUnary() {cs.add(c);} (LOOKAHEAD(200)<OR> c=ClassConditionUnary() {cs.add(c);})*)
+    (   <LB>
+        c=ClassCondition() {cs.add(c);} 
+        <OR> 
+        c=ClassCondition() {cs.add(c);}         
+        (
+            LOOKAHEAD(200)
+            <OR> 
+            c=ClassCondition() {cs.add(c);})*
+        <RB>
+    )
     {
         return new ClassOrCondition(cs);
     }
 }
 
-ClassCondition ClassConditionUnary() : {ClassCondition c = null;}
+ClassCondition ClassCondition() : {ClassCondition c = null; PropertyCondition p = null;}
 {
-    (c = ClassConditionUri() | (<LB> c = ClassCondition() <RB>))
+    (
+        ( 
+            LOOKAHEAD(20000) (<LB> c = ClassCondition() <RB>)
+            | LOOKAHEAD(20000) c = ClassConditionUri() 
+            | LOOKAHEAD(2000)c=ClassConditionAnd() 
+            | LOOKAHEAD(2000)c=ClassConditionOr()  
+        )
+        (LOOKAHEAD(2000)p = ConditionProperty())?
+    )  
     {	
+        if (p != null)
+        {
+            c.setPropertyCondition(p);
+        }
         return c;
     }
 }
@@ -326,15 +392,70 @@ Path Property() : {Node n = null;}
     }
 }
 
-void Production() : {}
+Production Production() : {Production p;}
 {
-    <PRODUCTION> 
+    (<PRODUCTION> 
+        (p=ProductionIndividual()
+        |p=ProductionClass()
+        |p=ProductionProperty()))	 
+    { 
+        return p; 
+    }
 }
 
+IndividualProduction ProductionIndividual() : {Node n = null;}
+{
+    (<INDIVIDUAL> n=IRI())
+    {
+        return new IndividualProduction(n);
+    }
+}
+
+ClassProduction ProductionClass() : {Node n; PropertyProduction p; List<PropertyProduction> ps = new ArrayList<PropertyProduction>();}
+{
+    (<CLASS> n=IRI() (LOOKAHEAD(200)p=ProductionProperty(){ ps.add(p); })*)
+    {
+        return new ClassProduction(n, ps);
+    }
+}
+
+PropertyProduction ProductionProperty() : {PropertyProduction p; }
+{
+    ( LOOKAHEAD(200) p = ProductionPropertyObjectValue()
+    | LOOKAHEAD(200) p = ProductionPropertyObjectType()
+    | LOOKAHEAD(200) p = ProductionPropertyDataValue())
+    {
+        return p;
+    }
+}
+
+DataPropertyProduction ProductionPropertyDataValue() :{Path p = null; Value v;}
+{
+    p=Property() <VALUE> v=Value()
+    {
+        return new DataPropertyProduction(p, v);
+    }
+}
+
+ObjectPropertyValueProduction ProductionPropertyObjectValue() :{Path p = null; Node n;}
+{
+    p=Property() <VALUE> n=IRI()
+    {
+        return new ObjectPropertyValueProduction(p, n);
+    }
+}
+
+ObjectPropertyTypeProduction ProductionPropertyObjectType() :{Path p = null; ClassProduction c;}
+{
+    p=Property() <TYPE> c=ProductionClass()
+    {
+        return new ObjectPropertyTypeProduction(p, c);
+    }
+}
 
 Node IRI() : {Node n = null;}
 {
-    (n = IRIAbs() | n = IRIPrefix())
+    (<ANY>{n=Node.ANY;} | n = IRIAbs() | n = IRIPrefix())
     {
             return n;
     }
@@ -379,9 +500,57 @@ Comparator Comparator() : {Token t;}
 
 Value Value() : {Value v;}
 {
-    (v=NumericValue())
+    ( LOOKAHEAD(200) v=ReferenceValue()
+    | LOOKAHEAD(200) v=TypedConstantValue()
+    | LOOKAHEAD(200) v=NumericValue()    
+    | LOOKAHEAD(200) v=StringValue()    
+    | LOOKAHEAD(200) v=TransformationValue())
     {
         return v;
+    }
+}
+
+
+TOKEN : {  <START_QUOTE:"\""> { quotesNestingDepth = 1 ; } : QUOTE_STATE }
+<QUOTE_STATE>  SKIP : {  "\\{" { quotesNestingDepth += 1 ; } }
+<QUOTE_STATE>  TOKEN : {  <END_QUOTE:"\""> { quotesNestingDepth -= 1; SwitchTo( quotesNestingDepth==0 ? DEFAULT : QUOTE_STATE ) ; }}
+<QUOTE_STATE>  MORE : {  < ~[] > }
+
+Value TypedConstantValue() : {Token t; Node n;}
+{
+    (<START_QUOTE> t=<END_QUOTE> <DATATYPE> n=IRI())
+    {
+        return new ConstantValue(t.image.substring(0, t.image.length()-1), TypeMapper.getInstance().getTypeByName(n.getURI()));
+    }
+}
+
+ReferenceValue ReferenceValue() : {Token t; Node n;}
+{
+    (<REFERENCE> n=IRI())
+    {        
+        return new ReferenceValue(n.getURI());
+    }
+}
+
+TransformationValue TransformationValue() : {Token t; Value v; List<Value> vs = new ArrayList<Value>();}
+{
+    (t=<FCT_NAME> 
+    <LB> 
+    (v=Value(){vs.add(v);} (<COMMA> v=Value(){vs.add(v);})*)? 
+    <RB>)
+    {        
+        return new TransformationValue(t.image, vs);
+    }
+}
+
+
+
+ConstantValue StringValue() : {Token t; Node n;}
+{
+    (<START_QUOTE> t=<END_QUOTE>)
+    {
+        String value = t.image.substring(0, t.image.length()-1);
+        return ConstantValue.fromString(value);
     }
 }
 

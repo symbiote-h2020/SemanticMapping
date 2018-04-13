@@ -5,10 +5,10 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.condition;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.ontology.OntClass;
 
 /**
  *
@@ -21,6 +21,10 @@ public class UriClassCondition extends ClassCondition {
     public UriClassCondition() {
     }
 
+    public UriClassCondition(OntClass ontClass) {
+        this.uri = ontClass.asNode();
+    }
+
     public UriClassCondition(Node uri) {
         this.uri = uri;
     }
@@ -31,6 +35,11 @@ public class UriClassCondition extends ClassCondition {
 
     public UriClassCondition(PropertyCondition propertyCondition) {
         super(propertyCondition);
+    }
+
+    public UriClassCondition(OntClass ontClass, PropertyCondition propertyCondition) {
+        super(propertyCondition);
+        this.uri = ontClass.asNode();
     }
 
     public UriClassCondition(Node uri, PropertyCondition propertyCondition) {
@@ -81,5 +90,4 @@ public class UriClassCondition extends ClassCondition {
                 && uri != null
                 && uri.isURI();
     }
-
 }

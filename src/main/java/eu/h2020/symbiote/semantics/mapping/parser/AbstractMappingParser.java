@@ -27,11 +27,11 @@ public class AbstractMappingParser {
         prefixes.setNsPrefix(prefixFixed, uri);
     }
     
-    protected Node expand(String prefixed) {
+    protected Node expand(String prefixed) {        
         return NodeFactory.createURI(prefixes.expandPrefix(prefixed));
     }
     
-    protected static String stripQuotes(String s) {
+    public static String stripQuotes(String s) {
         return s.substring(1, s.length() - 1) ;
     }
 

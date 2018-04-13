@@ -7,6 +7,8 @@ package eu.h2020.symbiote.semantics.mapping.model.condition;
 
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.JenaHelper;
 import java.util.Objects;
+import org.apache.jena.ontology.OntProperty;
+import org.apache.jena.sparql.path.P_Link;
 import org.apache.jena.sparql.path.Path;
 
 /**
@@ -23,6 +25,10 @@ public class PropertyPathCondition implements PropertyCondition {
 
     public PropertyPathCondition(Path path) {
         this.path = path;
+    }
+    
+    public PropertyPathCondition(OntProperty property) {
+        this.path = new P_Link(property.asNode());
     }
 
     public PropertyPathCondition(String path) {
@@ -73,5 +79,4 @@ public class PropertyPathCondition implements PropertyCondition {
     public boolean validate() {
         return path != null;
     }
-
 }

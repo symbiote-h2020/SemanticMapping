@@ -5,7 +5,6 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.production;
 
-
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.JenaHelper;
 import java.util.Objects;
 import org.apache.jena.sparql.path.Path;
@@ -16,7 +15,7 @@ import org.apache.jena.sparql.path.Path;
  */
 public abstract class PropertyProduction implements Production {
 
-    private Path path;
+    protected Path path;
 
     protected PropertyProduction() {
     }

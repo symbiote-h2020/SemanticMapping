@@ -5,6 +5,8 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.value;
 
+import java.util.Objects;
+import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.Node;
 
 /**
@@ -27,6 +29,11 @@ public class ReferenceValue implements Value {
     public Node asNode() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+    @Override
+    public <T> void accept(ValueVisitor visitor, T parameter) {
+        visitor.visit(this, parameter);
+    }
 
     @Override
     public boolean validate() {
@@ -39,6 +46,31 @@ public class ReferenceValue implements Value {
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ReferenceValue other = (ReferenceValue) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 37 * hash + Objects.hashCode(this.name);
+        return hash;
     }
 
 }

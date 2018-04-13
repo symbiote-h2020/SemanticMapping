@@ -13,7 +13,18 @@ package eu.h2020.symbiote.semantics.mapping.model.condition;
  */
 public interface ConditionVisitor<R, P> {
 
-    public R visit(Condition condition, P args);
+    public default R visit(Condition condition, P args) {
+        return condition.accept(this, args);
+    }
+    
+    public default R visit(ClassCondition condition, P args) {
+        return condition.accept(this, args);
+    }
+    
+    public default R visit(PropertyCondition condition, P args) {
+        return condition.accept(this, args);
+    }
+    
     public R visit(IndividualCondition condition, P args);
     public R visit(ClassAndCondition condition, P args);
     public R visit(ClassOrCondition condition, P args);

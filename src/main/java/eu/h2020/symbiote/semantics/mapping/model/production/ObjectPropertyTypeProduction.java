@@ -5,6 +5,7 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.production;
 
+import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
 import java.util.Objects;
 import org.apache.jena.sparql.path.Path;
 
@@ -68,8 +69,7 @@ public class ObjectPropertyTypeProduction extends ObjectPropertyProduction {
     }
 
     @Override
-    public <I, TC, TP, O> TP accept(ProductionVisitor<I, TC, TP, O> visitor, TC args) {
-        return visitor.visit(this, args);
+    public <I, TC, TP, O> TP accept(MappingContext context, ProductionVisitor<I, TC, TP, O> visitor, TC args) {
+        return visitor.visit(context, this, args);
     }
-
 }
