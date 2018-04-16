@@ -7,16 +7,30 @@ package eu.h2020.symbiote.semantics.mapping.test;
 
 import eu.h2020.symbiote.semantics.mapping.model.Mapping;
 import eu.h2020.symbiote.semantics.mapping.model.MappingRule;
+import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationType;
+import eu.h2020.symbiote.semantics.mapping.model.condition.ClassAndCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.ClassOrCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.Comparator;
 import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyTypeCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyValueCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.IndividualCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.ObjectPropertyTypeCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.ObjectPropertyValueCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyAggregationCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyAndCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyOrCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyPathCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.ValueCondition;
 import eu.h2020.symbiote.semantics.mapping.model.production.ClassProduction;
+import eu.h2020.symbiote.semantics.mapping.model.production.DataPropertyProduction;
+import eu.h2020.symbiote.semantics.mapping.model.production.IndividualProduction;
+import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyTypeProduction;
+import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyValueProduction;
+import eu.h2020.symbiote.semantics.mapping.model.transformation.JavaScriptTransformation;
 import eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue;
+import eu.h2020.symbiote.semantics.mapping.model.value.ReferenceValue;
+import eu.h2020.symbiote.semantics.mapping.model.value.TransformationValue;
 import eu.h2020.symbiote.semantics.mapping.test.ontology.TEST_MODEL;
 import java.util.Arrays;
 import java.util.List;
@@ -28,16 +42,13 @@ import org.apache.jena.datatypes.xsd.XSDDatatype;
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
 public class MappingExamples {
-    
+
     private MappingExamples() {
     }
-    
-    private static String getBaseString() {
-        return String.format("BASE <%s> \n", TEST_MODEL.NS);
-    }
-    private static final String BASE = "BASE <http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#> ";
-    private static final String PREFIX_XSD = "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> ";
-    
+
+    private static final String BASE = "BASE <http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#> \n";
+    private static final String PREFIX_XSD = "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> \n";
+
     public static final List<Pair<Mapping, String>> EXAMPLES = Arrays.asList(
             new Pair<Mapping, String>(
                     new Mapping.Builder()
@@ -46,8 +57,8 @@ public class MappingExamples {
                                     new UriClassCondition(TEST_MODEL.A),
                                     new ClassProduction(TEST_MODEL.B)))
                             .build(),
-                    "RULE "
-                    + "   CONDITION CLASS <http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#A> "
+                    "RULE \n"
+                    + "   CONDITION CLASS <http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#A> \n"
                     + "   PRODUCTION CLASS <http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#B>"),
             /**
              * BASE
@@ -60,9 +71,9 @@ public class MappingExamples {
                                     new ClassProduction(TEST_MODEL.B)))
                             .build(),
                     BASE
-                    + "   RULE "
-                    + "      CONDITION CLASS :A "
-                    + "      PRODUCTION CLASS :B"),
+                    + "RULE \n"
+                    + "   CONDITION CLASS :A \n"
+                    + "   PRODUCTION CLASS :B"),
             /**
              * PREFIX
              */
@@ -73,12 +84,25 @@ public class MappingExamples {
                                     new UriClassCondition(TEST_MODEL.A),
                                     new ClassProduction(TEST_MODEL.B)))
                             .build(),
-                    "PREFIX test: <http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#> "
-                    + "   RULE "
-                    + "      CONDITION CLASS test:A "
-                    + "      PRODUCTION CLASS test:B"),
+                    "PREFIX test: <http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#> \n"
+                    + "RULE \n"
+                    + "   CONDITION CLASS test:A \n"
+                    + "   PRODUCTION CLASS test:B"),
             /**
-             * condition property path
+             * Full URI
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new UriClassCondition(TEST_MODEL.A),
+                                    new ClassProduction(TEST_MODEL.B)))
+                            .build(),
+                    "RULE \n"
+                    + "      CONDITION CLASS <http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#A> \n"
+                    + "      PRODUCTION CLASS <http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#B>"),
+            /**
+             * condition class with property path
              */
             new Pair<Mapping, String>(
                     new Mapping.Builder()
@@ -89,11 +113,11 @@ public class MappingExamples {
                                     new ClassProduction(TEST_MODEL.B)))
                             .build(),
                     BASE
-                    + "RULE "
-                    + "   CONDITION CLASS :A :name "
+                    + "RULE \n"
+                    + "   CONDITION CLASS :A :name \n"
                     + "   PRODUCTION CLASS :B"),
             /**
-             * condition data property value
+             * condition class with data property value
              */
             new Pair<Mapping, String>(
                     new Mapping.Builder()
@@ -108,11 +132,11 @@ public class MappingExamples {
                                     new ClassProduction(TEST_MODEL.Adult)))
                             .build(),
                     BASE
-                    + "RULE "
-                    + "   CONDITION CLASS :Person :age VALUE > 18"
+                    + "RULE \n"
+                    + "   CONDITION CLASS :Person :age VALUE > 18 \n"
                     + "   PRODUCTION CLASS :Adult"),
             /**
-             * condition data property type
+             * condition class with data property type
              */
             new Pair<Mapping, String>(
                     new Mapping.Builder()
@@ -126,11 +150,11 @@ public class MappingExamples {
                             .build(),
                     BASE
                     + PREFIX_XSD
-                    + "RULE "
-                    + "   CONDITION CLASS :Person :age TYPE xsd:integer"
+                    + "RULE \n"
+                    + "   CONDITION CLASS :Person :age TYPE xsd:integer \n"
                     + "   PRODUCTION CLASS :Adult"),
             /**
-             * condition object property value
+             * condition class with object property value
              */
             new Pair<Mapping, String>(
                     new Mapping.Builder()
@@ -144,11 +168,11 @@ public class MappingExamples {
                             .build(),
                     BASE
                     + PREFIX_XSD
-                    + "RULE "
-                    + "   CONDITION CLASS :A :hasValue VALUE :instanceOfA"
+                    + "RULE \n"
+                    + "   CONDITION CLASS :A :hasValue VALUE :instanceOfA \n"
                     + "   PRODUCTION CLASS :B"),
             /**
-             * condition object property type
+             * condition class with object property type
              */
             new Pair<Mapping, String>(
                     new Mapping.Builder()
@@ -162,185 +186,408 @@ public class MappingExamples {
                             .build(),
                     BASE
                     + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION CLASS :A :hasValue TYPE \n"
+                    + "      CLASS :A \n"
+                    + "   PRODUCTION CLASS :B"),
+            /**
+             * condition class with simple AND
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new ClassAndCondition(
+                                            new UriClassCondition(TEST_MODEL.A),
+                                            new UriClassCondition(TEST_MODEL.B)),
+                                    new ClassProduction(TEST_MODEL.C)))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION ( CLASS :A AND CLASS :B ) \n"
+                    + "   PRODUCTION CLASS :C"),
+            /**
+             * condition class with simple OR
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new ClassOrCondition(
+                                            new UriClassCondition(TEST_MODEL.A),
+                                            new UriClassCondition(TEST_MODEL.B)),
+                                    new ClassProduction(TEST_MODEL.C)))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION ( CLASS :A OR CLASS :B ) \n"
+                    + "   PRODUCTION CLASS :C"),
+            /**
+             * condition class with OR with property inside
+             *
+             * TODO currently, brackets are needed but should not be neccesarry
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new ClassOrCondition(
+                                            new UriClassCondition(
+                                                    TEST_MODEL.A,
+                                                    new DataPropertyValueCondition(
+                                                            TEST_MODEL.hasValue,
+                                                            new ValueCondition(
+                                                                    Comparator.Equal,
+                                                                    ConstantValue.fromInt(5))
+                                                    )),
+                                            new UriClassCondition(TEST_MODEL.B)),
+                                    new ClassProduction(TEST_MODEL.C)))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION \n"
+                    + "   ( ( CLASS :A \n"
+                    + "         :hasValue VALUE = 5 ) \n"
+                    + "   OR CLASS :B ) \n"
+                    + "   PRODUCTION CLASS :C"),
+            /**
+             * condition class with OR with multiple properties inside
+             *
+             * TODO currently, brackets are needed but should not be neccesarry
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new ClassOrCondition(
+                                            new UriClassCondition(
+                                                    TEST_MODEL.A,
+                                                    new PropertyAndCondition(
+                                                            new DataPropertyTypeCondition(
+                                                                    TEST_MODEL.hasValue,
+                                                                    XSDDatatype.XSDinteger),
+                                                            new DataPropertyValueCondition(
+                                                                    TEST_MODEL.hasValue,
+                                                                    new ValueCondition(
+                                                                            Comparator.Equal,
+                                                                            ConstantValue.fromInt(5))
+                                                            ))),
+                                            new UriClassCondition(TEST_MODEL.B,
+                                                    new DataPropertyTypeCondition(
+                                                            TEST_MODEL.hasValue,
+                                                            XSDDatatype.XSDinteger))),
+                                    new ClassProduction(TEST_MODEL.C)))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION \n"
+                    + "   ( ( CLASS :A \n"
+                    + "         :hasValue TYPE xsd:integer \n"
+                    + "     AND :hasValue VALUE = 5 ) \n"
+                    + "   OR CLASS :B \n"
+                    + "         :hasValue TYPE xsd:integer ) \n"
+                    + "   PRODUCTION CLASS :C"),
+            /**
+             * condition class with nested AND and OR
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new ClassOrCondition(
+                                            new UriClassCondition(TEST_MODEL.A),
+                                            new ClassAndCondition(
+                                                    new UriClassCondition(TEST_MODEL.B),
+                                                    new UriClassCondition(TEST_MODEL.C)),
+                                            new ClassAndCondition(
+                                                    new UriClassCondition(TEST_MODEL.D),
+                                                    new UriClassCondition(TEST_MODEL.E)),
+                                            new UriClassCondition(TEST_MODEL.F)),
+                                    new ClassProduction(TEST_MODEL.A)))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION ( CLASS :A OR ( CLASS :B AND CLASS :C ) OR ( CLASS :D AND CLASS :E ) OR CLASS :F ) \n"
+                    + "   PRODUCTION CLASS :A"),
+            /**
+             * condition property with AND
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new UriClassCondition(TEST_MODEL.Person,
+                                            new PropertyAndCondition(
+                                                    new DataPropertyValueCondition(TEST_MODEL.firstName,
+                                                            new ValueCondition(
+                                                                    Comparator.Equal,
+                                                                    ConstantValue.fromString("John"))),
+                                                    new DataPropertyTypeCondition(
+                                                            TEST_MODEL.lastName,
+                                                            XSDDatatype.XSDstring))),
+                                    new IndividualProduction(TEST_MODEL.johnDoe)))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
                     + "RULE "
-                    + "   CONDITION CLASS :A :hasValue TYPE "
-                    + "      CLASS :A "
-                    + "   PRODUCTION CLASS :B"));
+                    + "   CONDITION CLASS :Person \n"
+                    + "      :firstName VALUE = \"John\"^^xsd:string \n"
+                    + "  AND :lastName TYPE xsd:string \n"
+                    + "   PRODUCTION INDIVIDUAL :johnDoe"),
+            /**
+             * condition property with OR
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new UriClassCondition(TEST_MODEL.Person,
+                                            new PropertyOrCondition(
+                                                    new PropertyAndCondition(
+                                                            new DataPropertyValueCondition(TEST_MODEL.firstName,
+                                                                    new ValueCondition(
+                                                                            Comparator.Equal,
+                                                                            ConstantValue.fromString("John"))),
+                                                            new DataPropertyValueCondition(
+                                                                    TEST_MODEL.lastName,
+                                                                    new ValueCondition(
+                                                                            Comparator.Equal,
+                                                                            ConstantValue.fromString("Doe")))),
+                                                    new DataPropertyValueCondition(TEST_MODEL.name,
+                                                            new ValueCondition(
+                                                                    Comparator.Equal,
+                                                                    ConstantValue.fromString("John Doe"))))),
+                                    new IndividualProduction(TEST_MODEL.johnDoe)))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE "
+                    + "   CONDITION CLASS :Person \n"
+                    + "     ( :firstName VALUE = \"John\" \n"
+                    + "   AND :lastName VALUE = \"Doe\" )\n"
+                    + "   OR :name VALUE = \"John Doe\""
+                    + "   PRODUCTION INDIVIDUAL :johnDoe"),
+            /**
+             * condition class with aggregate
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new UriClassCondition(
+                                            TEST_MODEL.A,
+                                            new PropertyAggregationCondition.Builder()
+                                                    .addValueRestriction(
+                                                            AggregationType.SUM,
+                                                            new ValueCondition(
+                                                                    Comparator.GreaterThan,
+                                                                    ConstantValue.fromInt(5)),
+                                                            new ValueCondition(
+                                                                    Comparator.LessEqual,
+                                                                    ConstantValue.fromInt(10)))
+                                                    .addValueRestriction(
+                                                            AggregationType.MAX,
+                                                            new ValueCondition(
+                                                                    Comparator.GreaterThan,
+                                                                    ConstantValue.fromInt(3.3)))
+                                                    .addElement(new PropertyPathCondition(TEST_MODEL.hasValue))
+                                                    .build()),
+                                    new ClassProduction(TEST_MODEL.B)))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION CLASS :A AGGREGATION SUM > 5, <= 10; MAX > 3.3 :hasValue \n"
+                    + "   PRODUCTION CLASS :B"),
+            /**
+             * production individual
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new UriClassCondition(TEST_MODEL.A),
+                                    new IndividualProduction(TEST_MODEL.instanceOfA)))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION CLASS :A \n"
+                    + "   PRODUCTION INDIVIDUAL :instanceOfA"),
+            /**
+             * production class with property object value
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new IndividualCondition(TEST_MODEL.instanceOfA),
+                                    new ClassProduction(
+                                            TEST_MODEL.A,
+                                            new ObjectPropertyValueProduction(
+                                                    TEST_MODEL.hasValue,
+                                                    TEST_MODEL.instanceOfA))))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION INDIVIDUAL :instanceOfA \n"
+                    + "   PRODUCTION CLASS :A \n"
+                    + "      :hasValue VALUE :instanceOfA"),
+            /**
+             * production class with property object datatype
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new IndividualCondition(TEST_MODEL.instanceOfA),
+                                    new ClassProduction(
+                                            TEST_MODEL.A,
+                                            new ObjectPropertyTypeProduction(
+                                                    TEST_MODEL.hasValue,
+                                                    new ClassProduction(TEST_MODEL.B)))))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION INDIVIDUAL :instanceOfA \n"
+                    + "   PRODUCTION CLASS :A \n"
+                    + "      :hasValue TYPE CLASS :B"),
+            /**
+             * production class with property data value (without explicit data
+             * type)
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new UriClassCondition(TEST_MODEL.A),
+                                    new ClassProduction(
+                                            TEST_MODEL.B,
+                                            new DataPropertyProduction(
+                                                    TEST_MODEL.hasValue,
+                                                    ConstantValue.fromInt(5)))))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION CLASS :A \n"
+                    + "   PRODUCTION CLASS :B \n"
+                    + "      :hasValue VALUE 5"),
+            /**
+             * production class with property data value (with explicit data
+             * type)
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new UriClassCondition(TEST_MODEL.A),
+                                    new ClassProduction(
+                                            TEST_MODEL.B,
+                                            new DataPropertyProduction(
+                                                    TEST_MODEL.hasValue,
+                                                    ConstantValue.fromInt(5)))))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION CLASS :A \n"
+                    + "   PRODUCTION CLASS :B \n"
+                    + "      :hasValue VALUE \"5\"^^xsd:integer"),
+            /**
+             * production class with reference property data value
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new UriClassCondition(
+                                            TEST_MODEL.A,
+                                            new PropertyPathCondition(TEST_MODEL.hasValue)),
+                                    new ClassProduction(
+                                            TEST_MODEL.B,
+                                            new DataPropertyProduction(
+                                                    TEST_MODEL.hasValue2,
+                                                    new ReferenceValue(TEST_MODEL.hasValue)))))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION CLASS :A \n"
+                    + "      :hasValue"
+                    + "   PRODUCTION CLASS :B \n"
+                    + "      :hasValue2 VALUE REFERENCE :hasValue"),
+            /**
+             * production class with local transformation property data value
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .transformations(new JavaScriptTransformation("toStringLocal", "parameters[0].toString();"))
+                            .rules(new MappingRule(
+                                    new UriClassCondition(
+                                            TEST_MODEL.A,
+                                            new PropertyPathCondition(TEST_MODEL.hasValue)),
+                                    new ClassProduction(
+                                            TEST_MODEL.B,
+                                            new DataPropertyProduction(
+                                                    TEST_MODEL.hasValue2,
+                                                    new TransformationValue("toStringLocal",
+                                                            new ReferenceValue(TEST_MODEL.hasValue))))))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "TRANSFORMATION toStringLocal { parameters[0].toString(); } "
+                    + "RULE \n"
+                    + "   CONDITION CLASS :A \n"
+                    + "      :hasValue"
+                    + "   PRODUCTION CLASS :B \n"
+                    + "      :hasValue2 VALUE toStringLocal(REFERENCE :hasValue)"),
+            /**
+             * production class with global transformation property data value
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new UriClassCondition(
+                                            TEST_MODEL.A,
+                                            new PropertyPathCondition(TEST_MODEL.hasValue)),
+                                    new ClassProduction(
+                                            TEST_MODEL.B,
+                                            new DataPropertyProduction(
+                                                    TEST_MODEL.hasValue2,
+                                                    new TransformationValue("toString",
+                                                            new ReferenceValue(TEST_MODEL.hasValue))))))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION CLASS :A \n"
+                    + "      :hasValue"
+                    + "   PRODUCTION CLASS :B \n"
+                    + "      :hasValue2 VALUE toString(REFERENCE :hasValue)"),
+            /**
+             * predicate mapping
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new PropertyPathCondition(TEST_MODEL.hasValue),
+                                    new DataPropertyProduction(TEST_MODEL.hasValue2, new ReferenceValue(TEST_MODEL.hasValue))))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION :hasValue \n"
+                    + "   PRODUCTION :hasValue2 VALUE REFERENCE :hasValue"));
 
-//    public void testPropertyMapping() throws ParseException {
-//        parsePrintReparseEqual("RULE \n"
-//                + "CONDITION rdf:type \n"
-//                + "PRODUCTION rdf:type VALUE 42");
-//    }
-//
-//    @Test
-//    public void testConditionClassAnd() throws ParseException {
-//        parsePrintReparseEqual("RULE "
-//                + "CONDITION ( CLASS <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> AND CLASS rdf:type )"
-//                + "   PRODUCTION CLASS rdf:type");
-//    }
-//
-//    @Test
-//    public void testConditionClassOr() throws ParseException {
-//        parsePrintReparseEqual("RULE "
-//                + "CONDITION ( CLASS <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> OR CLASS rdf:type )"
-//                + "   PRODUCTION CLASS rdf:type");
-//    }
-//
-//    @Test
-//    public void testNAryClassCondition() throws ParseException {
-//        parsePrintReparseEqual("RULE "
-//                + "CONDITION (CLASS rdf:type OR (CLASS <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> AND CLASS rdf:type) OR CLASS rdf:type) "
-//                + "   PRODUCTION CLASS rdf:type");
-//    }
-//
-//
-//    @Test
-//    public void testConditionPropertyAnd() throws ParseException {
-//        parsePrintReparseEqual("BASE <http://exmaple.com#> "
-//                + "RULE "
-//                + "CONDITION CLASS rdf:type :myProperty VALUE rdf:type AND :myProperty2 VALUE xsd:string "
-//                + "   PRODUCTION CLASS rdf:type");
-//    }
-//
-//    @Test
-//    public void testConditionPropertyOr() throws ParseException {
-//        parsePrintReparseEqual("BASE <http://exmaple.com#> "
-//                + "RULE "
-//                + "CONDITION CLASS rdf:type :myProperty VALUE rdf:type OR :myProperty2 VALUE xsd:string "
-//                + "   PRODUCTION CLASS rdf:type");
-//    }
-//
-//    @Test
-//    public void testConditionPropertyNAry() throws ParseException {
-//        parsePrintReparseEqual("BASE <http://exmaple.com#> "
-//                + "RULE "
-//                + "CONDITION CLASS rdf:type ( :myProperty VALUE rdf:type OR :myProperty2 VALUE xsd:string ) AND :myProperty VALUE rdf:type "
-//                + "   PRODUCTION CLASS rdf:type");
-//    }
-//
-//    @Test
-//    public void testConditionPropertyAggregation() throws ParseException {
-//        parsePrintReparseEqual("BASE <http://exmaple.com#> "
-//                + "RULE "
-//                + "CONDITION CLASS rdf:type AGGREGATION SUM > 5, <= 10; MAX > 3.3 :myProperty  "
-//                + "   PRODUCTION CLASS rdf:type");
-//    }
-//
-//    @Test
-//    public void testTransformation() throws ParseException {
-//        parsePrintReparseEqual("TRANSFORMATION toString { parameters[0].toString(); }"
-//                + "TRANSFORMATION toStringTwo { parameters[1].toString(); }"
-//                + "RULE "
-//                + "CONDITION CLASS rdf:type "
-//                + "   PRODUCTION CLASS rdf:type");
-//    }
-//
-//    @Test
-//    public void testProductionIndividual() throws ParseException {
-//        parsePrintReparseEqual("RULE "
-//                + "CONDITION CLASS rdf:type "
-//                + "PRODUCTION INDIVIDUAL rdf:type");
-//    }
-//
-//    @Test
-//    public void testProductionClass() throws ParseException {
-//        parsePrintReparseEqual("RULE "
-//                + "CONDITION CLASS rdf:type "
-//                + "PRODUCTION CLASS rdf:type");
-//    }
-//
-//    @Test
-//    public void testProductionPropertyObjectValue() throws ParseException {
-//        parsePrintReparseEqual("BASE <http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#> "
-//                + "RULE "
-//                + "CONDITION INDIVIDUAL :instanceOfA  "
-//                + "PRODUCTION CLASS rdf:type "
-//                + "   :myProperty VALUE :B");
-//    }
-//
-//    @Test
-//    public void testProductionPropertyOnlyObjectValue() throws ParseException {
-//        parsePrintReparseEqual("BASE <http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#> "
-//                + "RULE "
-//                + "CONDITION INDIVIDUAL :instanceOfA  "
-//                + "PRODUCTION :myProperty VALUE :B");
-//    }
-//
-//    @Test
-//    public void testProductionPropertyObjectType() throws ParseException {
-//        parsePrintReparseEqual("RULE "
-//                + "CONDITION CLASS rdf:type "
-//                + "PRODUCTION CLASS rdf:type "
-//                + "   :myProperty TYPE CLASS rdf:type");
-//    }
-//
-//    @Test
-//    public void testProductionPropertyDataValue() throws ParseException {
-//        parsePrintReparseEqual("RULE "
-//                + "CONDITION CLASS rdf:type "
-//                + "PRODUCTION CLASS rdf:type "
-//                + "   :myProperty VALUE 5");
-//    }
-//
-//    @Test
-//    public void testProductionPropertyDataValueWithType() throws ParseException {
-//        parsePrintReparseEqual("RULE "
-//                + "CONDITION CLASS rdf:type "
-//                + "PRODUCTION CLASS rdf:type "
-//                + "   :myProperty VALUE \"5\"^^xsd:integer");
-//    }
-//
-//    @Test
-//    public void testProductionPropertyDataValueWithReferenceValue() throws ParseException {
-//        parsePrintReparseEqual("RULE "
-//                + "CONDITION CLASS rdf:type "
-//                + "PRODUCTION CLASS rdf:type "
-//                + "   :myProperty VALUE REFERENCE :myPropertyRef");
-//    }
-//
-//    @Test
-//    public void testProductionDataValuePropertyWithTransformation() throws ParseException {
-//        parsePrintReparseEqual("TRANSFORMATION toString { parameters[0].toString(); } "
-//                + "RULE "
-//                + "CONDITION CLASS rdf:type "
-//                + "PRODUCTION CLASS rdf:type "
-//                + "   :myProperty VALUE toString(REFERENCE :myPropertyRef)");
-//    }
-//
-//    @Test
-//    public void testConditionClassOrWithPropertyInside() throws ParseException {
-//        parsePrintReparseEqual("RULE \n"
-//                + "   CONDITION \n"
-//                + "     (CLASS rdf:type1 \n"
-//                + "         :hasValue1 TYPE xsd:string \n"
-//                + "   OR CLASS :B )\n"
-//                + "   PRODUCTION \n"
-//                + "      :hasValue VALUE :B ");
-//    }
-//
-//    @Test
-//    public void testConditionClassOrWithProperty() throws ParseException {
-//        parsePrintReparseEqual("RULE \n"
-//                + "   CONDITION \n"
-//                + "    ( CLASS rdf:type1 \n"
-//                + "         :hasValue1 TYPE xsd:string \n"
-//                + "   OR CLASS :B \n"
-//                + "         :hasValue1 TYPE xsd:string )\n"
-//                + "   PRODUCTION \n"
-//                + "      :hasValue VALUE :B ");
-//    }
-//
-//    @Test
-//    public void newTest() throws ParseException {
-//        parsePrintReparseEqual("RULE \n"
-//                + "   CONDITION \n"
-//                + "    ( CLASS :A \n"
-//                + "         :hasValue TYPE CLASS :A \n"
-//                + "   OR CLASS :B \n"
-//                + "         :hasValue TYPE CLASS :A )\n"
-////                + "         :hasValue TYPE CLASS :A \n"
-//                + "   PRODUCTION \n"
-//                + "      :hasValue VALUE :B ");
-//    }
 }

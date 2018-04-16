@@ -9,6 +9,8 @@ import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
 import java.util.Objects;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.ontology.Individual;
+import org.apache.jena.ontology.OntProperty;
 import org.apache.jena.sparql.path.Path;
 
 /**
@@ -32,6 +34,11 @@ public class ObjectPropertyValueProduction extends ObjectPropertyProduction {
         this.uri = uri;
     }
 
+    public ObjectPropertyValueProduction(OntProperty property, Node uri) {
+        super(property);
+        this.uri = uri;
+    }
+
     public ObjectPropertyValueProduction(Path path, String uri) {
         super(path);
         this.uri = NodeFactory.createURI(uri);
@@ -40,6 +47,16 @@ public class ObjectPropertyValueProduction extends ObjectPropertyProduction {
     public ObjectPropertyValueProduction(String path, String uri) {
         super(path);
         this.uri = NodeFactory.createURI(uri);
+    }
+
+    public ObjectPropertyValueProduction(OntProperty property, String uri) {
+        super(property);
+        this.uri = NodeFactory.createURI(uri);
+    }
+
+    public ObjectPropertyValueProduction(OntProperty property, Individual individual) {
+        super(property);
+        this.uri = individual.asNode();
     }
 
     public Node getUri() {

@@ -19,7 +19,7 @@ public class Constants {
     public static final String MAPPING_DIR = "mappings";
     public static final String TEST_CASE_DIR = "testcases";
     public static final String QUERY_FILE_EXTENSION = "sparql";
-    public static final String MAPPING_FILE_EXTENSION = "json";
+    public static final String MAPPING_FILE_EXTENSION = "map";
     public static final String TEST_CASE_EXTENSION = "json";
 
     /* QUERIES */
@@ -35,10 +35,9 @@ public class Constants {
     public static final String QUERY_2_DEFAULT_NTRIPLE = "QUERY_2_DEFAULT_NTRIPLE";
     public static final String QUERY_2_BLANK_NODES = "QUERY_2_BLANK_NODES";
     public static final String QUERY_2_VAR_RENAME = "QUERY_2_VAR_RENAME";
-
+    
     /* MAPPINGS */
-    public static final String MAPPING_1 = "MAPPING_1";
-    public static final String MAPPING_2 = "MAPPING_2";
+    public static final String MAPPING_EDUCAMPUS_IOSB_TO_KIT = "IOSB to KIT";
 
     /* REPLACEMENTS */
     public static final String VALUE_STRING_TAG = "[STRING_VALUE]";

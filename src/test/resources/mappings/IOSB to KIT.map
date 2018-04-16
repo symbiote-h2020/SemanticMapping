@@ -1,0 +1,37 @@
+BASE <http://iosb.fraunhofer.de/ilt/ontologies/educampus#> 
+PREFIX kit: <http://cm.kit.edu/SmartCampus/DomainModel#> 
+RULE
+   CONDITION 
+      CLASS :BleBeacon
+	        :beaconId TYPE xsd:string
+	    AND :major TYPE xsd:integer
+	    AND :minor TYPE xsd:integer	
+   PRODUCTION 
+	     CLASS kit:Beacon
+	        kit:UUID VALUE REFERENCE :beaconId
+	        kit:Major VALUE REFERENCE :major
+	        kit:Minor VALUE REFERENCE :minor
+
+RULE
+   CONDITION 
+      CLASS :Room
+	        :name TYPE xsd:string
+	    AND :description TYPE xsd:string
+	    AND :roomNo TYPE xsd:string	
+	    AND :capacity TYPE xsd:integer	
+   PRODUCTION 
+	     CLASS kit:Area
+	        kit:Name VALUE REFERENCE :name
+	        kit:Description VALUE REFERENCE :description
+	        kit:RoomNumber VALUE REFERENCE :roomNo 
+	        kit:hasFeature TYPE CLASS kit:SeatingCap 
+            kit:capacity VALUE REFERENCE :capacity
+
+RULE 
+   CONDITION
+      CLASS :Room
+	        :hasFeature VALUE :AirConditioning
+   PRODUCTION
+	     CLASS kit:Area
+	        kit:hasFeature TYPE
+	           CLASS kit:AirConditioning

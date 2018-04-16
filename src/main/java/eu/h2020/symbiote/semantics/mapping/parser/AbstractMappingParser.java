@@ -5,34 +5,39 @@
  */
 package eu.h2020.symbiote.semantics.mapping.parser;
 
-import java.util.HashMap;
-import java.util.Map;
+import eu.h2020.symbiote.semantics.mapping.model.Mapping;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Node;
 import org.apache.jena.shared.PrefixMapping;
-import org.apache.jena.shared.impl.PrefixMappingImpl;
 
 /**
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
 public class AbstractMappingParser {
-    private final PrefixMapping prefixes = PrefixMapping.Factory.create().withDefaultMappings(PrefixMapping.Standard);
-        
+
+    protected final PrefixMapping knownPrefixes = PrefixMapping.Factory.create().withDefaultMappings(PrefixMapping.Standard);
+    protected final PrefixMapping prefixes = PrefixMapping.Factory.create();
+
+    public void setBase(String uri) {
+        knownPrefixes.setNsPrefix("", uri);
+    }
+
     public void addPrefix(String prefix, String uri) {
         String prefixFixed = prefix;
         if (prefix.endsWith(":")) {
-            prefixFixed = prefix.substring(0, prefix.length()-1);
+            prefixFixed = prefix.substring(0, prefix.length() - 1);
         }
         prefixes.setNsPrefix(prefixFixed, uri);
+        knownPrefixes.setNsPrefix(prefixFixed, uri);
     }
-    
-    protected Node expand(String prefixed) {        
+
+    protected Node expand(String prefixed) {
         return NodeFactory.createURI(prefixes.expandPrefix(prefixed));
     }
-    
+
     public static String stripQuotes(String s) {
-        return s.substring(1, s.length() - 1) ;
+        return s.substring(1, s.length() - 1);
     }
 
 }

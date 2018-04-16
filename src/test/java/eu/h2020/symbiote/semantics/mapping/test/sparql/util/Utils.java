@@ -45,8 +45,7 @@ public class Utils {
         return result;
     }
 
-    public static Mapping getMapping(String filename) throws IOException, URISyntaxException, MalformedURLException, ParseException {
-        //String content = IOUtils.toString(Utils.class.getResourceAsStream(getMappingFile(filename)), Charset.defaultCharset());
+    public static Mapping getMapping(String filename) throws IOException, URISyntaxException, ParseException {
         return Mapping.load(getMappingFile(filename));
     }
     

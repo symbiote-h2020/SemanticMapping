@@ -8,6 +8,7 @@ package eu.h2020.symbiote.semantics.mapping.model.condition;
 import java.util.Objects;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.ontology.Individual;
 
 /**
  *
@@ -26,6 +27,10 @@ public class IndividualCondition implements Condition {
 
     public IndividualCondition(String uri) {
         this.uri = NodeFactory.createURI(uri);
+    }
+    
+    public IndividualCondition(Individual individual) {
+        this.uri = individual.asNode();
     }
 
     public Node getUri() {

@@ -6,8 +6,8 @@
 package eu.h2020.symbiote.semantics.mapping.model.value;
 
 import java.util.Objects;
-import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.Node;
+import org.apache.jena.ontology.OntProperty;
 
 /**
  *
@@ -23,6 +23,10 @@ public class ReferenceValue implements Value {
     
     public ReferenceValue(String name) {
         this.name = name;
+    }
+    
+    public ReferenceValue(OntProperty property) {
+        this.name = property.getURI();
     }
 
     @Override

@@ -134,6 +134,7 @@ Mapping Mapping() : {Mapping m = new Mapping(); MappingRule r = null;}
         (r=Rule(){m.getMappingRules().add(r);})+
     )
     {
+        m.setPrefixes(prefixes.getNsPrefixMap());
         return m;
     }
 }
@@ -143,7 +144,7 @@ void Base(Mapping m) : {Token ti;}
     (<BASE> ti = <IRIABS>)
     {
         m.setBase(stripQuotes(ti.image));
-        addPrefix("", stripQuotes(ti.image));
+        setBase(stripQuotes(ti.image));
     }    
 }
 

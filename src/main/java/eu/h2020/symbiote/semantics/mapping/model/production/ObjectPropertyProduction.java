@@ -5,6 +5,7 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.production;
 
+import org.apache.jena.ontology.OntProperty;
 import org.apache.jena.sparql.path.Path;
 
 /**
@@ -23,6 +24,10 @@ public abstract class ObjectPropertyProduction extends PropertyProduction {
 
     public ObjectPropertyProduction(String path) {
         super(path);
+    }
+
+    public ObjectPropertyProduction(OntProperty property) {
+        super(property);
     }
 
     @Override

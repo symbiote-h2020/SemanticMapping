@@ -9,6 +9,7 @@ import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
 import java.util.Objects;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.ontology.Individual;
 
 /**
  *
@@ -27,6 +28,10 @@ public class IndividualProduction implements Production {
 
     public IndividualProduction(String uri) {
         this.uri = NodeFactory.createURI(uri);
+    }
+    
+    public IndividualProduction(Individual individual) {
+        this.uri = individual.asNode();
     }
 
     @Override

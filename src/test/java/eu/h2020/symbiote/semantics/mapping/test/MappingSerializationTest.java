@@ -7,8 +7,8 @@ package eu.h2020.symbiote.semantics.mapping.test;
 
 import eu.h2020.symbiote.semantics.mapping.model.Mapping;
 import eu.h2020.symbiote.semantics.mapping.parser.ParseException;
-import java.nio.charset.Charset;
 import javafx.util.Pair;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 /**
@@ -16,11 +16,14 @@ import org.junit.Test;
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
 public class MappingSerializationTest {
+
     @Test
     public void testParser() throws ParseException {
         for (Pair<Mapping, String> test : MappingExamples.EXAMPLES) {
             Mapping parsed = Mapping.parse(test.getValue());
-            assert (parsed.equals(test.getKey()));
+            assertTrue(
+                    String.format("failed parsing mapping:\n%s", test.getValue()),
+                    parsed.equals(test.getKey()));
         }
     }
 
@@ -29,7 +32,11 @@ public class MappingSerializationTest {
         for (Pair<Mapping, String> test : MappingExamples.EXAMPLES) {
             String printed = test.getKey().asString();
             Mapping reparsed = Mapping.parse(printed);
-            assert (reparsed.equals(test.getKey()));
+            assertTrue(
+                    String.format("failed printing/reparsing mapping. \n"
+                            + "generated: \n%s\n"
+                            + "expected: \n%s", printed, test.getValue()),
+                    reparsed.equals(test.getKey()));
         }
     }
 }

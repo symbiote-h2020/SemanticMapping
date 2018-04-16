@@ -31,7 +31,7 @@ public class ClassProduction implements Production {
         this();
         this.uri = ontClass.asNode();
     }
-    
+
     public ClassProduction(Node uri) {
         this();
         this.uri = uri;
@@ -59,6 +59,11 @@ public class ClassProduction implements Production {
     public ClassProduction(String uri, PropertyProduction... properties) {
         this(properties);
         this.uri = NodeFactory.createURI(uri);
+    }
+
+    public ClassProduction(OntClass ontClass, PropertyProduction... properties) {
+        this(properties);
+        this.uri = ontClass.asNode();
     }
 
     public Node getUri() {

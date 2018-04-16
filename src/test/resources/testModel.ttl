@@ -48,8 +48,15 @@
 
 :A rdf:type owl:Class .
     
-:B rdf:type owl:Class ;
-    rdfs:subClassOf :A .
+:B rdf:type owl:Class .
+
+:C rdf:type owl:Class .
+
+:D rdf:type owl:Class .
+
+:E rdf:type owl:Class .
+
+:F rdf:type owl:Class .
 
 
 #################################################################
@@ -63,4 +70,7 @@
                   owl:NamedIndividual .
 
 :instanceOfB rdf:type :B ,
+                  owl:NamedIndividual .
+
+:johnDoe rdf:type :Person ,
                   owl:NamedIndividual .

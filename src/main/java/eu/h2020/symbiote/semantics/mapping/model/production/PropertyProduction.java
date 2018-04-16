@@ -7,6 +7,8 @@ package eu.h2020.symbiote.semantics.mapping.model.production;
 
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.JenaHelper;
 import java.util.Objects;
+import org.apache.jena.ontology.OntProperty;
+import org.apache.jena.sparql.path.P_Link;
 import org.apache.jena.sparql.path.Path;
 
 /**
@@ -27,6 +29,10 @@ public abstract class PropertyProduction implements Production {
     protected PropertyProduction(String path) {
         this.path = JenaHelper.parsePath(path);
     }
+    
+    protected PropertyProduction(OntProperty property) {
+         this.path = new P_Link(property.asNode());
+    }    
 
     public Path getPath() {
         return path;

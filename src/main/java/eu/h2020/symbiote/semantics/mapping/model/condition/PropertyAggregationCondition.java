@@ -93,4 +93,49 @@ public class PropertyAggregationCondition extends NAryPropertyCondition {
                 && valueRestrictions.keySet().stream().distinct().count() == valueRestrictions.size() // no duplicate aggregation types
                 && valueRestrictions.entrySet().stream().flatMap(x -> x.getValue().stream()).allMatch(x -> x.validate()); // all ValueConditions valid
     }
+
+    public static class Builder {
+
+        private List<PropertyCondition> elements;
+        private Map<AggregationType, List<ValueCondition>> valueRestrictions;
+
+        public Builder() {
+            this.elements = new ArrayList<>();
+            this.valueRestrictions = new HashMap<>();
+        }
+
+        public Builder addElement(PropertyCondition condition) {
+            this.elements.add(condition);
+            return this;
+        }
+
+        public Builder elements(List<PropertyCondition> conditions) {
+            this.elements = conditions;
+            return this;
+        }
+
+        public Builder addValueRestriction(AggregationType type, ValueCondition... conditions) {
+            return addValueRestriction(type, Arrays.asList(conditions));
+        }
+
+        public Builder addValueRestriction(AggregationType type, List<ValueCondition> conditions) {
+            if (valueRestrictions.containsKey(type)) {
+                valueRestrictions.get(type).addAll(conditions);
+            }
+            this.valueRestrictions.put(type, conditions);
+            return this;
+        }
+
+        public Builder valueRestrictions(Map<AggregationType, List<ValueCondition>> valueRestriction) {
+            this.valueRestrictions = valueRestriction;
+            return this;
+        }
+
+        public PropertyAggregationCondition build() {
+            PropertyAggregationCondition result = new PropertyAggregationCondition();
+            result.setElements(elements);
+            result.setValueRestrictions(valueRestrictions);
+            return result;
+        }
+    }
 }

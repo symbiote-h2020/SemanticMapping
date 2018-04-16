@@ -51,6 +51,7 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.path.P_Link;
 import org.apache.jena.sparql.path.Path;
+import org.apache.jena.sparql.util.NodeFactoryExtra;
 
 /**
  *
@@ -111,7 +112,7 @@ public class MappingPrinter implements ConditionVisitorVoid, ValueVisitor<Boolea
     public static String print(Mapping mapping, MappingPrinterConfiguration configuration) {
         return new MappingPrinter(configuration, mapping).print();
     }
-    
+
     public static String print(Mapping mapping, MappingRule rule) {
         return print(mapping, rule, MappingPrinterConfiguration.getDEFAULT());
     }
@@ -151,7 +152,12 @@ public class MappingPrinter implements ConditionVisitorVoid, ValueVisitor<Boolea
     @Override
     public void visit(ReferenceValue value, Boolean allowShorten) {
         print(REFERENCE);
-        print(value.getName());
+        Node node = NodeFactory.createURI(value.getName());
+        if (node != null && node.isURI()) {
+            print(node);
+        } else {
+            print(value.getName());
+        }
     }
 
     @Override

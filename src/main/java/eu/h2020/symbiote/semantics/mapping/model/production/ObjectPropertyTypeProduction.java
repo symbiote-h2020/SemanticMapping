@@ -7,6 +7,7 @@ package eu.h2020.symbiote.semantics.mapping.model.production;
 
 import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
 import java.util.Objects;
+import org.apache.jena.ontology.OntProperty;
 import org.apache.jena.sparql.path.Path;
 
 /**
@@ -28,6 +29,11 @@ public class ObjectPropertyTypeProduction extends ObjectPropertyProduction {
 
     public ObjectPropertyTypeProduction(String path, ClassProduction datatype) {
         super(path);
+        this.datatype = datatype;
+    }
+    
+        public ObjectPropertyTypeProduction(OntProperty property, ClassProduction datatype) {
+        super(property);
         this.datatype = datatype;
     }
 
