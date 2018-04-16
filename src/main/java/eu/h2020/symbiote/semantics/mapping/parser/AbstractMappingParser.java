@@ -33,7 +33,7 @@ public class AbstractMappingParser {
     }
 
     protected Node expand(String prefixed) {
-        return NodeFactory.createURI(prefixes.expandPrefix(prefixed));
+        return NodeFactory.createURI(knownPrefixes.expandPrefix(prefixed));
     }
 
     public static String stripQuotes(String s) {
