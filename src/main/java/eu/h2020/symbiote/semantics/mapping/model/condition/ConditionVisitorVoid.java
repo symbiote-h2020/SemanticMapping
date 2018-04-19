@@ -5,6 +5,8 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.condition;
 
+import java.util.stream.Stream;
+
 /**
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
@@ -80,6 +82,21 @@ public interface ConditionVisitorVoid extends ConditionVisitor<Void, Void> {
     @Override
     public default Void visit(PropertyAggregationCondition condition, Void args) {
         visit(condition);
+        return null;
+    }
+    
+    @Override
+    public default Void mergeAnd(Stream<Void> input) {
+        return null;
+    }
+    
+    @Override
+    public default Void mergeOr(Stream<Void> input) {
+        return null;
+    }
+    
+    @Override 
+    public default Void emptyResult() {
         return null;
     }
 

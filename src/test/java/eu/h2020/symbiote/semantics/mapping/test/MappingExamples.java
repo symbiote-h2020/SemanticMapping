@@ -405,6 +405,39 @@ public class MappingExamples {
                     + "   CONDITION CLASS :A AGGREGATION SUM > 5, <= 10; MAX > 3.3 :hasValue \n"
                     + "   PRODUCTION CLASS :B"),
             /**
+             * condition class with aggregate with result name
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new UriClassCondition(
+                                            TEST_MODEL.A,
+                                            new PropertyAggregationCondition.Builder()
+                                                    .addValueRestriction(
+                                                            AggregationType.SUM,
+                                                            "sumHasValue",
+                                                            new ValueCondition(
+                                                                    Comparator.GreaterThan,
+                                                                    ConstantValue.fromInt(5)),
+                                                            new ValueCondition(
+                                                                    Comparator.LessEqual,
+                                                                    ConstantValue.fromInt(10)))
+                                                    .addValueRestriction(
+                                                            AggregationType.MAX,
+                                                            new ValueCondition(
+                                                                    Comparator.GreaterThan,
+                                                                    ConstantValue.fromInt(3.3)))
+                                                    .addElement(new PropertyPathCondition(TEST_MODEL.hasValue))
+                                                    .build()),
+                                    new ClassProduction(TEST_MODEL.B)))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION CLASS :A AGGREGATION SUM > 5, <= 10 AS sumHasValue; MAX > 3.3 :hasValue \n"
+                    + "   PRODUCTION CLASS :B"),
+            /**
              * production individual
              */
             new Pair<Mapping, String>(

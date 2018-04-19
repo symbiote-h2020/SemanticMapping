@@ -40,7 +40,7 @@ public class JavaScriptTransformation implements Transformation {
         engine.put("parameters", parameters);
         try {
             return engine.eval(getCode());
-        } catch (ScriptException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(TransformationValue.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;

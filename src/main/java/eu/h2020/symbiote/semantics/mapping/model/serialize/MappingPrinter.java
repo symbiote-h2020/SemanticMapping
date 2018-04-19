@@ -36,10 +36,8 @@ import eu.h2020.symbiote.semantics.mapping.model.value.Value;
 import eu.h2020.symbiote.semantics.mapping.model.value.ValueVisitor;
 import eu.h2020.symbiote.semantics.mapping.parser.AbstractMappingParser;
 import eu.h2020.symbiote.semantics.mapping.parser.MappingParserConstants;
-import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -51,7 +49,6 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.path.P_Link;
 import org.apache.jena.sparql.path.Path;
-import org.apache.jena.sparql.util.NodeFactoryExtra;
 
 /**
  *
@@ -94,6 +91,7 @@ public class MappingPrinter implements ConditionVisitorVoid, ValueVisitor<Boolea
     private static final String TRANSFORMATION = getParserConstant(MappingParserConstants.TRANSFORMATION);
     private static final String REFERENCE = getParserConstant(MappingParserConstants.REFERENCE);
     private static final String ANY = getParserConstant(MappingParserConstants.ANY);
+    private static final String AS = getParserConstant(MappingParserConstants.AS);
 
     private static String getParserConstant(int index) {
         return AbstractMappingParser.stripQuotes(MappingParserConstants.tokenImage[index]);
@@ -453,15 +451,20 @@ public class MappingPrinter implements ConditionVisitorVoid, ValueVisitor<Boolea
     @Override
     public void visit(PropertyAggregationCondition condition) {
         print(AGGREGATION);
-        condition.getValueRestrictions().forEach((type, conditions) -> {
-            print(type.toString());
-            conditions.forEach(x -> {
-                visit(x);
+        condition.getAggregationInfos().forEach(x -> {
+            print(x.getAggregationType().toString());
+            x.getValueRestrictions().forEach(y -> {
+                visit(y);
                 trimEnd();
                 print(COMMA);
             });
             trimEnd();
             trimEnd(COMMA);
+            if (x.getResultName() != null && !x.getResultName().isEmpty()) {
+                print(SPACE);
+                print(AS);
+                print(x.getResultName());
+            }
             print(SEMICOLON);
         });
         trimEnd();

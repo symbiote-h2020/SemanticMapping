@@ -1,5 +1,6 @@
 BASE <http://iosb.fraunhofer.de/ilt/ontologies/educampus#> 
 PREFIX kit: <http://cm.kit.edu/SmartCampus/DomainModel#> 
+
 RULE
    CONDITION 
       CLASS :BleBeacon
@@ -7,10 +8,10 @@ RULE
 	    AND :major TYPE xsd:integer
 	    AND :minor TYPE xsd:integer	
    PRODUCTION 
-	     CLASS kit:Beacon
-	        kit:UUID VALUE REFERENCE :beaconId
-	        kit:Major VALUE REFERENCE :major
-	        kit:Minor VALUE REFERENCE :minor
+      CLASS kit:Beacon
+         kit:UUID VALUE REFERENCE :beaconId
+         kit:Major VALUE REFERENCE :major
+         kit:Minor VALUE REFERENCE :minor
 
 RULE
    CONDITION 
@@ -25,7 +26,7 @@ RULE
 	        kit:Description VALUE REFERENCE :description
 	        kit:RoomNumber VALUE REFERENCE :roomNo 
 	        kit:hasFeature TYPE CLASS kit:SeatingCap 
-            kit:capacity VALUE REFERENCE :capacity
+                    kit:capacity VALUE REFERENCE :capacity
 
 RULE 
    CONDITION

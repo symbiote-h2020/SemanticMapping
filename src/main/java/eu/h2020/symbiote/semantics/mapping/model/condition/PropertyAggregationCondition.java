@@ -7,9 +7,7 @@ package eu.h2020.symbiote.semantics.mapping.model.condition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -18,60 +16,45 @@ import java.util.Objects;
  */
 public class PropertyAggregationCondition extends NAryPropertyCondition {
 
-    private Map<AggregationType, List<ValueCondition>> valueRestrictions;
+    private List<AggregationInfo> aggregationInfos;
 
     public PropertyAggregationCondition() {
-        this.valueRestrictions = new HashMap<>();
+        this.aggregationInfos = new ArrayList<>();
     }
 
-    public PropertyAggregationCondition(Map<AggregationType, List<ValueCondition>> valueRestrictions, PropertyCondition... elements) {
+    public PropertyAggregationCondition(List<AggregationInfo> aggregationInfo, PropertyCondition... elements) {
         super(elements);
-        this.valueRestrictions = valueRestrictions;
+        this.aggregationInfos = aggregationInfo;
     }
 
-    public PropertyAggregationCondition(Map<AggregationType, List<ValueCondition>> valueRestrictions, List<PropertyCondition> elements) {
+    public PropertyAggregationCondition(List<AggregationInfo> aggregationInfo, List<PropertyCondition> elements) {
         super(elements);
-        this.valueRestrictions = valueRestrictions;
+        this.aggregationInfos = aggregationInfo;
     }
 
     public PropertyAggregationCondition(AggregationType aggregationType, ValueCondition valueRestrictions, PropertyCondition... elements) {
         super(elements);
+        this.aggregationInfos = new ArrayList<>();
         addCondition(aggregationType, valueRestrictions);
     }
 
     public PropertyAggregationCondition(AggregationType aggregationType, ValueCondition valueRestrictions, List<PropertyCondition> elements) {
         super(elements);
+        this.aggregationInfos = new ArrayList<>();
         addCondition(aggregationType, valueRestrictions);
     }
 
-    public Map<AggregationType, List<ValueCondition>> getValueRestrictions() {
-        return valueRestrictions;
-    }
-
-    public void setValueRestrictions(Map<AggregationType, List<ValueCondition>> valueRestrictions) {
-        this.valueRestrictions = valueRestrictions;
-    }
-
     public void addCondition(AggregationType aggregationType, ValueCondition... valueRestrictions) {
-        if (this.valueRestrictions == null) {
-            this.valueRestrictions = new HashMap<>();
-        }
-        if (!this.valueRestrictions.containsKey(aggregationType)) {
-            this.valueRestrictions.put(aggregationType, new ArrayList<>());
-        }
-        this.valueRestrictions.get(aggregationType).addAll(Arrays.asList(valueRestrictions));
+        aggregationInfos.add(new AggregationInfo(aggregationType, valueRestrictions));
+    }
+
+    public void addCondition(AggregationType aggregationType, String resultName, ValueCondition... valueRestrictions) {
+        aggregationInfos.add(new AggregationInfo(aggregationType, resultName, valueRestrictions));
     }
 
     @Override
     public <R, P> R accept(ConditionVisitor<R, P> visitor, P args) {
         return visitor.visit(this, args);
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 59 * hash + Objects.hashCode(this.valueRestrictions);
-        return hash;
     }
 
     @Override
@@ -83,25 +66,35 @@ public class PropertyAggregationCondition extends NAryPropertyCondition {
             return false;
         }
         PropertyAggregationCondition other = (PropertyAggregationCondition) obj;
-        return Objects.equals(other.valueRestrictions, valueRestrictions);
+        return Objects.equals(other.aggregationInfos, aggregationInfos)
+                && Objects.equals(other.elements, elements);
     }
 
     @Override
     public boolean validate() {
         return super.validate()
-                && valueRestrictions != null
-                && valueRestrictions.keySet().stream().distinct().count() == valueRestrictions.size() // no duplicate aggregation types
-                && valueRestrictions.entrySet().stream().flatMap(x -> x.getValue().stream()).allMatch(x -> x.validate()); // all ValueConditions valid
+                && aggregationInfos != null
+                && !aggregationInfos.isEmpty()
+                && aggregationInfos.stream().map(x -> x.getAggregationType()).distinct().count() == aggregationInfos.size() // no duplicate aggregation types
+                && aggregationInfos.stream().allMatch(x -> x.validate()); // all aggregation infos valid                
+    }
+
+    public List<AggregationInfo> getAggregationInfos() {
+        return this.aggregationInfos;
+    }
+
+    public void setAggregationInfos(List<AggregationInfo> aggregationInfos) {
+        this.aggregationInfos = aggregationInfos;
     }
 
     public static class Builder {
 
         private List<PropertyCondition> elements;
-        private Map<AggregationType, List<ValueCondition>> valueRestrictions;
+        private List<AggregationInfo> aggregationInfos;
 
         public Builder() {
             this.elements = new ArrayList<>();
-            this.valueRestrictions = new HashMap<>();
+            this.aggregationInfos = new ArrayList<>();
         }
 
         public Builder addElement(PropertyCondition condition) {
@@ -118,24 +111,36 @@ public class PropertyAggregationCondition extends NAryPropertyCondition {
             return addValueRestriction(type, Arrays.asList(conditions));
         }
 
-        public Builder addValueRestriction(AggregationType type, List<ValueCondition> conditions) {
-            if (valueRestrictions.containsKey(type)) {
-                valueRestrictions.get(type).addAll(conditions);
-            }
-            this.valueRestrictions.put(type, conditions);
+        public Builder addValueRestriction(AggregationType type, String resultName, ValueCondition... conditions) {
+            return addValueRestriction(type, resultName, Arrays.asList(conditions));
+        }
+
+        public Builder addValueRestriction(AggregationType type, String resultName, List<ValueCondition> conditions) {
+            aggregationInfos.add(new AggregationInfo(type, resultName, conditions));
             return this;
         }
 
-        public Builder valueRestrictions(Map<AggregationType, List<ValueCondition>> valueRestriction) {
-            this.valueRestrictions = valueRestriction;
+        public Builder addValueRestriction(AggregationType type, List<ValueCondition> conditions) {
+            aggregationInfos.add(new AggregationInfo(type, conditions));
+            return this;
+        }
+
+        public Builder addAggregationInfo(AggregationInfo aggregationInfo) {
+            this.aggregationInfos.add(aggregationInfo);
+            return this;
+        }
+
+        public Builder aggregationInfos(List<AggregationInfo> aggregationInfos) {
+            this.aggregationInfos = aggregationInfos;
             return this;
         }
 
         public PropertyAggregationCondition build() {
             PropertyAggregationCondition result = new PropertyAggregationCondition();
             result.setElements(elements);
-            result.setValueRestrictions(valueRestrictions);
+            result.setAggregationInfos(aggregationInfos);
             return result;
         }
+
     }
 }

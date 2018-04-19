@@ -44,7 +44,9 @@ publishing {
 // dependencies section
 repositories {
     mavenCentral()
-    maven { url "https://jitpack.io" }
+    maven {
+        url "https://jitpack.io"
+    }
 }
 
 dependencies {
@@ -143,13 +145,13 @@ javacc {
             outputDir = file(project.buildDir.absolutePath + '/generated-sources/javacc')
             packageName = 'eu.h2020.symbiote.semantics.mapping.parser'            
             staticParam = 'false'
-//            lookahead = '3'
+            //            lookahead = '3'
             jjtree {
                 multi = 'true'                
-//                visitor = 'false'
-//                visitorDataType = 'eu.h2020.symbiote.semantics.mapping.model.Mapping'
-//                visitorReturnType = 'eu.h2020.symbiote.semantics.mapping.model.Mapping'
-//                staticParam = 'false'               
+                //                visitor = 'false'
+                //                visitorDataType = 'eu.h2020.symbiote.semantics.mapping.model.Mapping'
+                //                visitorReturnType = 'eu.h2020.symbiote.semantics.mapping.model.Mapping'
+                //                staticParam = 'false'               
             }
         }
         

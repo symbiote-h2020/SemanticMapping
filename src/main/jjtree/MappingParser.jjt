@@ -85,6 +85,7 @@ TOKEN [IGNORE_CASE] :
 |	<CLASS: "CLASS">
 |	<AND: "AND">
 |	<OR: "OR">
+|	<AS: "AS">
 |	<VALUE: "VALUE">
 |	<TYPE: "TYPE">
 |       <EQUAL: "=">
@@ -297,20 +298,38 @@ PropertyOrCondition ConditionPropertyOr() : { PropertyCondition c = null; List<P
     }
 }
 
+AggregationInfo AggregationInfo() :
+{
+    AggregationType t = null;
+    List<ValueCondition> vs = new ArrayList<ValueCondition>();
+    Node n = null;
+    Token name = null;
+}
+{
+    (t=AggregationType() vs=ValueConditions() (<AS> name=<FCT_NAME>)?) 
+    {  
+        AggregationInfo a = new AggregationInfo(t, vs);
+        if(name != null) {
+            a.setResultName(name.image);
+        }
+        return a;
+    } 
+}
+
 PropertyAggregationCondition ConditionPropertyAggregation() : 
 { 
     PropertyCondition c = null; 
-    AggregationType t = null;
-    List<ValueCondition> vs = new ArrayList<ValueCondition>();
-    Map<AggregationType, List<ValueCondition>> rs = new HashMap<AggregationType, 
-    List<ValueCondition>>(); List<PropertyCondition> cs = new ArrayList<PropertyCondition>();}
+    AggregationInfo a = null;
+    List<AggregationInfo> as = new ArrayList<AggregationInfo>();
+    List<PropertyCondition> cs = new ArrayList<PropertyCondition>();
+}
 {
     <AGGREGATION> 
-    (t=AggregationType() vs=ValueConditions()) { rs.put(t, vs); } 
-    (<SEMICOLON> (t=AggregationType() vs=ValueConditions() { rs.put(t, vs); }))*
+    (a=AggregationInfo()) { as.add(a); } 
+    (<SEMICOLON> (a=AggregationInfo() { as.add(a); }))*
     (LOOKAHEAD(200)c=ConditionProperty() {cs.add(c);})+
     {
-        return new PropertyAggregationCondition(rs, cs);
+        return new PropertyAggregationCondition(as, cs);
     }
 }
 
@@ -525,11 +544,16 @@ Value TypedConstantValue() : {Token t; Node n;}
     }
 }
 
-ReferenceValue ReferenceValue() : {Token t; Node n;}
+ReferenceValue ReferenceValue() : {Token t=null; Node n=null;}
 {
-    (<REFERENCE> n=IRI())
+    (<REFERENCE> (n=IRI() | t=<FCT_NAME>))
     {        
-        return new ReferenceValue(n.getURI());
+        if (n != null) {
+            return new ReferenceValue(n.getURI());
+        }
+        if (t != null) {
+            return new ReferenceValue(t.image);
+        }
     }
 }
 

@@ -5,7 +5,10 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.condition;
 
+import eu.h2020.symbiote.semantics.mapping.data.IndividualMatch;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  *
@@ -13,12 +16,12 @@ import java.util.List;
  */
 public class ConditionWalker {
 
-    public static <R, P> void walk(Condition condition, ConditionVisitor<R, P> visitor) {
-        ConditionWalkerInternal<R, P> visitorInternal = new ConditionWalkerInternal<R, P>(visitor);
-        condition.accept(visitorInternal, null);
+    public static <R, P> R walk(Condition condition, ConditionVisitor<R, P> visitor, P args) {
+        ConditionWalkerInternal<R, P> visitorInternal = new ConditionWalkerInternal<>(visitor);
+        return condition.accept(visitorInternal, args);
     }
 
-    static class ConditionWalkerInternal<R, P> implements ConditionVisitor<Void, Void> {
+    static class ConditionWalkerInternal<R, P> implements ConditionVisitor<R, P> {
 
         protected final ConditionVisitor<R, P> visitor;
 
@@ -26,100 +29,111 @@ public class ConditionWalker {
             this.visitor = visitor;
         }
 
-        public void visit(List<? extends Condition> elements) {
-            elements.forEach(x -> x.accept(visitor, null));
-        }
-
-        private void visit(Condition condition) {
-            condition.accept(visitor, null);
+        @Override
+        public R emptyResult() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
-        public Void visit(Condition condition, Void args) {
-            visit(condition);
-            return null;
+        public R mergeAnd(Stream<R> input) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
-        public Void visit(IndividualCondition condition, Void args) {
-            visit(condition);
-            return null;
+        public R mergeOr(Stream<R> input) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        private R visitDefault(Condition condition, P args) {
+            return condition.accept(visitor, args);
         }
 
         @Override
-        public Void visit(ClassAndCondition condition, Void args) {
-            visit(condition);
-            visit(condition.getElements());
-            visit(condition.getPropertyCondition());
-            return null;
+        public R visit(IndividualCondition condition, P args) {
+            return visitDefault(condition, args);
         }
 
         @Override
-        public Void visit(ClassOrCondition condition, Void args) {
-            visit(condition);
-            visit(condition.getElements());
-            visit(condition.getPropertyCondition());
-            return null;
+        public R visit(UriClassCondition condition, P args) {
+            return mergeAnd(
+                    args,
+                    condition,
+                    condition.getPropertyCondition());
         }
 
         @Override
-        public Void visit(UriClassCondition condition, Void args) {
-            visit(condition);
-            visit(condition.getPropertyCondition());
-            return null;
+        public R visit(ObjectPropertyValueCondition condition, P args) {
+            return visitDefault(condition, args);
         }
 
         @Override
-        public Void visit(ObjectPropertyValueCondition condition, Void args) {
-            visit(condition);
-            return null;
+        public R visit(ObjectPropertyTypeCondition condition, P args) {
+            return mergeAnd(
+                    args,
+                    condition,
+                    condition.getType());
         }
 
         @Override
-        public Void visit(ObjectPropertyTypeCondition condition, Void args) {
-            visit(condition);
-            visit(condition.getType());
-            return null;
+        public R visit(DataPropertyValueCondition condition, P args) {
+            return visitDefault(condition, args);
         }
 
         @Override
-        public Void visit(DataPropertyValueCondition condition, Void args) {
-            visit(condition);
-            return null;
+        public R visit(DataPropertyTypeCondition condition, P args) {
+            return visitDefault(condition, args);
         }
 
         @Override
-        public Void visit(DataPropertyTypeCondition condition, Void args) {
-            visit(condition);
-            return null;
+        public R visit(PropertyPathCondition condition, P args) {
+            return visitDefault(condition, args);
         }
 
         @Override
-        public Void visit(PropertyPathCondition condition, Void args) {
-            visit(condition);
-            return null;
+        public R visit(PropertyAggregationCondition condition, P args) {
+            return mergeAnd(
+                    args,
+                    condition.getElements(),
+                    condition);
         }
 
-        @Override
-        public Void visit(PropertyAndCondition condition, Void args) {
-            visit(condition);
-            visit(condition.getElements());
-            return null;
+        private R mergeAnd(P args, Stream<? extends Condition> conditions) {
+//            List<R> ma = new ArrayList<>();
+//            conditions.forEach(x -> {
+//                if (x != null) {
+//                    R accept = x.accept(visitor, args);
+//                    ma.add(accept);
+//                }
+//            });
+//            R mergeAnd = visitor.mergeAnd(ma.stream());
+//            return mergeAnd;
+            return visitor.mergeAnd(
+                    conditions
+                            .filter(x -> x != null)
+                            .map(x -> x.accept(visitor, args)));
         }
 
-        @Override
-        public Void visit(PropertyOrCondition condition, Void args) {
-            visit(condition);
-            visit(condition.getElements());
-            return null;
+        private R mergeAnd(P args, List<? extends Condition> conditions1, Condition... conditions2) {
+            return mergeAnd(args, Stream.concat(conditions1.stream(), Stream.of(conditions2)));
         }
 
-        @Override
-        public Void visit(PropertyAggregationCondition condition, Void args) {
-            visit(condition);
-            visit(condition.getElements());
-            return null;
+        private R mergeAnd(P args, Condition... conditions) {
+            return mergeAnd(args, Stream.of(conditions));
         }
 
+        private R mergeOr(P args, Stream<? extends Condition> conditions) {
+            return visitor.mergeOr(
+                    conditions
+                            .filter(x -> x != null)
+                            .map(x -> x.accept(visitor, args)));
+        }
+
+        private R mergeOr(P args, List<? extends Condition> conditions1, Condition... conditions2) {
+            return mergeOr(args, Stream.concat(conditions1.stream(), Stream.of(conditions2)));
+        }
+
+        private R mergeOr(P args, Condition... conditions) {
+            return mergeOr(args, Stream.of(conditions));
+        }
     }
 }

@@ -5,6 +5,7 @@
  */
 package eu.h2020.symbiote.semantics.mapping.sparql.utils;
 
+import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationInfo;
 import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationType;
 import eu.h2020.symbiote.semantics.mapping.model.condition.Comparator;
 import eu.h2020.symbiote.semantics.mapping.model.condition.ValueCondition;
@@ -37,7 +38,6 @@ import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlHavingExpressionMa
 import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlMatch;
 import eu.h2020.symbiote.semantics.mapping.utils.Utils;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
@@ -51,12 +51,10 @@ import org.apache.jena.query.QueryException;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.Syntax;
 import org.apache.jena.shared.PrefixMapping;
-import org.apache.jena.sparql.algebra.OpVars;
 import org.apache.jena.sparql.algebra.walker.Walker;
 import org.apache.jena.sparql.expr.E_Datatype;
 import org.apache.jena.sparql.expr.ExprAggregator;
 import org.apache.jena.sparql.expr.ExprList;
-import org.apache.jena.sparql.expr.ExprVar;
 import org.apache.jena.sparql.expr.ExprVars;
 import org.apache.jena.sparql.expr.ExprVisitorBase;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -487,9 +485,8 @@ public class JenaHelper {
         return Optional.of(result);
     }
 
-    public static List<SparqlMatch> findHaving(Query query, Map<AggregationType, List<ValueCondition>> restrictions) {
-        return Utils.combineMatchesKeysMatch(restrictions.entrySet().stream()
-                .map(x -> findHaving(query, x.getKey(), x.getValue())));
+    public static List<SparqlMatch> findHaving(Query query, List<AggregationInfo> aggregationInfo) {
+        return Utils.combineMatchesKeysMatch(aggregationInfo.stream().map(x -> findHaving(query, x.getAggregationType(), x.getValueRestrictions())));
     }
 
     public static List<SparqlMatch> findHaving(Query query, AggregationType aggregationType, List<ValueCondition> valueConditions) {
