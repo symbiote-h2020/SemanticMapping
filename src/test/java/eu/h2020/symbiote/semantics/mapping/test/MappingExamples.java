@@ -535,6 +535,30 @@ public class MappingExamples {
                     + "   PRODUCTION CLASS :B \n"
                     + "      :hasValue VALUE \"5\"^^xsd:integer"),
             /**
+             * production class multiple property
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new UriClassCondition(TEST_MODEL.A),
+                                    new ClassProduction(
+                                            TEST_MODEL.B,
+                                            new DataPropertyProduction(
+                                                    TEST_MODEL.hasValue,
+                                                    ConstantValue.fromInt(5)),
+                                            new DataPropertyProduction(
+                                                    TEST_MODEL.hasValue,
+                                                    ConstantValue.fromInt(2)))))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION CLASS :A \n"
+                    + "   PRODUCTION CLASS :B \n"
+                    + "      :hasValue VALUE \"5\"^^xsd:integer"
+                    + "  AND :hasValue VALUE \"2\"^^xsd:integer"),
+            /**
              * production class with reference property data value
              */
             new Pair<Mapping, String>(

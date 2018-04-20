@@ -12,8 +12,12 @@ import eu.h2020.symbiote.semantics.mapping.model.production.DataPropertyProducti
 import eu.h2020.symbiote.semantics.mapping.model.production.IndividualProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyTypeProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyValueProduction;
+import eu.h2020.symbiote.semantics.mapping.model.production.ProductionVisitorSimple;
+import eu.h2020.symbiote.semantics.mapping.model.value.ReferenceValue;
 import eu.h2020.symbiote.semantics.mapping.model.value.TransformationValue;
+import eu.h2020.symbiote.semantics.mapping.model.value.Value;
 import java.util.List;
+import java.util.stream.Stream;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.ontology.Individual;
@@ -29,9 +33,50 @@ import org.apache.jena.vocabulary.RDF;
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public class DataProductionVisitor extends AbstractProductionVisitor<OntModel, List<IndividualMatch>, Void, OntModel> {
+public class DataProductionVisitor extends AbstractProductionVisitor<OntModel, List<IndividualMatch>, Void, OntModel> implements ProductionVisitorSimple<OntModel, List<IndividualMatch>, OntModel> {
 
     private OntModel model;
+
+    @Override
+    public void visit(IndividualProduction production, MappingContext context, List<IndividualMatch> args) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void visit(ClassProduction production, MappingContext context, List<IndividualMatch> args) {
+        remove(args);
+        args.forEach(x -> add(x.getIndividual(), RDF.type, production.getUri()));
+    }
+
+    @Override
+    public void visit(DataPropertyProduction production, MappingContext context, List<IndividualMatch> args) {
+        remove(args);
+        args.forEach(x -> {
+            List<Node> values = Value.eval(production.getValue(), context, x.getValues());
+            values.forEach(v -> add(x.getIndividual(), production.getPath(), v));
+        });
+    }
+
+    @Override
+    public void init(OntModel input) {
+        super.init(input);
+        model = ModelFactory.createOntologyModel(input.getSpecification(), input);
+    }
+
+    @Override
+    public OntModel getResult() {
+        return model;
+    }
+
+    @Override
+    public void visit(ObjectPropertyTypeProduction production, MappingContext context, List<IndividualMatch> args) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void visit(ObjectPropertyValueProduction production, MappingContext context, List<IndividualMatch> args) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
     private void remove(List<IndividualMatch> matches) {
         matches.stream().flatMap(x -> x.getElementMatches().stream())
@@ -65,66 +110,4 @@ public class DataProductionVisitor extends AbstractProductionVisitor<OntModel, L
         }
         add(subject, ((P_Link) predicate).getNode(), object);
     }
-
-    @Override
-    public void init(OntModel input) {
-        super.init(input);
-        model = ModelFactory.createOntologyModel(input.getSpecification(), input);
-    }
-
-    @Override
-    public OntModel getResult() {
-        return model;
-    }
-
-    @Override
-    public Void visit(MappingContext context, IndividualProduction production, List<IndividualMatch> temp) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Void visit(MappingContext context, ClassProduction production, List<IndividualMatch> temp) {
-        remove(temp);
-        temp.forEach(x -> add(x.getIndividual(), RDF.type, production.getUri()));
-        return null;
-    }
-
-    @Override
-    public Void visit(MappingContext context, DataPropertyProduction production, List<IndividualMatch> temp) {
-        remove(temp);
-//        for (SparqlMatch match : temp) {
-//            Node value = null;
-//            if (production.getValue() instanceof TransformationValue) {
-//                TransformationValue transform = ((TransformationValue) production.getValue());
-//                value = transform.eval(context, match.getValues()).asNode();
-//            } else {
-//                value = production.getValue().asNode();
-//            }
-//            remove(query, match.getMatchedElements());
-//            add(query, match.getMatchedNode(), production.getPath(), value);
-//        }
-//        return null;
-        temp.forEach(x -> {
-            Node value = null;
-            if (production.getValue() instanceof TransformationValue) {
-                TransformationValue transform = ((TransformationValue) production.getValue());
-                value = transform.eval(context, x.getValues()).asNode();
-            } else {
-                value = production.getValue().asNode();
-            }
-            add(x.getIndividual(), production.getPath(), value);
-        });
-        return null;
-    }
-
-    @Override
-    public Void visit(MappingContext context, ObjectPropertyTypeProduction production, List<IndividualMatch> temp) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Void visit(MappingContext context, ObjectPropertyValueProduction production, List<IndividualMatch> temp) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
 }

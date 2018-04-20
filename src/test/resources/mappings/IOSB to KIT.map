@@ -10,8 +10,8 @@ RULE
    PRODUCTION 
       CLASS kit:Beacon
          kit:UUID VALUE REFERENCE :beaconId
-         kit:Major VALUE REFERENCE :major
-         kit:Minor VALUE REFERENCE :minor
+     AND kit:Major VALUE REFERENCE :major
+     AND kit:Minor VALUE REFERENCE :minor
 
 RULE
    CONDITION 
@@ -23,9 +23,9 @@ RULE
    PRODUCTION 
 	     CLASS kit:Area
 	        kit:Name VALUE REFERENCE :name
-	        kit:Description VALUE REFERENCE :description
-	        kit:RoomNumber VALUE REFERENCE :roomNo 
-	        kit:hasFeature TYPE CLASS kit:SeatingCap 
+	    AND kit:Description VALUE REFERENCE :description
+	    AND kit:RoomNumber VALUE REFERENCE :roomNo 
+	    AND kit:hasFeature TYPE CLASS kit:SeatingCap 
                     kit:capacity VALUE REFERENCE :capacity
 
 RULE 

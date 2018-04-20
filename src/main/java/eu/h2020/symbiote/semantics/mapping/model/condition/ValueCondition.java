@@ -5,6 +5,7 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.condition;
 
+import eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue;
 import eu.h2020.symbiote.semantics.mapping.model.value.Value;
 import java.util.Objects;
 
@@ -15,12 +16,12 @@ import java.util.Objects;
 public class ValueCondition {
 
     private Comparator comparator;
-    private Value value;
+    private ConstantValue value;
 
     private ValueCondition() {
     }
 
-    public ValueCondition(Comparator comparator, Value value) {
+    public ValueCondition(Comparator comparator, ConstantValue value) {
         this.comparator = comparator;
         this.value = value;
     }
@@ -33,11 +34,11 @@ public class ValueCondition {
         this.comparator = comparator;
     }
 
-    public Value getValue() {
+    public ConstantValue getValue() {
         return value;
     }
 
-    public void setValue(Value value) {
+    public void setValue(ConstantValue value) {
         this.value = value;
     }
 

@@ -5,9 +5,16 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.value;
 
+import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import javafx.util.Pair;
 import org.apache.jena.graph.Node;
+import org.apache.jena.graph.impl.LiteralLabel;
 import org.apache.jena.ontology.OntProperty;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.ResourceFactory;
 
 /**
  *
@@ -27,11 +34,6 @@ public class ReferenceValue implements Value {
     
     public ReferenceValue(OntProperty property) {
         this.name = property.getURI();
-    }
-
-    @Override
-    public Node asNode() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     @Override
@@ -75,6 +77,13 @@ public class ReferenceValue implements Value {
         int hash = 5;
         hash = 37 * hash + Objects.hashCode(this.name);
         return hash;
+    }
+    
+    public List<ConstantValue> eval(List<Pair<String, LiteralLabel>> inputParameters) {
+        return inputParameters.stream()
+                .filter(x -> x.getKey().equals(name))
+                .map(x -> new ConstantValue(x.getValue().getValue(), x.getValue().getDatatype()))
+                .collect(Collectors.toList());
     }
 
 }

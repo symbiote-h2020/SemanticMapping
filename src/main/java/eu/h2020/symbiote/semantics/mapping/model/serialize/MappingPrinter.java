@@ -182,10 +182,17 @@ public class MappingPrinter implements ConditionVisitorVoid, ValueVisitor<Boolea
         print(CLASS);
         print(production.getUri());
         indent();
-        production.getProperties().forEach(x -> {
+        if (production.getProperties() != null && !production.getProperties().isEmpty()) {
             println();
-            x.accept(null, this, null);
-        });
+            production.getProperties().get(0).accept(null, this, null);
+            production.getProperties().stream()
+                    .skip(1)
+                    .forEach(x -> {
+                        println();
+                        printOffset(AND, true);
+                        x.accept(null, this, null);
+                    });
+        }
         unindent();
     }
 

@@ -24,9 +24,9 @@ public abstract class AbstractProductionVisitor<I, TC, TP, O> implements Product
         this.input = input;
     }
 
-    @Override
-    public TP visit(MappingContext context, Production production, TC temp) {
-        return production.accept(context, this, temp);
-    }
+//    @Override
+//    public TP visit(MappingContext context, Production production, TC temp) {
+//        return production.accept(context, this, temp);
+//    }
 
 }

@@ -17,15 +17,15 @@ import java.util.stream.Stream;
 public class ConditionWalker {
 
     public static <R, P> R walk(Condition condition, ConditionVisitor<R, P> visitor, P args) {
-        ConditionWalkerInternal<R, P> visitorInternal = new ConditionWalkerInternal<>(visitor);
+        ConditionVisitorInternal<R, P> visitorInternal = new ConditionVisitorInternal<>(visitor);
         return condition.accept(visitorInternal, args);
     }
 
-    static class ConditionWalkerInternal<R, P> implements ConditionVisitor<R, P> {
+    static class ConditionVisitorInternal<R, P> implements ConditionVisitor<R, P> {
 
         protected final ConditionVisitor<R, P> visitor;
 
-        public ConditionWalkerInternal(ConditionVisitor<R, P> visitor) {
+        public ConditionVisitorInternal(ConditionVisitor<R, P> visitor) {
             this.visitor = visitor;
         }
 

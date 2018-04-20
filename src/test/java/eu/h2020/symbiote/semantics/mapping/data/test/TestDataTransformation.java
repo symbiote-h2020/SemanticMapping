@@ -35,7 +35,7 @@ public class TestDataTransformation {
                 + "RULE \n"
                 + "   CONDITION \n"
                 //                + "      CLASS test:A test:hasValue VALUE test:instanceOfB \n"
-                + "      CLASS test:A AGGREGATION SUM > 10 AS sumHasValue test:hasValue  \n"
+                + "      CLASS test:A AGGREGATION SUM < 10 AS sumHasValue test:hasValue  \n"
                 + "   PRODUCTION CLASS test:B \n"
                 + "      test:hasValue2 VALUE REFERENCE sumHasValue"
         );

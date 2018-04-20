@@ -66,8 +66,8 @@ public class EduCampusMappingTest {
                     + "   PRODUCTION \n"
                     + "	     CLASS kit:Beacon\n"
                     + "	        kit:UUID VALUE REFERENCE :beaconId\n"
-                    + "	        kit:Major VALUE REFERENCE :major\n"
-                    + "	        kit:Minor VALUE REFERENCE :minor"),
+                    + "	    AND kit:Major VALUE REFERENCE :major\n"
+                    + "	    AND kit:Minor VALUE REFERENCE :minor"),
             new Pair<Mapping, String>(
                     new Mapping.Builder()
                             .base(IOSB)
@@ -101,9 +101,9 @@ public class EduCampusMappingTest {
                     + "   PRODUCTION \n"
                     + "	     CLASS kit:Area\n"
                     + "	        kit:Name VALUE REFERENCE :name\n"
-                    + "	        kit:Description VALUE REFERENCE :description\n"
-                    + "	        kit:RoomNumber VALUE REFERENCE :roomNo \n"
-                    + "	        kit:hasFeature TYPE CLASS kit:SeatingCap \n"
+                    + "	    AND kit:Description VALUE REFERENCE :description\n"
+                    + "	    AND kit:RoomNumber VALUE REFERENCE :roomNo \n"
+                    + "	    AND kit:hasFeature TYPE CLASS kit:SeatingCap \n"
                     + "            kit:capacity VALUE REFERENCE :capacity"),
             new Pair<Mapping, String>(
                     new Mapping.Builder()

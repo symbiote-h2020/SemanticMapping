@@ -55,11 +55,6 @@ public class TransformationValue implements Value {
         this.parameters = Arrays.asList(parameters);
     }
 
-    @Override
-    public Node asNode() {
-        throw new UnsupportedOperationException("use eval(List<Pair<String, LiteralLabel>> input) instead"); //To change body of generated methods, choose Tools | Templates.
-    }
-
     protected Object[] appendStaticParameters(Object[] data) {
         Object[] contantParams = parameters.stream()
                 .filter(x -> x instanceof ConstantValue)

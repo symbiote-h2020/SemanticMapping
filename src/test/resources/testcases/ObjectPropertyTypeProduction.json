@@ -32,7 +32,7 @@
 		CONDITION CLASS :A  
 		PRODUCTION CLASS :B  
 			:hasChild TYPE CLASS :Person  
-			:hasValue VALUE \"test\"",
+		AND :hasValue VALUE \"test\"",
   "replacements" : [ {
     "STRING_VALUE" : "\"test\"",
     "INT_VALUE" : "\"42\"^^xsd:integer"

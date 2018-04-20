@@ -33,7 +33,7 @@
 		CONDITION CLASS :B :name TYPE xsd:string  
 		PRODUCTION CLASS :A  
 			:firstName VALUE split ( REFERENCE :name , \" \"  , 0  ) 
-			:lastName VALUE split ( REFERENCE :name , \" \"  , 1  )",
+		AND :lastName VALUE split ( REFERENCE :name , \" \"  , 1  )",
   "replacements" : [ {
     "FIRST_NAME" : "\"Michael\"^^xsd:string",
     "LAST_NAME" : "\"Jacoby\"^^xsd:integer"

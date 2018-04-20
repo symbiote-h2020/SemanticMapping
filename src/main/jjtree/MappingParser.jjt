@@ -209,8 +209,8 @@ ClassAndCondition ClassConditionAnd() : { ClassCondition c = null; List<ClassCon
             LOOKAHEAD(200)
             <AND> 
             c=ClassCondition() {cs.add(c);})*
-        <RB>
-    )
+            <RB>
+        )
     {
         return new ClassAndCondition(cs);
     }
@@ -226,8 +226,8 @@ ClassOrCondition ClassConditionOr() : { ClassCondition c = null; List<ClassCondi
             LOOKAHEAD(200)
             <OR> 
             c=ClassCondition() {cs.add(c);})*
-        <RB>
-    )
+            <RB>
+        )
     {
         return new ClassOrCondition(cs);
     }
@@ -433,7 +433,7 @@ IndividualProduction ProductionIndividual() : {Node n = null;}
 
 ClassProduction ProductionClass() : {Node n; PropertyProduction p; List<PropertyProduction> ps = new ArrayList<PropertyProduction>();}
 {
-    (<CLASS> n=IRI() (LOOKAHEAD(200)p=ProductionProperty(){ ps.add(p); })*)
+    (<CLASS> n=IRI() (LOOKAHEAD(200)(p=ProductionProperty(){ ps.add(p); }) (LOOKAHEAD(200)<AND> (p=ProductionProperty(){ ps.add(p); }))*)?)
     {
         return new ClassProduction(n, ps);
     }
@@ -497,9 +497,9 @@ Node IRIPrefix() : {Token t;}
     }
 }
 
-ValueCondition ValueCondition() : {Comparator c; Value v;}
+ValueCondition ValueCondition() : {Comparator c; ConstantValue v;}
 {
-    (c=Comparator() v=Value())
+    (c=Comparator() v=ConstantValue())
     {
         return new ValueCondition(c, v);
     }
@@ -521,10 +521,19 @@ Comparator Comparator() : {Token t;}
 Value Value() : {Value v;}
 {
     ( LOOKAHEAD(200) v=ReferenceValue()
-    | LOOKAHEAD(200) v=TypedConstantValue()
-    | LOOKAHEAD(200) v=NumericValue()    
-    | LOOKAHEAD(200) v=StringValue()    
+    | LOOKAHEAD(200) v=ConstantValue()
     | LOOKAHEAD(200) v=TransformationValue())
+    {
+        return v;
+    }
+}
+
+ConstantValue ConstantValue() : {ConstantValue v;}
+{
+    ( LOOKAHEAD(200) v=TypedConstantValue()
+    | LOOKAHEAD(200) v=NumericValue()    
+    | LOOKAHEAD(200) v=StringValue() 
+    )
     {
         return v;
     }
@@ -536,7 +545,7 @@ TOKEN : {  <START_QUOTE:"\""> { quotesNestingDepth = 1 ; } : QUOTE_STATE }
 <QUOTE_STATE>  TOKEN : {  <END_QUOTE:"\""> { quotesNestingDepth -= 1; SwitchTo( quotesNestingDepth==0 ? DEFAULT : QUOTE_STATE ) ; }}
 <QUOTE_STATE>  MORE : {  < ~[] > }
 
-Value TypedConstantValue() : {Token t; Node n;}
+ConstantValue TypedConstantValue() : {Token t; Node n;}
 {
     (<START_QUOTE> t=<END_QUOTE> <DATATYPE> n=IRI())
     {
@@ -579,7 +588,7 @@ ConstantValue StringValue() : {Token t; Node n;}
     }
 }
 
-Value NumericValue() : {Value v;}
+ConstantValue NumericValue() : {ConstantValue v;}
 {
     (v=IntegerValue() | v=DoubleValue())
     {
@@ -587,7 +596,7 @@ Value NumericValue() : {Value v;}
     }
 }
 
-Value IntegerValue() : {Token t;}
+ConstantValue IntegerValue() : {Token t;}
 {
     t = <INTEGER> 
     {
@@ -595,7 +604,7 @@ Value IntegerValue() : {Token t;}
     }
 }
 
-Value DoubleValue() : {Token t;}
+ConstantValue DoubleValue() : {Token t;}
 {
     t = <DOUBLE> 
     {

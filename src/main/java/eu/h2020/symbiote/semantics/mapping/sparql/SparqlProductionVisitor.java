@@ -13,6 +13,7 @@ import eu.h2020.symbiote.semantics.mapping.model.production.IndividualProduction
 import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyTypeProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyValueProduction;
 import eu.h2020.symbiote.semantics.mapping.model.value.TransformationValue;
+import eu.h2020.symbiote.semantics.mapping.model.value.Value;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.IndividualMatch;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlElementMatch;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlMatch;
@@ -20,6 +21,7 @@ import eu.h2020.symbiote.semantics.mapping.sparql.utils.JenaHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.Query;
 import org.apache.jena.rdf.model.Property;
@@ -54,6 +56,11 @@ public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, Li
     @Override
     public Query getResult() {
         return query;
+    }
+
+    @Override
+    public Void merge(Stream<Void> input) {
+        return null;
     }
 
     private Query remove(Query query, List<SparqlElementMatch> matchInfo) {
@@ -95,22 +102,15 @@ public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, Li
             remove(query, x.getMatchedElements());
             add(query, x.getMatchedNode(), RDF.type, production.getUri());
         });
-        production.getProperties().forEach(x -> x.accept(context, this, temp));
         return null;
     }
 
     @Override
     public Void visit(MappingContext context, DataPropertyProduction production, List<SparqlMatch> temp) {
         for (SparqlMatch match : temp) {
-            Node value = null;
-            if (production.getValue() instanceof TransformationValue) {
-                TransformationValue transform = ((TransformationValue) production.getValue());
-                value = transform.eval(context, match.getValues()).asNode();
-            } else {
-                value = production.getValue().asNode();
-            }
+            List<Node> values = Value.eval(production.getValue(), context, match.getValues());
             remove(query, match.getMatchedElements());
-            add(query, match.getMatchedNode(), production.getPath(), value);
+            values.forEach(x -> add(query, match.getMatchedNode(), production.getPath(), x));
         }
         return null;
     }
@@ -122,7 +122,7 @@ public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, Li
             Node tempNode = VarAlloc.getVarAllocator().allocVar();
             add(query, match.getMatchedNode(), production.getPath(), tempNode);
             match.setMatchedNode(tempNode);
-            production.getDatatype().accept(context, this, Arrays.asList(match));            
+            production.getDatatype().accept(context, this, Arrays.asList(match));
         }
         return null;
     }

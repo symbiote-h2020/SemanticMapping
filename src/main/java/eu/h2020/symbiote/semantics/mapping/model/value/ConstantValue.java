@@ -82,8 +82,7 @@ public class ConstantValue implements Value {
     public RDFDatatype getDatatype() {
         return datatype;
     }
-
-    @Override
+    
     public Node asNode() {
         return ResourceFactory.createTypedLiteral(datatype.unparse(value), datatype).asNode();
     }
