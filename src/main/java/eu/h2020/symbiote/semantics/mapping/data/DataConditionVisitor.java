@@ -17,9 +17,11 @@ import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyPathCondition
 import eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.ValueCondition;
 import eu.h2020.symbiote.semantics.mapping.utils.StreamHelper;
+import eu.h2020.symbiote.semantics.mapping.utils.Utils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Spliterator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,7 +39,9 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.core.VarAlloc;
@@ -65,6 +69,7 @@ import org.apache.jena.sparql.path.Path;
 import org.apache.jena.sparql.syntax.ElementFilter;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import org.apache.jena.sparql.syntax.ElementPathBlock;
+import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.RDF;
 
 /**
@@ -113,12 +118,19 @@ public class DataConditionVisitor implements ConditionVisitor<List<IndividualMat
 
     @Override
     public List<IndividualMatch> visit(IndividualCondition condition, OntModel model) {
-        List<IndividualMatch> result = new ArrayList<>();
-        Individual individual = model.getIndividual(condition.getUri().getURI());
-        if (individual != null) {
-            result.add(new IndividualMatch(individual));
-        }
-        return result;
+        return model
+                .listStatements(null, null, model.createResource(condition.getUri().getURI()))
+                .toList().stream()
+                .collect(Collectors.groupingBy(x -> x.getSubject()))
+                .entrySet().stream()
+                .map(x -> {
+                    return new IndividualMatch(
+                            model.getIndividual(x.getKey().getURI()), 
+                            x.getValue().stream()
+                                    .map(y -> new TripleMatch(y.asTriple()))
+                                    .collect(Collectors.toList()));
+                })
+                .collect(Collectors.toList());
     }
 
     private Query createQuery(Path path, Node value) {
@@ -341,7 +353,7 @@ public class DataConditionVisitor implements ConditionVisitor<List<IndividualMat
                 NodeValue agg = calcAggregation(match.getElementMatches(), x.getAggregationType());
                 if (agg == null) {
                     throw new IllegalArgumentException("could not calculate aggregation");
-                }                                
+                }
                 match.getElementMatches().add(new AggregationMatch(agg.asNode().getLiteral(), x.getResultName()));
             });
         }
@@ -376,7 +388,7 @@ public class DataConditionVisitor implements ConditionVisitor<List<IndividualMat
                                 x.getValue().getValue().getLexicalForm(),
                                 x.getValue().getValue().getDatatype())
                                 .asNode()),
-                functionEnvBase));        
+                functionEnvBase));
         return acc.getValue();
     }
 }

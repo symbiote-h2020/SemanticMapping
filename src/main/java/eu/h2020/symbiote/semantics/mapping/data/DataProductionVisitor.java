@@ -39,7 +39,14 @@ public class DataProductionVisitor extends AbstractProductionVisitor<OntModel, L
 
     @Override
     public void visit(IndividualProduction production, MappingContext context, List<IndividualMatch> args) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        remove(args);
+        // filter for TripleMatch
+        args.forEach(
+                x -> x.getElementMatches().stream()
+                        .filter(y -> y instanceof TripleMatch)
+                        .map(y -> ((TripleMatch) y))
+                        .forEach(
+                                y -> add(x.getIndividual(), y.getTriple().getPredicate(), production.getUri())));
     }
 
     @Override
