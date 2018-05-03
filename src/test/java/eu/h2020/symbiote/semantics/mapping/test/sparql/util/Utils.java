@@ -9,7 +9,6 @@ import eu.h2020.symbiote.semantics.mapping.model.Mapping;
 import eu.h2020.symbiote.semantics.mapping.parser.ParseException;
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.QueryCompare;
 import eu.h2020.symbiote.semantics.mapping.test.ontology.TEST_MODEL;
-import eu.h2020.symbiote.semantics.mapping.sparql.model.test.TestSuite;
 import static eu.h2020.symbiote.semantics.mapping.test.sparql.util.Constants.PREFIX_TEST;
 import java.io.File;
 import java.io.IOException;
@@ -67,13 +66,6 @@ public class Utils {
 
     public static void save(Mapping mapping, String filename) throws IOException, URISyntaxException {
         mapping.save(getMappingFile(filename));
-    }
-
-    public static List<TestSuite> getTestCases() throws URISyntaxException, IOException {
-        return Files.list(Paths.get(Utils.class.getClassLoader().getResource(Constants.TEST_CASE_DIR).toURI()))
-                .filter(x -> FilenameUtils.getExtension(x.toString()).equalsIgnoreCase(Constants.TEST_CASE_EXTENSION))
-                .map(eu.h2020.symbiote.semantics.mapping.utils.Utils.<Path, TestSuite, IOException>executeSafe(x -> TestSuite.load(x.toFile())))
-                .collect(Collectors.toList());
     }
 
     private Utils() {

@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 import javafx.util.Pair;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.graph.Node;
 
 /**
  *
@@ -645,6 +646,37 @@ public class MappingExamples {
                     + PREFIX_XSD
                     + "RULE \n"
                     + "   CONDITION :hasValue \n"
-                    + "   PRODUCTION :hasValue2 VALUE REFERENCE :hasValue"));
+                    + "   PRODUCTION :hasValue2 VALUE REFERENCE :hasValue"),
+            /**
+             * aggregation inside object property type
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new UriClassCondition(TEST_MODEL.Person,
+                                            new ObjectPropertyTypeCondition(
+                                                    TEST_MODEL.hasChild,
+                                                    new UriClassCondition(
+                                                            Node.ANY,
+                                                            new PropertyAggregationCondition(AggregationType.COUNT,
+                                                                    new ValueCondition(
+                                                                            Comparator.GreaterEqual,
+                                                                            ConstantValue.fromInt(2)),
+                                                                    new DataPropertyValueCondition(
+                                                                            TEST_MODEL.age,
+                                                                            new ValueCondition(
+                                                                                    Comparator.GreaterEqual,
+                                                                                    ConstantValue.fromInt(18))))))),
+                                    new ClassProduction(TEST_MODEL.PersonWithTwoAdultChildren)))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION CLASS :Person \n"
+                    + "      :hasChild TYPE ( CLASS ANY \n"
+                    + "         AGGREGATION COUNT >=2 \n"
+                    + "		:age VALUE >=18 )\n"
+                    + "	   PRODUCTION CLASS :PersonWithTwoAdultChildren"));
 
 }

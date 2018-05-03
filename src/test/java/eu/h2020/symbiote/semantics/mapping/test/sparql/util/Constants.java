@@ -17,7 +17,8 @@ public class Constants {
     public static final String PREFIX_TEST = "test";
     public static final String QUERY_DIR = "queries";
     public static final String MAPPING_DIR = "mappings";
-    public static final String TEST_CASE_DIR = "testcases";
+    public static final String SPARQL_TEST_CASE_DIR = "testcases/sparql";
+    public static final String DATA_TEST_CASE_DIR = "testcases/data";
     public static final String QUERY_FILE_EXTENSION = "sparql";
     public static final String MAPPING_FILE_EXTENSION = "map";
     public static final String TEST_CASE_EXTENSION = "json";

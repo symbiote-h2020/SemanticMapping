@@ -6,6 +6,7 @@
 package eu.h2020.symbiote.semantics.mapping.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -30,6 +31,11 @@ public class IndividualMatch {
     public IndividualMatch(Individual individual, List<DataElementMatch> elementMatches) {
         this(individual);
         this.elementMatches = elementMatches;
+    }
+    
+    public IndividualMatch(Individual individual, DataElementMatch... elementMatches) {
+        this(individual);
+        this.elementMatches.addAll(Arrays.asList(elementMatches));
     }
 
     public Individual getIndividual() {

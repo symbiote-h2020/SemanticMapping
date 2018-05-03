@@ -9,7 +9,10 @@ import eu.h2020.symbiote.semantics.mapping.model.condition.ConditionVisitor;
 import eu.h2020.symbiote.semantics.mapping.model.condition.ConditionWalker;
 import eu.h2020.symbiote.semantics.mapping.model.production.ProductionVisitor;
 import eu.h2020.symbiote.semantics.mapping.model.production.ProductionWalker;
+import java.io.StringWriter;
 import java.util.Map;
+import org.apache.jena.ontology.OntModel;
+import org.apache.jena.riot.RDFLanguages;
 
 /**
  *
@@ -24,7 +27,7 @@ public abstract class Mapper<I, TC, TP, O> {
     protected final SupportChecker mappingSupportedChecker;
     protected final ConditionVisitor<TC, I> conditionVisitor;
     protected final ProductionVisitor<I, TC, TP, O> productionVisitor;
-    
+
     public Mapper(SupportChecker mappingSupportedChecker, ConditionVisitor<TC, I> conditionVisitor, ProductionVisitor<I, TC, TP, O> productionVisitor) {
         this.mappingSupportedChecker = mappingSupportedChecker;
         this.conditionVisitor = conditionVisitor;
@@ -46,11 +49,11 @@ public abstract class Mapper<I, TC, TP, O> {
         context.register(mapping.getTransformations());
         O result = null;
         for (MappingRule rule : mapping.getMappingRules()) {
-            TC conditionMatches = ConditionWalker.walk(rule.getCondition(), conditionVisitor, input);
-            result = ProductionWalker.walk(rule.getProduction(), productionVisitor, context, conditionMatches);            
+            TC conditionMatches = ConditionWalker.walk(rule.getCondition(), conditionVisitor, input);            
+            result = ProductionWalker.walk(rule.getProduction(), productionVisitor, context, conditionMatches);
         }
         return result;
     }
-    
+
     public abstract void init(Map<String, String> parameters);
 }

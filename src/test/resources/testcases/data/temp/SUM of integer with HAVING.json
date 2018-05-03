@@ -1,0 +1,31 @@
+{
+  "name" : "SUM of integer with HAVING",
+  "commonBase": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#",
+  "commonPrefixes" : {	
+	"test": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "dc" : "http://purl.org/dc/elements/1.1/"
+  },
+  "inputs" : [
+	":myA a owl:NamedIndividual, 
+		   test:A ;
+         test:hasValue   5 , 3 ;
+         test:hasValue2 test:instanceOfB ." 
+  ],
+  "expectedResult" : 
+	":myA a owl:NamedIndividual, 
+		   test:B ;
+         test:hasValue2 8 ;
+         test:hasValue2 test:instanceOfB .",
+  "mapping" : 
+	"RULE
+	   CONDITION
+		  CLASS test:A 
+			AGGREGATION SUM < 10 AS sumHasValue test:hasValue
+	   PRODUCTION 
+		  CLASS test:B
+			 test:hasValue2 VALUE REFERENCE sumHasValue"
+}

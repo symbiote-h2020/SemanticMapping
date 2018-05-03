@@ -27,13 +27,34 @@ import eu.h2020.symbiote.semantics.mapping.model.value.TransformationValue;
 public class MappingParser extends AbstractMappingParser{
     private static final Charset DEFAULT_ENCODING = Charset.forName("UTF-8");
 
-    public static Mapping parse(String mapping) throws ParseException {
+public static Mapping parse(String mapping) throws ParseException {
         return parse(mapping, DEFAULT_ENCODING);
+    }
+
+    public static Mapping parse(String mapping, String base, Map<String, String> prefixes) throws ParseException {
+        return parse(mapping, DEFAULT_ENCODING, base, prefixes);
     }
 
     public static Mapping parse(String mapping, Charset encoding) throws ParseException {
         InputStream is = new ByteArrayInputStream(mapping.getBytes(encoding));
         return new MappingParser(is, encoding.name()).Mapping();
+    }
+
+    public static Mapping parse(String mapping, Charset encoding, String base, Map<String, String> prefixes) throws ParseException {
+        InputStream is = new ByteArrayInputStream(mapping.getBytes(encoding));
+        return new MappingParser(is, encoding.name(), base, prefixes).Mapping();
+    }
+
+    public MappingParser(java.io.InputStream stream, String encoding, String base, Map<String, String> prefixes) {
+        this(stream, encoding);
+        if (base != null && !base.isEmpty()) {
+            setBase(base);
+        }
+        if (prefixes != null) {
+            for (Map.Entry<String, String> prefix : prefixes.entrySet()) {
+                addPrefix(prefix.getKey(), prefix.getValue());
+            }
+        }
     }
 }
 

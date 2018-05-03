@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.util.Map;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.graph.Node;
+import org.apache.jena.ontology.OntModel;
 import org.apache.jena.query.Query;
 import org.apache.jena.sparql.path.Path;
 
@@ -22,15 +23,20 @@ public class JenaModule extends SimpleModule {
 
     public JenaModule() {
         super(NAME);
-        init(null);
+        init(null, null);
     }
     
     public JenaModule(Map<String, String> prefixes) {
         super(NAME);
-        init(prefixes);
+        init(null, prefixes);
+    }
+    
+    public JenaModule(String base, Map<String, String> prefixes) {
+        super(NAME);
+        init(base, prefixes);
     }
 
-    private void init(Map<String, String> prefixes) {
+    private void init(String base, Map<String, String> prefixes) {
         addSerializer(RDFDatatype.class, new RDFDatatypeSerializer());
         addDeserializer(RDFDatatype.class, new RDFDatatypeDeserializer());
         addSerializer(Node.class, new NodeSerializer());
@@ -39,10 +45,12 @@ public class JenaModule extends SimpleModule {
         addDeserializer(Path.class, new PathDeserializer());        
         if (prefixes != null) {
             addSerializer(Query.class, new QuerySerializer(prefixes));
-            addDeserializer(Query.class, new QueryDeserializer(prefixes));            
+            addDeserializer(Query.class, new QueryDeserializer(base, prefixes));            
+            addDeserializer(OntModel.class, new OntModelDeserializer(base, prefixes));
         } else {
             addSerializer(Query.class, new QuerySerializer());
             addDeserializer(Query.class, new QueryDeserializer());
+            addDeserializer(OntModel.class, new OntModelDeserializer());
         }
     }
 }

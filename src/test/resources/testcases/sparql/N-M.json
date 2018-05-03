@@ -1,0 +1,64 @@
+{
+  "name" : "N to M mappings",
+  "commonBase": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#",
+  "commonPrefixes" : {
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "dc" : "http://purl.org/dc/elements/1.1/"
+  },
+  "inputs" : [
+	"SELECT * WHERE
+	{ 
+		?x a :A ;
+			:hasValue \"test\" .
+	}",
+	"SELECT * WHERE
+	{ 
+		?x a :A ;
+			:hasValue ?val .
+		FILTER ( ?val = \"test\" )
+	}", 
+	"SELECT * WHERE
+	{ 
+		?x :hasValue \"test\" ;
+			a :A .
+	}", 
+	"SELECT * WHERE
+	{ 
+		?x a :A .
+		{ 
+			?x :hasValue \"test\" 
+		}
+	}", 
+	"SELECT * WHERE
+	{ 
+		{ 
+			?x a :A .
+		}
+		{ 
+			?x :hasValue \"test\" .
+		}
+	}", 
+	"SELECT * WHERE
+	{ 
+		?x a :A .
+		{ 
+			SELECT ?x WHERE
+			{ 
+				?x :hasValue \"test\" .
+			}
+		}
+	}" 
+  ],
+  "expectedResult" : 
+	"SELECT * WHERE
+	{ 
+		?x a :B .
+	}",
+  "mapping" : 
+	"RULE 
+		CONDITION CLASS :A :hasValue VALUE = \"test\"  
+		PRODUCTION CLASS :B"
+}

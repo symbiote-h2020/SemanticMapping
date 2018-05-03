@@ -6,9 +6,6 @@
 package eu.h2020.symbiote.semantics.mapping.data;
 
 import eu.h2020.symbiote.semantics.mapping.model.Mapper;
-import eu.h2020.symbiote.semantics.mapping.model.Mapping;
-import eu.h2020.symbiote.semantics.mapping.model.UnsupportedMappingException;
-import eu.h2020.symbiote.semantics.mapping.model.condition.ConditionVisitor;
 import java.util.List;
 import java.util.Map;
 import org.apache.jena.ontology.OntModel;

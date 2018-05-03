@@ -1,0 +1,30 @@
+{
+  "name" : "multi result test",
+  "commonBase": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#",
+  "commonPrefixes" : {
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "dc" : "http://purl.org/dc/elements/1.1/"
+  },
+  "inputs" : [ 
+	"SELECT ?x ?y WHERE
+	{ 
+		?x a :A .
+		?x :hasValue \"test\" .
+		?x :hasValue2 ?y .
+		FILTER(?y=42) .
+	}"
+  ],
+  "expectedResult" : 
+	"SELECT ?x ?y WHERE 
+	{ 
+		?x a :B;
+			:hasValue2 :instanceOfB .
+	}",
+  "mapping" : 
+	"RULE 
+		CONDITION CLASS :A :hasValue VALUE =\"test\" AND :hasValue2 VALUE =42  
+		PRODUCTION CLASS :B :hasValue2 VALUE :instanceOfB"
+}

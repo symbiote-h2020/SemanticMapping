@@ -13,18 +13,18 @@ import eu.h2020.symbiote.semantics.mapping.model.production.IndividualProduction
 import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyTypeProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyValueProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.ProductionVisitorSimple;
-import eu.h2020.symbiote.semantics.mapping.model.value.ReferenceValue;
-import eu.h2020.symbiote.semantics.mapping.model.value.TransformationValue;
 import eu.h2020.symbiote.semantics.mapping.model.value.Value;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
 import java.util.List;
-import java.util.stream.Stream;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.ModelGraphInterface;
 import org.apache.jena.rdf.model.Property;
+import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.sparql.path.P_Link;
 import org.apache.jena.sparql.path.Path;
 import org.apache.jena.vocabulary.RDF;
@@ -60,7 +60,10 @@ public class DataProductionVisitor extends AbstractProductionVisitor<OntModel, L
     @Override
     public void init(OntModel input) {
         super.init(input);
-        model = ModelFactory.createOntologyModel(input.getSpecification(), input);
+        model = ModelFactory.createOntologyModel();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        input.write(out, RDFLanguages.TURTLE.getName());
+        model.read(new ByteArrayInputStream(out.toByteArray()), null, RDFLanguages.TURTLE.getName());
     }
 
     @Override

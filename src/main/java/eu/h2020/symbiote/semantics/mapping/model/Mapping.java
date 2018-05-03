@@ -62,6 +62,10 @@ public class Mapping {
     public static Mapping parse(String content) throws ParseException {
         return MappingParser.parse(content);
     }
+    
+    public static Mapping parse(String content, String base, Map<String, String> prefixes) throws ParseException {
+        return MappingParser.parse(content, base, prefixes);
+    }
 
     public void save(String filename) throws IOException {
         Utils.writeFile(new File(filename), MappingPrinter.print(this));

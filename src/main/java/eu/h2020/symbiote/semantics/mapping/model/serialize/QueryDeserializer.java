@@ -19,6 +19,7 @@ import org.apache.jena.query.Query;
  */
 public class QueryDeserializer extends AbstractTypeDeserializer<Query> {
 
+    private String base = null;
     private Map<String, String> prefixes;
 
     public QueryDeserializer() {
@@ -26,21 +27,27 @@ public class QueryDeserializer extends AbstractTypeDeserializer<Query> {
     }
 
     public QueryDeserializer(Map<String, String> prefixes) {
-        this(null, prefixes);
+        this(null, null, prefixes);
+    }
+    
+    public QueryDeserializer(String base, Map<String, String> prefixes) {
+        this(null, base, prefixes);
     }
 
     public QueryDeserializer(Class<?> t) {
         super(t);
     }
 
-    public QueryDeserializer(Class<?> t, Map<String, String> prefixes) {
+    public QueryDeserializer(Class<?> t, String base, Map<String, String> prefixes) {
         super(t);
+        this.base = base;
         this.prefixes = prefixes;
     }
 
     @Override
     public Query deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         String query = ctxt.readValue(p, String.class);
-        return JenaHelper.parseQuery(query, prefixes);
+        Query result = JenaHelper.parseQuery(query, base, prefixes);
+        return result;
     }
 }

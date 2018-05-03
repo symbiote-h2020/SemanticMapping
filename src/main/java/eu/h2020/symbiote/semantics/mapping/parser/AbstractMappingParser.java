@@ -5,7 +5,7 @@
  */
 package eu.h2020.symbiote.semantics.mapping.parser;
 
-import eu.h2020.symbiote.semantics.mapping.model.Mapping;
+import java.util.Map;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Node;
 import org.apache.jena.shared.PrefixMapping;
@@ -14,11 +14,27 @@ import org.apache.jena.shared.PrefixMapping;
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public class AbstractMappingParser {
+public abstract class AbstractMappingParser {
 
     protected final PrefixMapping knownPrefixes = PrefixMapping.Factory.create().withDefaultMappings(PrefixMapping.Standard);
     protected final PrefixMapping prefixes = PrefixMapping.Factory.create();
 
+    protected AbstractMappingParser() {        
+    }
+    
+    protected AbstractMappingParser(String base) {
+        setBase(base);
+    }
+    
+    protected AbstractMappingParser(String base, Map<String, String> prefixes) {
+        this(base);
+        prefixes.forEach((x, y) -> addPrefix(x, y));
+    }
+    
+    protected AbstractMappingParser(Map<String, String> prefixes) {
+        prefixes.forEach((x, y) -> addPrefix(x, y));
+    }
+    
     public void setBase(String uri) {
         knownPrefixes.setNsPrefix("", uri);
     }

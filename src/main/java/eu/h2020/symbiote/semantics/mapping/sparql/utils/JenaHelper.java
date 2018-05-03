@@ -140,16 +140,15 @@ public class JenaHelper {
         return result.trim();
     }
 
-    public static Query parseQuery(String query, Map<String, String> prefixes) {
+    public static Query parseQuery(String query, String base, Map<String, String> prefixes) {
         Query result = QueryFactory.create();
         if (prefixes != null) {
             result.getPrefixMapping().setNsPrefixes(prefixes);
         }
+        if (base != null && !base.isEmpty()) {
+            result.setPrefix("", base);
+        }
         return QueryFactory.parse(result, query, null, Syntax.syntaxSPARQL);
-    }
-
-    public static Query parseQuery(String query, Map<String, String> prefixes, Map<String, String> replacements) {
-        return parseQuery(Utils.replace(query, replacements), prefixes);
     }
 
     public static List<SparqlElementMatch> findMatches(Query query, Predicate<? super TriplePath>... filters) {

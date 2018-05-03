@@ -6,6 +6,7 @@
 package eu.h2020.symbiote.semantics.mapping.sparql;
 
 import eu.h2020.symbiote.semantics.mapping.model.condition.ConditionVisitor;
+import eu.h2020.symbiote.semantics.mapping.model.condition.ConditionWalker;
 import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyTypeCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyValueCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.IndividualCondition;
@@ -92,9 +93,8 @@ public class SparqlConditionVisitor implements ConditionVisitor<List<SparqlMatch
         // ?x hasBrother ?a
         // ?z hasBrother ?y
         // ?y a Human.
-
         // find vars matching type definition, e.g. ?x a ...
-        List<SparqlMatch> typeMatches = condition.getType().accept(this, query);
+        List<SparqlMatch> typeMatches = ConditionWalker.walk(condition.getType(), this, query);
         // as property and type definition are be chained through another var, let's include this
         List<Node> varsOfMatchedTypes = typeMatches.stream().map(x -> x.getMatchedNode()).collect(Collectors.toList());
 
@@ -155,7 +155,7 @@ public class SparqlConditionVisitor implements ConditionVisitor<List<SparqlMatch
     @Override
     public List<SparqlMatch> visit(PropertyAggregationCondition condition, Query query) {
         List<List<SparqlMatch>> results = new ArrayList<>();
-        condition.getElements().forEach(x -> results.add(x.accept(this, query)));
+        condition.getElements().forEach(x -> results.add(ConditionWalker.walk(x, this, query)));
         List<SparqlMatch> matchesHaving = JenaHelper.findHaving(query, condition.getAggregationInfos());
         // combine and rewrite matched node
         boolean hadMatch = false;
