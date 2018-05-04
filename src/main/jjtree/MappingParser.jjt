@@ -214,7 +214,7 @@ Condition Condition() : {Condition c = null;}
     (<CONDITION> 
         (LOOKAHEAD(2)c=ConditionIndividual()
         |LOOKAHEAD(2)c=ClassCondition()
-        |LOOKAHEAD(200)c=ConditionProperty()))	 
+        |LOOKAHEAD(2147483647)c=ConditionProperty()))	 
     { 
         return c; 
     }
@@ -227,7 +227,7 @@ ClassAndCondition ClassConditionAnd() : { ClassCondition c = null; List<ClassCon
         <AND> 
         c=ClassCondition() {cs.add(c);}         
         (
-            LOOKAHEAD(200)
+            LOOKAHEAD(2147483647)
             <AND> 
             c=ClassCondition() {cs.add(c);})*
             <RB>
@@ -244,7 +244,7 @@ ClassOrCondition ClassConditionOr() : { ClassCondition c = null; List<ClassCondi
         <OR> 
         c=ClassCondition() {cs.add(c);}         
         (
-            LOOKAHEAD(200)
+            LOOKAHEAD(2147483647)
             <OR> 
             c=ClassCondition() {cs.add(c);})*
             <RB>
@@ -305,7 +305,7 @@ PropertyCondition ConditionPropertyUnary() : {PropertyCondition c = null;}
 
 PropertyAndCondition ConditionPropertyAnd() : { PropertyCondition c = null; List<PropertyCondition> cs = new ArrayList<PropertyCondition>();}
 {
-    (c=ConditionPropertyUnary() {cs.add(c);} <AND> c=ConditionPropertyUnary() {cs.add(c);} (LOOKAHEAD(200)<AND> c=ConditionPropertyUnary() {cs.add(c);})*)
+    (c=ConditionPropertyUnary() {cs.add(c);} <AND> c=ConditionPropertyUnary() {cs.add(c);} (LOOKAHEAD(2147483647)<AND> c=ConditionPropertyUnary() {cs.add(c);})*)
     {
         return new PropertyAndCondition(cs);
     }
@@ -313,7 +313,7 @@ PropertyAndCondition ConditionPropertyAnd() : { PropertyCondition c = null; List
 
 PropertyOrCondition ConditionPropertyOr() : { PropertyCondition c = null; List<PropertyCondition> cs = new ArrayList<PropertyCondition>();}
 {
-    (c=ConditionPropertyUnary() {cs.add(c);} <OR> c=ConditionPropertyUnary() {cs.add(c);} (LOOKAHEAD(200)<OR> c=ConditionPropertyUnary() {cs.add(c);})*)
+    (c=ConditionPropertyUnary() {cs.add(c);} <OR> c=ConditionPropertyUnary() {cs.add(c);} (LOOKAHEAD(2147483647)<OR> c=ConditionPropertyUnary() {cs.add(c);})*)
     {
         return new PropertyOrCondition(cs);
     }
@@ -348,7 +348,7 @@ PropertyAggregationCondition ConditionPropertyAggregation() :
     <AGGREGATION> 
     (a=AggregationInfo()) { as.add(a); } 
     (<SEMICOLON> (a=AggregationInfo() { as.add(a); }))*
-    (LOOKAHEAD(200)c=ConditionProperty() {cs.add(c);})+
+    (LOOKAHEAD(2147483647)c=ConditionProperty() {cs.add(c);})+
     {
         return new PropertyAggregationCondition(as, cs);
     }
@@ -368,10 +368,10 @@ AggregationType AggregationType() :{Token t = null;}
 
 PropertyCondition ConditionProperty() :{PropertyCondition c = null;}
 {
-    ( LOOKAHEAD(200) c=ConditionPropertyAnd() 
-    | LOOKAHEAD(200) c=ConditionPropertyOr()
-    | LOOKAHEAD(200) c=ConditionPropertyUnary()
-    | LOOKAHEAD(200) c=ConditionPropertyAggregation() ) 
+    ( LOOKAHEAD(2147483647) c=ConditionPropertyAnd() 
+    | LOOKAHEAD(2147483647) c=ConditionPropertyOr()
+    | LOOKAHEAD(2147483647) c=ConditionPropertyUnary()
+    | LOOKAHEAD(2147483647) c=ConditionPropertyAggregation() ) 
     {
         return c;
     }
@@ -454,7 +454,7 @@ IndividualProduction ProductionIndividual() : {Node n = null;}
 
 ClassProduction ProductionClass() : {Node n; PropertyProduction p; List<PropertyProduction> ps = new ArrayList<PropertyProduction>();}
 {
-    (<CLASS> n=IRI() (LOOKAHEAD(200)(p=ProductionProperty(){ ps.add(p); }) (LOOKAHEAD(200)<AND> (p=ProductionProperty(){ ps.add(p); }))*)?)
+    (<CLASS> n=IRI() (LOOKAHEAD(2147483647)(p=ProductionProperty(){ ps.add(p); }) (LOOKAHEAD(2147483647)<AND> (p=ProductionProperty(){ ps.add(p); }))*)?)
     {
         return new ClassProduction(n, ps);
     }
@@ -462,9 +462,9 @@ ClassProduction ProductionClass() : {Node n; PropertyProduction p; List<Property
 
 PropertyProduction ProductionProperty() : {PropertyProduction p; }
 {
-    ( LOOKAHEAD(200) p = ProductionPropertyObjectValue()
-    | LOOKAHEAD(200) p = ProductionPropertyObjectType()
-    | LOOKAHEAD(200) p = ProductionPropertyDataValue())
+    ( LOOKAHEAD(2147483647) p = ProductionPropertyObjectValue()
+    | LOOKAHEAD(2147483647) p = ProductionPropertyObjectType()
+    | LOOKAHEAD(2147483647) p = ProductionPropertyDataValue())
     {
         return p;
     }
@@ -541,9 +541,9 @@ Comparator Comparator() : {Token t;}
 
 Value Value() : {Value v;}
 {
-    ( LOOKAHEAD(200) v=ReferenceValue()
-    | LOOKAHEAD(200) v=ConstantValue()
-    | LOOKAHEAD(200) v=TransformationValue())
+    ( LOOKAHEAD(2147483647) v=ReferenceValue()
+    | LOOKAHEAD(2147483647) v=ConstantValue()
+    | LOOKAHEAD(2147483647) v=TransformationValue())
     {
         return v;
     }
@@ -551,9 +551,9 @@ Value Value() : {Value v;}
 
 ConstantValue ConstantValue() : {ConstantValue v;}
 {
-    ( LOOKAHEAD(200) v=TypedConstantValue()
-    | LOOKAHEAD(200) v=NumericValue()    
-    | LOOKAHEAD(200) v=StringValue() 
+    ( LOOKAHEAD(2147483647) v=TypedConstantValue()
+    | LOOKAHEAD(2147483647) v=NumericValue()    
+    | LOOKAHEAD(2147483647) v=StringValue() 
     )
     {
         return v;
