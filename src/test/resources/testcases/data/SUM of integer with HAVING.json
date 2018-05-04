@@ -23,9 +23,9 @@
   "mapping" : 
 	"RULE
 	   CONDITION
-		  CLASS test:A 
-			AGGREGATION SUM < 10 AS sumHasValue test:hasValue
+		  CLASS :A 
+			AGGREGATION SUM < 10 AS sumHasValue :hasValue
 	   PRODUCTION 
-		  CLASS test:B
-			 test:hasValue2 VALUE REFERENCE sumHasValue"
+		  CLASS :B
+			 :hasValue2 VALUE REFERENCE sumHasValue"
 }
