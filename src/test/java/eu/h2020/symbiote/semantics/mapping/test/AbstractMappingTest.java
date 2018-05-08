@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import eu.h2020.symbiote.semantics.mapping.model.Mapper;
 import eu.h2020.symbiote.semantics.mapping.model.Mapping;
 import eu.h2020.symbiote.semantics.mapping.model.MappingConfig;
+import eu.h2020.symbiote.semantics.mapping.model.RetentionPolicy;
 import eu.h2020.symbiote.semantics.mapping.model.UnsupportedMappingException;
 import eu.h2020.symbiote.semantics.mapping.test.model.TestSuite;
 import eu.h2020.symbiote.semantics.mapping.test.sparql.util.Constants;
@@ -24,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Test;
@@ -36,30 +38,19 @@ public abstract class AbstractMappingTest<T> {
 
     private final String folder;
     private final JavaType type;
-    private final MappingConfig config;
 
     public AbstractMappingTest(String folder, Class<?> typeInfo) {
-        this(folder, typeInfo, (MappingConfig) null);
-    }
-
-    public AbstractMappingTest(String folder, Class<?> typeInfo, MappingConfig config) {
         this.folder = folder;
         if (TestSuite.class.isAssignableFrom(typeInfo)) {
             this.type = TypeFactory.defaultInstance().constructSimpleType(typeInfo, null);
         } else {
             this.type = TypeFactory.defaultInstance().constructParametricType(TestSuite.class, typeInfo);
         }
-        this.config = config;
     }
 
     public AbstractMappingTest(String folder, Class<?> superType, Class<?> subType) {
-        this(folder, superType, subType, null);
-    }
-
-    public AbstractMappingTest(String folder, Class<?> superType, Class<?> subType, MappingConfig config) {
         this.folder = folder;
         this.type = TypeFactory.defaultInstance().constructParametricType(superType, subType);
-        this.config = config;
     }
 
     protected void preprocessExpectedResult(T element) {
@@ -92,15 +83,22 @@ public abstract class AbstractMappingTest<T> {
         int failCountSuites = 0;
         for (TestSuite<T> testSuite : testSuites) {
             System.out.println("starting TestSuite: " + testSuite.getName());
-            int failCount = 0;
-            preprocessExpectedResult(testSuite.getExpectedResult());
+            int failCountCases = 0;
             for (T input : testSuite.getInputs()) {
-                if (!evaluateMapping(testSuite.getMapping(), input, testSuite.getExpectedResult())) {
-                    failCount++;
+                int failCountPolicies = 0;
+                for (Map.Entry<RetentionPolicy, T> expectedResult : testSuite.getExpectedResult().entrySet()) {
+                    preprocessExpectedResult(expectedResult.getValue());
+                    if (!evaluateMapping(testSuite.getMapping(), input, expectedResult.getValue(), expectedResult.getKey())) {
+                        failCountPolicies++;
+                    }
+                }
+                if (failCountPolicies > 0) {
+                    System.out.println("TestCase failed " + failCountPolicies + "/" + (testSuite.getExpectedResult().size()) + " retention policies");
+                    failCountCases++;
                 }
             }
-            if (failCount > 0) {
-                System.out.println("TestSuite failed " + failCount + "/" + (testSuite.getInputs().size()) + " inputs");
+            if (failCountCases > 0) {
+                System.out.println("TestSuite failed " + failCountCases + "/" + (testSuite.getInputs().size()) + " inputs");
                 failCountSuites++;
             } else {
                 System.out.println("TestSuite finished successfully");
@@ -116,14 +114,15 @@ public abstract class AbstractMappingTest<T> {
 
     protected abstract String asString(T obj);
 
-    private boolean evaluateMapping(Mapping mapping, T input, T expected) {
+    private boolean evaluateMapping(Mapping mapping, T input, T expected, RetentionPolicy retentionPolicy) {
         boolean result = false;
         try {
             Mapper<T, ?, ?, T> mapper = getMapper();
+            MappingConfig config = new MappingConfig.Builder().retentionPolicy(retentionPolicy).build();
             T mapped = mapper.map(input, mapping, config);
             result = equals(mapped, expected);
             if (!result) {
-                System.out.println("mapping failed:");
+                System.out.println("mapping failed with retention policy " + config.getRetentionPolicy());
                 System.out.println("input: \n" + asString(input));
                 System.out.println("mapped: \n" + asString(mapped));
                 System.out.println("expected: \n" + asString(expected));

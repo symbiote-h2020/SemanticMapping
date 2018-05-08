@@ -50,12 +50,14 @@
 			}
     }
   }" ],
-  "expectedResult" : 
-	"SELECT * WHERE
-	{ 
-		?x a :B ;
-			:hasValue \"test\" .
-	}",
+  "expectedResult" : {
+	"RemoveMatchedInput":  
+		"SELECT * WHERE
+		{ 
+			?x a :B ;
+				:hasValue \"test\" .
+		}"
+	},
   "mapping" : 
 	"RULE 
 		CONDITION CLASS :A  

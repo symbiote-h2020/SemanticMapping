@@ -17,11 +17,13 @@
 		FILTER(datatype(?y)=xsd:string) .
 	}"
   ],
-  "expectedResult" : 
-	"SELECT ?x WHERE 
-	{ 
-		?x a :B.
-	}",
+  "expectedResult" : {
+	"RemoveMatchedInput":  
+		"SELECT ?x WHERE 
+		{ 
+			?x a :B.
+		}"
+  },
   "mapping" : 
 	"RULE 
 		CONDITION CLASS :A 

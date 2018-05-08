@@ -15,12 +15,14 @@
 		?y :hasValue :instanceOfA . 
 	}" 
   ],
-  "expectedResult" : 
-	"SELECT ?x WHERE 
-	{ 
-	?x :hasValue ?y. 
-	?y :hasValue :instanceOfB . 
-	}" ,
+  "expectedResult" : {
+	"RemoveMatchedInput": 
+		"SELECT ?x WHERE 
+		{ 
+		?x :hasValue ?y. 
+		?y :hasValue :instanceOfB . 
+		}"
+	}		,
   "mapping" : 
 	"RULE 
 	    CONDITION INDIVIDUAL :instanceOfA 

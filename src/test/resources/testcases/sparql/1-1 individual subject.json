@@ -14,11 +14,13 @@
 		:instanceOfA :hasValue \"test\"^^xsd:string . 
 	}" 
   ],
-  "expectedResult" : 
-	"SELECT * WHERE 
-	{ 
-		:instanceOfB :hasValue \"test\"^^xsd:string . 
-	}" ,
+  "expectedResult" : {
+	"RemoveMatchedInput": 
+		"SELECT * WHERE 
+		{ 
+			:instanceOfB :hasValue \"test\"^^xsd:string . 
+		}" 
+	},
   "mapping" : 
 	"RULE 
 		CONDITION INDIVIDUAL :instanceOfA  

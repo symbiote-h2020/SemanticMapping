@@ -16,12 +16,14 @@
 		:lastName \"Doe\"^^xsd:string .
 	}"
   ],
-  "expectedResult" : 
-	"SELECT ?x WHERE 
-	{ 
-		?x a :B.
-		?x :name \"Jane Doe\"^^xsd:string .
-	}",
+  "expectedResult" : {
+	"RemoveMatchedInput":  
+		"SELECT ?x WHERE 
+		{ 
+			?x a :B.
+			?x :name \"Jane Doe\"^^xsd:string .
+		}"
+  },
   "mapping" : 
 	"TRANSFORMATION concat { Array.prototype.join.call(parameters, ' '); }
 

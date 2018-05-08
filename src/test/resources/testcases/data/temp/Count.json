@@ -24,9 +24,34 @@
 			test:age 42 
 		 ] ."
   ],
-  "expectedResult" : 
-	":person1 a test:PersonWithTwoAdultChildren ;
-         test:noOfAdultChildren 2 ;",
+    "expectedResult" : {
+	"KeepAllInput": 
+		":person1 a test:Person ;
+         test:hasChild  [
+			a test:Person ;
+			test:age 12 
+		 ] ;
+		 test:hasChild  [
+			a test:Person ;
+			test:age 18 
+		 ] ;
+		 test:hasChild  [
+			a test:Person ;
+			test:age 42 
+		 ] .
+		:person1 a test:PersonWithTwoAdultChildren ;
+				  test:noOfAdultChildren 2 .",
+	"RemoveMatchedInput": 		 
+		":person1 a test:PersonWithTwoAdultChildren ;
+				  test:noOfAdultChildren 2 ;
+				  test:hasChild  [
+					a test:Person ;
+					test:age 12
+				 ] .",
+	"RemoveAllInput": 
+		":person1 a test:PersonWithTwoAdultChildren ;
+				  test:noOfAdultChildren 2 ."
+  },
   "mapping" : 
 	"RULE 
 		CONDITION CLASS :Person 

@@ -52,11 +52,13 @@
 		}
 	}" 
   ],
-  "expectedResult" : 
-	"SELECT * WHERE
-	{ 
-		?x a :B .
-	}",
+  "expectedResult" : {
+	"RemoveMatchedInput":  
+		"SELECT * WHERE
+		{ 
+			?x a :B .
+		}"
+  },
   "mapping" : 
 	"RULE 
 		CONDITION CLASS :A :hasValue VALUE = \"test\"  

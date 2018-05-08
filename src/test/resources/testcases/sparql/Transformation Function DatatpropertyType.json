@@ -21,12 +21,14 @@
 		FILTER(?y=42) .
 	}"
   ],
-  "expectedResult" : 
-	"SELECT ?x WHERE 
-	{ 
-		?x a :B.
-		?x :hasValue2 \"42\" .
-	}",
+  "expectedResult" : {
+	"RemoveMatchedInput":  
+		"SELECT ?x WHERE 
+		{ 
+			?x a :B.
+			?x :hasValue2 \"42\" .
+		}"
+  },
   "mapping" : 
 	"RULE 
 		CONDITION CLASS :A :hasValue TYPE xsd:integer  

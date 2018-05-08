@@ -8,8 +8,6 @@ package eu.h2020.symbiote.semantics.mapping.test;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import eu.h2020.symbiote.semantics.mapping.model.MappingConfig;
-import eu.h2020.symbiote.semantics.mapping.model.RetentionPolicy;
 import eu.h2020.symbiote.semantics.mapping.model.serialize.JenaModule;
 import eu.h2020.symbiote.semantics.mapping.sparql.SparqlMapper;
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.QueryCompare;
@@ -27,8 +25,7 @@ public class SparqlMappingTest extends AbstractMappingTest<Query> {
     public SparqlMappingTest() {
         super(Constants.SPARQL_TEST_CASE_DIR,
                 TestSuiteWithPrefixes.class,
-                Query.class,
-                new MappingConfig.Builder().retentionPolicy(RetentionPolicy.RemoveMatchedInput).build());
+                Query.class);
     }
 
     @Override

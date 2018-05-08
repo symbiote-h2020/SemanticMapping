@@ -15,13 +15,15 @@
 		?x :name \"Jane Doe\"^^xsd:string .
 	}"
   ],
-  "expectedResult" : 
-	"SELECT ?x WHERE 
-	{ 
-		?x a :A ;
-		:firstName \"Jane\"^^xsd:string ;
-		:lastName \"Doe\"^^xsd:string .
-	}",
+  "expectedResult" : {
+	"RemoveMatchedInput":  
+		"SELECT ?x WHERE 
+		{ 
+			?x a :A ;
+			:firstName \"Jane\"^^xsd:string ;
+			:lastName \"Doe\"^^xsd:string .
+		}"
+  },
   "mapping" : 
   "TRANSFORMATION split { parameters[0].split(parameters[1])[parameters[2]] }
 

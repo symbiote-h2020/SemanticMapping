@@ -16,12 +16,14 @@
 			:hasValue \"test\" .
 	}"
   ],
-  "expectedResult" : 
-	"SELECT ?x ?y WHERE 
-	{ 
-		?x :hasValue ?y .
-		FILTER(?y = :instanceOfB)
-  }",
+  "expectedResult" : {
+	"RemoveMatchedInput":  
+		"SELECT ?x ?y WHERE 
+		{ 
+			?x :hasValue ?y .
+			FILTER(?y = :instanceOfB)
+	  }"
+  },
   "mapping" : 
 	"RULE 
 		CONDITION CLASS :A :hasValue VALUE =\"test\"  

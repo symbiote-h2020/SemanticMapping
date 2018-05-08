@@ -14,15 +14,17 @@
 		?x a :A .
 	}"
   ],
-  "expectedResult" : 
-	"SELECT ?x WHERE 
-	{
-		?x a :B ;
-			:hasChild [
-				a :Person ;
-				:hasValue \"test\"
-			].
-	}",
+  "expectedResult" : {
+	"RemoveMatchedInput":  
+		"SELECT ?x WHERE 
+		{
+			?x a :B ;
+				:hasChild [
+					a :Person ;
+					:hasValue \"test\"
+				].
+		}"
+  },
   "mapping" : 
 	"RULE 
 		CONDITION CLASS :A  

@@ -12,8 +12,11 @@
   "inputs" : [
 	":x test:hasValue test:instanceOfA" 
   ],
-  "expectedResult" : 
-	":x test:hasValue test:instanceOfB",
+    "expectedResult" : {
+	"KeepAllInput": ":x test:hasValue test:instanceOfA, test:instanceOfB .",
+	"RemoveMatchedInput": ":x test:hasValue test:instanceOfB .",
+	"RemoveAllInput": ":x test:hasValue test:instanceOfB ."
+  },
   "mapping" : 
 	"RULE 
 	    CONDITION INDIVIDUAL :instanceOfA 

@@ -12,11 +12,22 @@
   "inputs" : [
 	":myA a test:A ;
          test:hasValue   5 , 3 ;
-         test:hasValue2 test:instanceOfB ." 
+         test:hasValue2 test:instanceOfB ;
+		 a test:B ;
+         test:hasValue2 8 ." 
   ],
-  "expectedResult" : 
-	":myA a test:B ;
-         test:hasValue2 8 ;",
+  "expectedResult" : {
+	"KeepAllInput": 
+		":myA a test:A, test:B ;
+         test:hasValue   5 , 3 ;
+         test:hasValue2 test:instanceOfB, 8 ." ,
+	"RemoveMatchedInput": 
+		":myA a test:B ;
+		 test:hasValue2 test:instanceOfB , 8.",
+	"RemoveAllInput": 
+		":myA a test:B ;
+         test:hasValue2 8 ."
+  },
   "mapping" : 
 	"RULE
 	   CONDITION

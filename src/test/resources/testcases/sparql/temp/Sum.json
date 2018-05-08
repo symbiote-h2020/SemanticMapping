@@ -18,12 +18,14 @@
 	GROUP BY ?person
 	HAVING (SUM(?money) > 100)"
   ],
-  "expectedResult" : 
-	"SELECT ?person WHERE
-	{
-		?person a :RichPerson .
-	}
-	GROUP BY ?person",
+  "expectedResult" : {
+	"RemoveMatchedInput":  
+		"SELECT ?person WHERE
+		{
+			?person a :RichPerson .
+		}
+		GROUP BY ?person"
+  },
   "mapping" : 
 	"RULE 
 		CONDITION CLASS :Person 

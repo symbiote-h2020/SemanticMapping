@@ -9,12 +9,15 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import eu.h2020.symbiote.semantics.mapping.model.Mapping;
+import eu.h2020.symbiote.semantics.mapping.model.RetentionPolicy;
 import eu.h2020.symbiote.semantics.mapping.test.sparql.util.MultilineCharacterEscapes;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -27,11 +30,12 @@ public class TestSuite<T> {
     private String name;
     private List<T> inputs;    
     private Mapping mapping;
-    private T expectedResult;
+    private Map<RetentionPolicy, T> expectedResult;
 
     public TestSuite() {
         this.inputs = new ArrayList<>();
         this.mapper = new ObjectMapper();
+        this.expectedResult = new HashMap<>();
     }
 
     public TestSuite(String name) {
@@ -79,11 +83,11 @@ public class TestSuite<T> {
         this.mapping = mapping;
     }
 
-    public T getExpectedResult() {
+    public Map<RetentionPolicy, T> getExpectedResult() {
         return expectedResult;
     }
 
-    public void setExpectedResult(T expectedResult) {
+    public void setExpectedResult(Map<RetentionPolicy, T> expectedResult) {
         this.expectedResult = expectedResult;
     }
 }

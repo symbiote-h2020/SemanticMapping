@@ -15,12 +15,14 @@
 		:hasValue \"test\" .
 	}"
   ],
-  "expectedResult" : 
-	"SELECT ?x WHERE 
-	{ 
-		?x a :B;
-			:hasValue2 \"tset\".
-  }",
+  "expectedResult" : {
+	"RemoveMatchedInput":  
+		"SELECT ?x WHERE 
+		{ 
+			?x a :B;
+				:hasValue2 \"tset\".
+	  }"
+  },
   "mapping" : 
 	"TRANSFORMATION reverse { 
 		var o = [];

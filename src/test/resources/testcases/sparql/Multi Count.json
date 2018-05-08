@@ -19,12 +19,14 @@
 	GROUP BY ?parent
 	HAVING (COUNT(?child) >= 2) (COUNT(?child) < 5)"
   ],
-  "expectedResult" : 
-	"SELECT ?parent WHERE 
-	{ 
-		?parent a :PersonWithTwoAdultChildren .
-	}
-	GROUP BY ?parent",
+  "expectedResult" : {
+	"RemoveMatchedInput":  
+		"SELECT ?parent WHERE 
+		{ 
+			?parent a :PersonWithTwoAdultChildren .
+		}
+		GROUP BY ?parent"
+  },
   "mapping" : 
 	"RULE 
 		CONDITION CLASS :Person  
