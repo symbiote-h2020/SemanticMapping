@@ -50,7 +50,7 @@ public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, Li
     @Override
     public void init(Query query) {
         super.init(query);
-        this.query = query.cloneQuery();
+        this.query = query;
     }
 
     @Override

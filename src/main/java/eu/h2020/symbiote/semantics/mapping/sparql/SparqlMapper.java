@@ -29,6 +29,11 @@ public class SparqlMapper extends Mapper<Query, List<SparqlMatch>, Void, Query> 
     }
 
     @Override
+    public Query clone(Query input) {
+        return input.cloneQuery();
+    }
+
+    @Override
     public void init(Map<String, String> parameters) {
     }
 

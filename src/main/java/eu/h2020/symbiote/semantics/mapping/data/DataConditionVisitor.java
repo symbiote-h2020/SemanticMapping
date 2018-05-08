@@ -7,6 +7,7 @@ package eu.h2020.symbiote.semantics.mapping.data;
 
 import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationType;
 import eu.h2020.symbiote.semantics.mapping.model.condition.ConditionVisitor;
+import eu.h2020.symbiote.semantics.mapping.model.condition.ConditionWalker;
 import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyTypeCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyValueCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.IndividualCondition;
@@ -17,11 +18,11 @@ import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyPathCondition
 import eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition;
 import eu.h2020.symbiote.semantics.mapping.model.condition.ValueCondition;
 import eu.h2020.symbiote.semantics.mapping.utils.StreamHelper;
-import eu.h2020.symbiote.semantics.mapping.utils.Utils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -31,7 +32,6 @@ import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
-import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -39,9 +39,11 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.impl.SelectorImpl;
 import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.core.VarAlloc;
@@ -69,14 +71,13 @@ import org.apache.jena.sparql.path.Path;
 import org.apache.jena.sparql.syntax.ElementFilter;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import org.apache.jena.sparql.syntax.ElementPathBlock;
-import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.RDF;
 
 /**
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public class DataConditionVisitor implements ConditionVisitor<List<IndividualMatch>, OntModel> {
+public class DataConditionVisitor implements ConditionVisitor<List<IndividualMatch>, Model> {
 
     @Override
     public List<IndividualMatch> emptyResult() {
@@ -110,14 +111,28 @@ public class DataConditionVisitor implements ConditionVisitor<List<IndividualMat
     }
 
     @Override
-    public List<IndividualMatch> visit(UriClassCondition condition, OntModel model) {
-        return model.listIndividuals(model.createResource(condition.getUri().getURI()))
-                .mapWith(x -> new IndividualMatch(x, new TripleMatch(new Triple(x.asNode(), RDF.type.asNode(), condition.getUri()))))
-                .toList();
+    public List<IndividualMatch> visit(UriClassCondition condition, Model model) {
+        if (condition.getUri().isConcrete()) {
+            return model.listSubjectsWithProperty(RDF.type, model.asRDFNode(condition.getUri()))
+                    .mapWith(x -> new IndividualMatch(x, new TripleMatch(new Triple(x.asNode(), RDF.type.asNode(), condition.getUri()))))
+                    .toList();
+        } else {
+            return model.listStatements(null, RDF.type, (Resource) null).toSet().stream()
+                    .collect(Collectors.groupingBy(x -> x.getSubject()))
+                    .entrySet().stream()
+                    .map(x -> {
+                        return new IndividualMatch(
+                                x.getKey(),
+                                x.getValue().stream()
+                                        .map(y -> new TripleMatch(y.asTriple()))
+                                        .collect(Collectors.toList()));
+                    })
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override
-    public List<IndividualMatch> visit(IndividualCondition condition, OntModel model) {
+    public List<IndividualMatch> visit(IndividualCondition condition, Model model) {
         return model
                 .listStatements(null, null, model.createResource(condition.getUri().getURI()))
                 .toList().stream()
@@ -125,7 +140,7 @@ public class DataConditionVisitor implements ConditionVisitor<List<IndividualMat
                 .entrySet().stream()
                 .map(x -> {
                     return new IndividualMatch(
-                            model.getIndividual(x.getKey().getURI()), 
+                            x.getKey(),
                             x.getValue().stream()
                                     .map(y -> new TripleMatch(y.asTriple()))
                                     .collect(Collectors.toList()));
@@ -141,6 +156,19 @@ public class DataConditionVisitor implements ConditionVisitor<List<IndividualMat
         result.setQueryPattern(elementPathBlock);
         result.setQuerySelectType();
         result.addResultVar(individual);
+        return result;
+    }
+
+    private Query createQuery(Path path) {
+        Query result = new Query();
+        Var individual = VarAlloc.getVarAllocator().allocVar();
+        Var value = VarAlloc.getVarAllocator().allocVar();
+        ElementPathBlock elementPathBlock = new ElementPathBlock();
+        elementPathBlock.addTriplePath(new TriplePath(individual, path, value));
+        result.setQueryPattern(elementPathBlock);
+        result.setQuerySelectType();
+        result.addResultVar(individual);
+        result.addResultVar(value);
         return result;
     }
 
@@ -217,11 +245,11 @@ public class DataConditionVisitor implements ConditionVisitor<List<IndividualMat
                 x -> mapFunction.apply(x.get(x.varNames().next())));
     }
 
-    private static List<IndividualMatch> executeSelectAsMatches(OntModel model, Path path, Query query) {
+    private static List<IndividualMatch> executeSelectAsMatches(Model model, Path path, Query query) {
         return executeSelectWithResultPair(
                 model,
                 query,
-                x -> x.asNode(),
+                x -> x,
                 x -> x.asLiteral())
                 .collect(
                         Collectors.groupingBy(
@@ -230,34 +258,35 @@ public class DataConditionVisitor implements ConditionVisitor<List<IndividualMat
                 .entrySet().stream()
                 .map(
                         x -> new IndividualMatch(
-                                model.getIndividual(x.getKey().getURI()),
+                                x.getKey().asResource(),
                                 x.getValue().stream()
                                         .map(y -> new TripleMatch(
-                                        new TriplePath(x.getKey(), path, y.asNode()).asTriple()))
+                                        new TriplePath(x.getKey().asNode(), path, y.asNode()).asTriple()))
                                         .collect(Collectors.toList())))
                 .collect(Collectors.toList());
     }
 
     private static <K, V> Stream<Pair<K, V>> executeSelectWithResultPair(Model model, Query query, final Function<RDFNode, K> mapFunctionKey, final Function<RDFNode, V> mapFunctionValue) {
+        String varKey = query.getProjectVars().get(0).getVarName();
+        String varValue = query.getProjectVars().get(1).getVarName();
         return executeSelect(
                 model,
                 query,
                 x -> {
-                    Iterator<String> varNames = x.varNames();
-                    return new Pair<>(mapFunctionKey.apply(x.get(varNames.next())), mapFunctionValue.apply(x.get(varNames.next())));
+                    return new Pair<>(mapFunctionKey.apply(x.get(varKey)), mapFunctionValue.apply(x.get(varValue)));
                 });
     }
 
-    private List<IndividualMatch> find(OntModel model, Path path, Node value) {
+    private List<IndividualMatch> find(Model model, Path path, Node value) {
         return executeSelectWithOneResultVar(
                 model,
                 createQuery(path, value),
                 x -> x.toString())
-                .map(x -> new IndividualMatch(model.getIndividual(x)))
+                .map(x -> new IndividualMatch(model.getResource(x)))
                 .collect(Collectors.toList());
     }
 
-    private List<IndividualMatch> find(OntModel model, Path path, RDFDatatype datatype) {
+    private List<IndividualMatch> find(Model model, Path path, RDFDatatype datatype) {
         return executeSelectAsMatches(model, path, createQuery(path, datatype));
 //        return executeSelectWithResultPair(
 //                model,
@@ -267,57 +296,64 @@ public class DataConditionVisitor implements ConditionVisitor<List<IndividualMat
 //                .collect(Collectors.toList());
     }
 
-    private List<IndividualMatch> find(OntModel model, Path path, List<ValueCondition> valueConditions) {
+    private List<IndividualMatch> find(Model model, Path path, List<ValueCondition> valueConditions) {
         return executeSelectAsMatches(model, path, createQuery(path, valueConditions));
     }
 
     @Override
-    public List<IndividualMatch> visit(ObjectPropertyValueCondition condition, OntModel model) {
+    public List<IndividualMatch> visit(ObjectPropertyValueCondition condition, Model model) {
         return find(model, condition.getPath(), condition.getValue());
     }
 
     @Override
-    public List<IndividualMatch> visit(ObjectPropertyTypeCondition condition, OntModel model) {
+    public List<IndividualMatch> visit(ObjectPropertyTypeCondition condition, Model model) {
 
-        List<IndividualMatch> matchesType = condition.getType().accept(this, model);
+        List<IndividualMatch> matchesType = ConditionWalker.walk(condition.getType(), this, model);
 
-        List<IndividualMatch> matchesLink = executeSelectWithResultPair(
+        // ?x path ?y
+        // ?y ...
+        return executeSelectWithResultPair(
                 model,
-                createQuery(condition.getPath(), VarAlloc.getVarAllocator().allocVar()),
-                x -> x.toString(),
-                x -> x.toString())
-                .filter(x -> matchesType.stream()
-                .map(y -> y.getIndividual().getURI())
-                .anyMatch(z -> z.equals(x.getValue())))
+                createQuery(condition.getPath()),
+                x -> x,
+                x -> x)
+                .filter(x -> matchesType.stream().map(y -> y.getIndividual())
+                .anyMatch(y -> y.equals(x.getValue())))
                 .collect(
                         Collectors.groupingBy(
                                 x -> x.getKey(),
                                 Collectors.mapping(x -> x.getValue(), Collectors.toList())))
                 .entrySet().stream()
-                .map(x -> new IndividualMatch(
-                model.getIndividual(x.getKey()),
-                x.getValue().stream().map(y -> new TripleMatch(
-                new TriplePath(
-                        NodeFactory.createURI(x.getKey()),
-                        condition.getPath(),
-                        NodeFactory.createURI(y)).asTriple()))
-                        .collect(Collectors.toList())))
+                .map(x -> {
+                    IndividualMatch temp = new IndividualMatch(
+                            x.getKey().asResource(),
+                            x.getValue().stream().map(y -> new TripleMatch(
+                            new TriplePath(
+                                    x.getKey().asNode(),
+                                    condition.getPath(),
+                                    y.asNode()).asTriple()))
+                                    .collect(Collectors.toList()));
+
+                    temp.getElementMatches().addAll(matchesType.stream()
+                            .filter(z -> x.getValue().contains(z.getIndividual()))
+                            .collect(Collectors.toList()));
+                    return temp;
+                })
                 .collect(Collectors.toList());
-        return mergeAnd(Stream.of(matchesLink, matchesType));
     }
 
     @Override
-    public List<IndividualMatch> visit(DataPropertyValueCondition condition, OntModel model) {
+    public List<IndividualMatch> visit(DataPropertyValueCondition condition, Model model) {
         return find(model, condition.getPath(), condition.getValueRestrictions());
     }
 
     @Override
-    public List<IndividualMatch> visit(DataPropertyTypeCondition condition, OntModel model) {
+    public List<IndividualMatch> visit(DataPropertyTypeCondition condition, Model model) {
         return find(model, condition.getPath(), condition.getDatatype());
     }
 
     @Override
-    public List<IndividualMatch> visit(PropertyPathCondition condition, OntModel model) {
+    public List<IndividualMatch> visit(PropertyPathCondition condition, Model model) {
         if (condition.getPath() instanceof P_Link) {
             return model.listStatements(null, model.getProperty(((P_Link) condition.getPath()).getNode().getURI()), (RDFNode) null)
                     .toSet().stream()
@@ -326,7 +362,7 @@ public class DataConditionVisitor implements ConditionVisitor<List<IndividualMat
                             Collectors.mapping(x -> x.getObject(), Collectors.toList())))
                     .entrySet().stream()
                     .map(x -> new IndividualMatch(
-                    model.getIndividual(x.getKey().getURI()),
+                    model.getResource(x.getKey().getURI()),
                     x.getValue().stream().map(y -> new TripleMatch(new TriplePath(
                     x.getKey().asNode(),
                     condition.getPath(),
@@ -339,16 +375,13 @@ public class DataConditionVisitor implements ConditionVisitor<List<IndividualMat
     }
 
     @Override
-    public List<IndividualMatch> visit(PropertyAggregationCondition condition, OntModel model) {
+    public List<IndividualMatch> visit(PropertyAggregationCondition condition, Model model) {
         // visit condition.getElements() and that all TripleMatches are of from [ind] ?? [literal]
         List<IndividualMatch> matches = mergeAnd(condition.getElements().stream().map(x -> x.accept(this, model)));
         for (IndividualMatch match : matches) {
 //            if (!match.getTripleMatchs().stream().allMatch(x -> x instanceof TripleMatch)) {
 //                // not needed now as there is no subclass of TripleMatch
 //            }
-            if (!match.getElementMatches().stream().allMatch(x -> x.hasValue())) {
-                throw new UnsupportedOperationException("can only process property aggregation condition when all macthed triples have a literal as object");
-            }
             condition.getAggregationInfos().forEach(x -> {
                 NodeValue agg = calcAggregation(match.getElementMatches(), x.getAggregationType());
                 if (agg == null) {
@@ -377,7 +410,32 @@ public class DataConditionVisitor implements ConditionVisitor<List<IndividualMat
         }
     }
 
+    private List<DataElementMatch> prepareAggregation(List<DataElementMatch> matches, AggregationType aggType) {
+        switch (aggType) {
+            case COUNT: {
+                return matches.stream()
+                        .filter(x -> x instanceof IndividualMatch)
+                        .map(x -> ((IndividualMatch) x))
+                        .collect(Collectors.toList());
+            }
+            case AVG:
+            case MAX:
+            case MIN:
+            case SUM: {
+                return matches.stream()
+                        .filter(x -> x.hasValue())
+                        .collect(Collectors.toList());
+            }
+            default:
+                return matches;
+        }
+    }
+
     private NodeValue calcAggregation(List<DataElementMatch> matches, AggregationType aggType) {
+        List<DataElementMatch> toCompute = prepareAggregation(matches, aggType);
+        if (aggType == AggregationType.COUNT) {
+            return NodeValue.makeInteger(toCompute.size());
+        }
         Var value = VarAlloc.getVarAllocator().allocVar();
         Accumulator acc = getAggregator(aggType, new ExprVar(value)).createAccumulator();
         FunctionEnvBase functionEnvBase = new FunctionEnvBase();

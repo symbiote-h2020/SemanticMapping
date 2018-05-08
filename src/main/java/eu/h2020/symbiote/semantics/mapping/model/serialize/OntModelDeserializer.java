@@ -12,8 +12,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.List;
 import java.util.Map;
+import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.OntModel;
+import org.apache.jena.ontology.OntModelSpec;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.RDFLanguages;
@@ -52,8 +55,6 @@ public class OntModelDeserializer extends AbstractTypeDeserializer<OntModel> {
     @Override
     public OntModel deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         String rdf = ctxt.readValue(p, String.class);
-        OntModel result = ModelFactory.createOntologyModel();
-        result.getDocumentManager().setProcessImports(false);
         Model prefixModel = ModelFactory.createDefaultModel();
         if (base != null && !base.isEmpty()) {
             prefixModel.setNsPrefix("", base);
@@ -64,6 +65,8 @@ public class OntModelDeserializer extends AbstractTypeDeserializer<OntModel> {
         StringWriter out = new StringWriter();
         prefixModel.write(out, RDFLanguages.TURTLE.getName());
         rdf = out + " " + rdf;
+        
+        OntModel result = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RDFS_INF, ModelFactory.createDefaultModel());
         try (InputStream is = new ByteArrayInputStream(rdf.getBytes())) {
             result.read(is, base, RDFLanguages.TURTLE.getName());
         }

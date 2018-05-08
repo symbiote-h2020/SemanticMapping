@@ -10,40 +10,50 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javafx.util.Pair;
 import org.apache.jena.graph.impl.LiteralLabel;
 import org.apache.jena.ontology.Individual;
+import org.apache.jena.rdf.model.Resource;
 
 /**
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public class IndividualMatch {
+public class IndividualMatch implements DataElementMatch {
 
-    private Individual individual;
+    private Resource individual;
     private List<DataElementMatch> elementMatches;
 
-    public IndividualMatch(Individual individual) {
+    public IndividualMatch(Resource individual) {
         this.elementMatches = new ArrayList<>();
         this.individual = individual;
     }
 
-    public IndividualMatch(Individual individual, List<DataElementMatch> elementMatches) {
+    public IndividualMatch(Resource individual, List<DataElementMatch> elementMatches) {
         this(individual);
         this.elementMatches = elementMatches;
     }
-    
-    public IndividualMatch(Individual individual, DataElementMatch... elementMatches) {
+
+    public IndividualMatch(Resource individual, DataElementMatch... elementMatches) {
         this(individual);
         this.elementMatches.addAll(Arrays.asList(elementMatches));
     }
 
-    public Individual getIndividual() {
+    public Resource getIndividual() {
         return individual;
     }
 
-    public void setIndividual(Individual individual) {
+    public void setIndividual(Resource individual) {
         this.individual = individual;
+    }
+
+    @Override
+    public Stream<DataElementMatch> flatten() {
+        return Stream.concat(
+                Stream.of(this),
+                elementMatches.stream().flatMap(x -> x.flatten())
+        );
     }
 
     @Override
@@ -77,8 +87,8 @@ public class IndividualMatch {
     public void setElementMatches(List<DataElementMatch> tripleMatchs) {
         this.elementMatches = tripleMatchs;
     }
-    
-        public List<Pair<String, LiteralLabel>> getValues() {
+
+    public List<Pair<String, LiteralLabel>> getValues() {
         return elementMatches.stream()
                 .map(x -> x.getValue())
                 .filter(x -> x != null)

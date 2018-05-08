@@ -1,0 +1,38 @@
+{
+  "name" : "Multi Rule",
+  "commonBase": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#",
+  "commonPrefixes" : {
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "dc" : "http://purl.org/dc/elements/1.1/"
+  },
+  "inputs" : [
+	"SELECT ?x WHERE
+	{ 
+		?x a :A ;
+		:hasValue \"test\" .
+	}"
+  ],
+  "expectedResult" : 
+	"SELECT ?x WHERE 
+	{ 
+		?x a :B;
+			:hasValue2 \"tset\".
+  }",
+  "mapping" : 
+	"TRANSFORMATION reverse { 
+		var o = [];
+		for (var i = parameters[0].length - 1, j = 0; i >= 0; i--, j++)
+			o[j] = parameters[0][i];
+		o.join(''); 
+	}
+	
+	RULE 
+		CONDITION CLASS :A  
+		PRODUCTION CLASS :B  
+	RULE 
+      CONDITION :hasValue 
+      PRODUCTION :hasValue2 VALUE reverse ( REFERENCE :hasValue )"
+}

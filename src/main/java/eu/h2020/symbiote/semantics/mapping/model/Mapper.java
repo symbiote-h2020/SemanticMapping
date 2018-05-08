@@ -44,16 +44,19 @@ public abstract class Mapper<I, TC, TP, O> {
         if (mappingSupportedChecker != null) {
             mappingSupportedChecker.checkMappingSupported(mapping);
         }
-        productionVisitor.init(input);
+        I inputCopy = clone(input);
+        productionVisitor.init(inputCopy);
         MappingContext context = new MappingContext();
         context.register(mapping.getTransformations());
-        O result = null;
+        O result = null;        
         for (MappingRule rule : mapping.getMappingRules()) {
-            TC conditionMatches = ConditionWalker.walk(rule.getCondition(), conditionVisitor, input);            
+            TC conditionMatches = ConditionWalker.walk(rule.getCondition(), conditionVisitor, inputCopy);            
             result = ProductionWalker.walk(rule.getProduction(), productionVisitor, context, conditionMatches);
         }
         return result;
     }
 
     public abstract void init(Map<String, String> parameters);
+    
+    public abstract I clone(I input);
 }

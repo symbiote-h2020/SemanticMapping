@@ -5,6 +5,7 @@
  */
 package eu.h2020.symbiote.semantics.mapping.data;
 
+import java.util.stream.Stream;
 import javafx.util.Pair;
 import org.apache.jena.graph.impl.LiteralLabel;
 
@@ -20,5 +21,9 @@ public interface DataElementMatch {
     
     public default boolean hasValue() {
         return false;
+    }
+    
+    public default Stream<DataElementMatch> flatten() {
+        return Stream.of(this);
     }
 }

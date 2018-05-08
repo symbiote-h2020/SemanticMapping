@@ -18,12 +18,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.ontology.Individual;
-import org.apache.jena.ontology.OntModel;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.sparql.path.P_Link;
 import org.apache.jena.sparql.path.Path;
@@ -33,9 +36,9 @@ import org.apache.jena.vocabulary.RDF;
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public class DataProductionVisitor extends AbstractProductionVisitor<OntModel, List<IndividualMatch>, Void, OntModel> implements ProductionVisitorSimple<OntModel, List<IndividualMatch>, OntModel> {
+public class DataProductionVisitor extends AbstractProductionVisitor<Model, List<IndividualMatch>, Void, Model> implements ProductionVisitorSimple<Model, List<IndividualMatch>, Model> {
 
-    private OntModel model;
+    private Model model;
 
     @Override
     public void visit(IndividualProduction production, MappingContext context, List<IndividualMatch> args) {
@@ -65,16 +68,13 @@ public class DataProductionVisitor extends AbstractProductionVisitor<OntModel, L
     }
 
     @Override
-    public void init(OntModel input) {
+    public void init(Model input) {
         super.init(input);
-        model = ModelFactory.createOntologyModel();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        input.write(out, RDFLanguages.TURTLE.getName());
-        model.read(new ByteArrayInputStream(out.toByteArray()), null, RDFLanguages.TURTLE.getName());
+        model = input;
     }
 
     @Override
-    public OntModel getResult() {
+    public Model getResult() {
         return model;
     }
 
@@ -89,7 +89,7 @@ public class DataProductionVisitor extends AbstractProductionVisitor<OntModel, L
     }
 
     private void remove(List<IndividualMatch> matches) {
-        matches.stream().flatMap(x -> x.getElementMatches().stream())
+        matches.stream().flatMap(x -> x.flatten())
                 .filter(x -> x instanceof TripleMatch)
                 .map(x -> ((TripleMatch) x).getTriple())
                 .forEach(x -> model.remove(model.asStatement(x)));
@@ -99,15 +99,15 @@ public class DataProductionVisitor extends AbstractProductionVisitor<OntModel, L
         model.add(model.asStatement(new Triple(subject, predicate, object)));
     }
 
-    public void add(Individual subject, Node predicate, Node object) {
+    public void add(Resource subject, Node predicate, Node object) {
         add(subject.asNode(), predicate, object);
     }
 
-    public void add(Individual subject, Property predicate, Node object) {
+    public void add(Resource subject, Property predicate, Node object) {
         add(subject.asNode(), predicate.asNode(), object);
     }
 
-    public void add(Individual subject, Path predicate, Node object) {
+    public void add(Resource subject, Path predicate, Node object) {
         if (!(predicate instanceof P_Link)) {
             throw new UnsupportedOperationException("only simple property paths supported!");
         }

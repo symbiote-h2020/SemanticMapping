@@ -1,0 +1,31 @@
+{
+  "name" : "Transformation concatting two values inline",
+  "commonBase": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#",
+  "commonPrefixes" : {
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "dc" : "http://purl.org/dc/elements/1.1/"
+  },
+  "inputs" : [
+	"SELECT ?x WHERE 
+	{ 
+		?x a :A ;
+		:firstName \"Jane\"^^xsd:string ;
+		:lastName \"Doe\"^^xsd:string .
+	}"
+  ],
+  "expectedResult" : 
+	"SELECT ?x WHERE 
+	{ 
+		?x a :B.
+		?x :name \"Jane Doe\"^^xsd:string .
+	}",
+  "mapping" : 
+	"TRANSFORMATION concat { Array.prototype.join.call(parameters, ' '); }
+
+	RULE 
+		CONDITION CLASS :A :firstName TYPE xsd:string AND :lastName TYPE xsd:string  
+		PRODUCTION CLASS :B :name VALUE concat ( REFERENCE :firstName , REFERENCE :lastName )"
+}
