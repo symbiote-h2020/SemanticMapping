@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.h2020.symbiote.semantics.mapping.data.test;
+package eu.h2020.symbiote.semantics.mapping.test.serialization;
 
-import eu.h2020.symbiote.semantics.mapping.model.*;
+import eu.h2020.symbiote.semantics.mapping.test.model.TestSuite;
+import eu.h2020.symbiote.semantics.mapping.test.model.TestSuiteWithPrefixes;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import eu.h2020.symbiote.semantics.mapping.model.Mapping;
 import eu.h2020.symbiote.semantics.mapping.model.serialize.AbstractTypeDeserializer;
 import eu.h2020.symbiote.semantics.mapping.model.serialize.JenaModule;
 import java.io.IOException;

@@ -5,6 +5,7 @@
  */
 package eu.h2020.symbiote.semantics.mapping.test;
 
+import eu.h2020.symbiote.semantics.mapping.test.sparql.util.MappingExamples;
 import eu.h2020.symbiote.semantics.mapping.model.Mapping;
 import eu.h2020.symbiote.semantics.mapping.parser.ParseException;
 import javafx.util.Pair;

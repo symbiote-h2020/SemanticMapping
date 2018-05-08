@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.h2020.symbiote.semantics.mapping.model;
+package eu.h2020.symbiote.semantics.mapping.test.model;
 
 import java.util.HashMap;
 import java.util.Map;

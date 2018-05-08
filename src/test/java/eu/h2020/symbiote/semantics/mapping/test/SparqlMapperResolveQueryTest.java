@@ -1,4 +1,4 @@
-package eu.h2020.symbiote.semantics.mapping.sparql.test;
+package eu.h2020.symbiote.semantics.mapping.test;
 
 import eu.h2020.symbiote.semantics.mapping.sparql.SparqlMapper;
 import eu.h2020.symbiote.semantics.mapping.model.UnsupportedMappingException;

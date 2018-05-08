@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.h2020.symbiote.semantics.mapping.sparql.test;
+package eu.h2020.symbiote.semantics.mapping.test.sparql.util;
 
 import static eu.h2020.symbiote.semantics.mapping.test.sparql.util.Constants.QUERY_1_DEFAULT_NTRIPLE;
 import static eu.h2020.symbiote.semantics.mapping.test.sparql.util.Constants.QUERY_1_REORDER_NTRIPLE;

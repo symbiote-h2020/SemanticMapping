@@ -3,14 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.h2020.symbiote.semantics.mapping.model;
+package eu.h2020.symbiote.semantics.mapping.test;
 
+import eu.h2020.symbiote.semantics.mapping.test.serialization.MappingDeserializer;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import eu.h2020.symbiote.semantics.mapping.model.Mapper;
+import eu.h2020.symbiote.semantics.mapping.model.Mapping;
+import eu.h2020.symbiote.semantics.mapping.model.UnsupportedMappingException;
 import eu.h2020.symbiote.semantics.mapping.model.serialize.JenaModule;
+import eu.h2020.symbiote.semantics.mapping.test.model.TestSuite;
 import eu.h2020.symbiote.semantics.mapping.test.sparql.util.Constants;
 import eu.h2020.symbiote.semantics.mapping.test.sparql.util.Utils;
 import java.io.IOException;

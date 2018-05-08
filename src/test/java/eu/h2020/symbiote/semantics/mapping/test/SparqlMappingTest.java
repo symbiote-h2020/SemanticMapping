@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.h2020.symbiote.semantics.mapping.model;
+package eu.h2020.symbiote.semantics.mapping.test;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import eu.h2020.symbiote.semantics.mapping.model.serialize.JenaModule;
 import eu.h2020.symbiote.semantics.mapping.sparql.SparqlMapper;
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.QueryCompare;
+import eu.h2020.symbiote.semantics.mapping.test.model.TestSuiteWithPrefixes;
+import eu.h2020.symbiote.semantics.mapping.test.model.TestSuiteWithPrefixesDeserializer;
 import eu.h2020.symbiote.semantics.mapping.test.sparql.util.Constants;
 import org.apache.jena.query.Query;
 
