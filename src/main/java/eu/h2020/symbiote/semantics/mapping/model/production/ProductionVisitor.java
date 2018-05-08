@@ -5,6 +5,7 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.production;
 
+import eu.h2020.symbiote.semantics.mapping.model.MappingConfig;
 import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
 import java.util.stream.Stream;
 
@@ -18,7 +19,7 @@ import java.util.stream.Stream;
  */
 public interface ProductionVisitor<I, TC, TP, O> {
     
-    public void init(I input);
+    public void init(MappingConfig config, I input);
     public O getResult();
     public default TP visit(MappingContext context, Production production, TC args) {
         return production.accept(context, this, args);

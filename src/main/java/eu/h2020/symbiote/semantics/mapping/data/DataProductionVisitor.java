@@ -5,7 +5,11 @@
  */
 package eu.h2020.symbiote.semantics.mapping.data;
 
+import eu.h2020.symbiote.semantics.mapping.data.model.TripleMatch;
+import eu.h2020.symbiote.semantics.mapping.data.model.IndividualMatch;
+import eu.h2020.symbiote.semantics.mapping.model.MappingConfig;
 import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
+import eu.h2020.symbiote.semantics.mapping.model.RetentionPolicy;
 import eu.h2020.symbiote.semantics.mapping.model.production.AbstractProductionVisitor;
 import eu.h2020.symbiote.semantics.mapping.model.production.ClassProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.DataPropertyProduction;
@@ -16,17 +20,13 @@ import eu.h2020.symbiote.semantics.mapping.model.production.ProductionVisitorSim
 import eu.h2020.symbiote.semantics.mapping.model.value.Value;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.StringWriter;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
-import org.apache.jena.ontology.Individual;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.sparql.path.P_Link;
 import org.apache.jena.sparql.path.Path;
@@ -68,9 +68,14 @@ public class DataProductionVisitor extends AbstractProductionVisitor<Model, List
     }
 
     @Override
-    public void init(Model input) {
-        super.init(input);
-        model = input;
+    public void init(MappingConfig config, Model input) {
+        super.init(config, input);
+        if (config.getRetentionPolicy() == RetentionPolicy.RemoveAllInput) {
+            model = ModelFactory.createOntologyModel();
+            model.setNsPrefixes(input.getNsPrefixMap());
+        } else {
+            model = input;
+        }
     }
 
     @Override
@@ -89,10 +94,12 @@ public class DataProductionVisitor extends AbstractProductionVisitor<Model, List
     }
 
     private void remove(List<IndividualMatch> matches) {
-        matches.stream().flatMap(x -> x.flatten())
-                .filter(x -> x instanceof TripleMatch)
-                .map(x -> ((TripleMatch) x).getTriple())
-                .forEach(x -> model.remove(model.asStatement(x)));
+        if (config.getRetentionPolicy() == RetentionPolicy.RemoveMatchedInput) {
+            matches.stream().flatMap(x -> x.flatten())
+                    .filter(x -> x instanceof TripleMatch)
+                    .map(x -> ((TripleMatch) x).getTriple())
+                    .forEach(x -> model.remove(model.asStatement(x)));
+        }
     }
 
     public void add(Node subject, Node predicate, Node object) {

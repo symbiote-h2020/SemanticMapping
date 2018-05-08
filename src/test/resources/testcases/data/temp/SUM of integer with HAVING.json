@@ -10,16 +10,13 @@
     "dc" : "http://purl.org/dc/elements/1.1/"
   },
   "inputs" : [
-	":myA a owl:NamedIndividual, 
-		   test:A ;
+	":myA a test:A ;
          test:hasValue   5 , 3 ;
          test:hasValue2 test:instanceOfB ." 
   ],
   "expectedResult" : 
-	":myA a owl:NamedIndividual, 
-		   test:B ;
-         test:hasValue2 8 ;
-         test:hasValue2 test:instanceOfB .",
+	":myA a test:B ;
+         test:hasValue2 8 ;",
   "mapping" : 
 	"RULE
 	   CONDITION

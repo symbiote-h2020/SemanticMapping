@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.h2020.symbiote.semantics.mapping.data;
+package eu.h2020.symbiote.semantics.mapping.data.model;
 
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.JenaHelper;
 import java.util.Objects;

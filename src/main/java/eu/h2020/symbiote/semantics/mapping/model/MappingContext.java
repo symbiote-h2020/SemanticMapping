@@ -20,12 +20,12 @@ public class MappingContext {
     public MappingContext() {
         this.transformationRegistry = TransformationRegistry.getCopy();
     }
-
+    
     public TransformationRegistry getTransformationRegistry() {
         return transformationRegistry;
     }
 
     public void register(List<? extends Transformation> transformations) {
-        transformationRegistry.register(transformations);
+        getTransformationRegistry().register(transformations);
     }
 }

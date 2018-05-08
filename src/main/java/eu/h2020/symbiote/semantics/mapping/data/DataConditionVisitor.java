@@ -5,6 +5,10 @@
  */
 package eu.h2020.symbiote.semantics.mapping.data;
 
+import eu.h2020.symbiote.semantics.mapping.data.model.AggregationMatch;
+import eu.h2020.symbiote.semantics.mapping.data.model.DataElementMatch;
+import eu.h2020.symbiote.semantics.mapping.data.model.TripleMatch;
+import eu.h2020.symbiote.semantics.mapping.data.model.IndividualMatch;
 import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationType;
 import eu.h2020.symbiote.semantics.mapping.model.condition.ConditionVisitor;
 import eu.h2020.symbiote.semantics.mapping.model.condition.ConditionWalker;

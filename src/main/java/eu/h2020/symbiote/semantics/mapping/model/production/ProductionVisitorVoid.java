@@ -5,6 +5,7 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.production;
 
+import eu.h2020.symbiote.semantics.mapping.model.MappingConfig;
 import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
 import java.util.stream.Stream;
 
@@ -30,7 +31,7 @@ public interface ProductionVisitorVoid extends ProductionVisitor<Void, Void, Voi
     }
 
     @Override
-    public default void init(Void input) {
+    public default void init(MappingConfig config, Void input) {
     }
     
 

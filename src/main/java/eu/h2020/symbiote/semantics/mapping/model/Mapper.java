@@ -40,23 +40,27 @@ public abstract class Mapper<I, TC, TP, O> {
         this.productionVisitor = productionVisitor;
     }
 
-    public O map(I input, Mapping mapping) throws UnsupportedMappingException {
+    public O map(I input, Mapping mapping, MappingConfig config) throws UnsupportedMappingException {
         if (mappingSupportedChecker != null) {
             mappingSupportedChecker.checkMappingSupported(mapping);
         }
         I inputCopy = clone(input);
-        productionVisitor.init(inputCopy);
+        productionVisitor.init(config == null ? new MappingConfig() : config, inputCopy);
         MappingContext context = new MappingContext();
         context.register(mapping.getTransformations());
-        O result = null;        
+        O result = null;
         for (MappingRule rule : mapping.getMappingRules()) {
-            TC conditionMatches = ConditionWalker.walk(rule.getCondition(), conditionVisitor, inputCopy);            
+            TC conditionMatches = ConditionWalker.walk(rule.getCondition(), conditionVisitor, inputCopy);
             result = ProductionWalker.walk(rule.getProduction(), productionVisitor, context, conditionMatches);
         }
         return result;
     }
 
+    public final O map(I input, Mapping mapping) throws UnsupportedMappingException {
+        return map(input, mapping, null);
+    }
+
     public abstract void init(Map<String, String> parameters);
-    
+
     public abstract I clone(I input);
 }

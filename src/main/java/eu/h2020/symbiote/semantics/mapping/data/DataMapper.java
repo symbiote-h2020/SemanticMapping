@@ -5,6 +5,7 @@
  */
 package eu.h2020.symbiote.semantics.mapping.data;
 
+import eu.h2020.symbiote.semantics.mapping.data.model.IndividualMatch;
 import eu.h2020.symbiote.semantics.mapping.model.Mapper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

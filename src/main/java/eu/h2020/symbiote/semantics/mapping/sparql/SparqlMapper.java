@@ -7,6 +7,7 @@ package eu.h2020.symbiote.semantics.mapping.sparql;
 
 import eu.h2020.symbiote.semantics.mapping.model.Mapper;
 import eu.h2020.symbiote.semantics.mapping.model.Mapping;
+import eu.h2020.symbiote.semantics.mapping.model.MappingConfig;
 import eu.h2020.symbiote.semantics.mapping.model.UnsupportedMappingException;
 import java.util.List;
 import org.apache.jena.query.Query;
@@ -38,10 +39,10 @@ public class SparqlMapper extends Mapper<Query, List<SparqlMatch>, Void, Query> 
     }
 
     @Override
-    public Query map(Query query, Mapping mapping) throws UnsupportedMappingException {
+    public Query map(Query query, Mapping mapping, MappingConfig config) throws UnsupportedMappingException {
         Query result = query.cloneQuery();
         preprocessQuery(result);
-        result = super.map(result, mapping);
+        result = super.map(result, mapping, config);
         postprocessQuery(result);
         return result;
     }

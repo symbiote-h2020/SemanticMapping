@@ -13,8 +13,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import eu.h2020.symbiote.semantics.mapping.model.Mapper;
 import eu.h2020.symbiote.semantics.mapping.model.Mapping;
+import eu.h2020.symbiote.semantics.mapping.model.MappingConfig;
 import eu.h2020.symbiote.semantics.mapping.model.UnsupportedMappingException;
-import eu.h2020.symbiote.semantics.mapping.model.serialize.JenaModule;
 import eu.h2020.symbiote.semantics.mapping.test.model.TestSuite;
 import eu.h2020.symbiote.semantics.mapping.test.sparql.util.Constants;
 import eu.h2020.symbiote.semantics.mapping.test.sparql.util.Utils;
@@ -36,19 +36,30 @@ public abstract class AbstractMappingTest<T> {
 
     private final String folder;
     private final JavaType type;
+    private final MappingConfig config;
 
     public AbstractMappingTest(String folder, Class<?> typeInfo) {
+        this(folder, typeInfo, (MappingConfig) null);
+    }
+
+    public AbstractMappingTest(String folder, Class<?> typeInfo, MappingConfig config) {
         this.folder = folder;
         if (TestSuite.class.isAssignableFrom(typeInfo)) {
             this.type = TypeFactory.defaultInstance().constructSimpleType(typeInfo, null);
         } else {
             this.type = TypeFactory.defaultInstance().constructParametricType(TestSuite.class, typeInfo);
         }
+        this.config = config;
     }
 
     public AbstractMappingTest(String folder, Class<?> superType, Class<?> subType) {
+        this(folder, superType, subType, null);
+    }
+
+    public AbstractMappingTest(String folder, Class<?> superType, Class<?> subType, MappingConfig config) {
         this.folder = folder;
         this.type = TypeFactory.defaultInstance().constructParametricType(superType, subType);
+        this.config = config;
     }
 
     protected void preprocessExpectedResult(T element) {
@@ -58,10 +69,7 @@ public abstract class AbstractMappingTest<T> {
     protected ObjectMapper getObjectMapper() {
         ObjectMapper result = new ObjectMapper();
         SimpleModule module = new SimpleModule();
-//        module.addSerializer(Mapping.class, new MappingSerializer());
         module.addDeserializer(Mapping.class, new MappingDeserializer());
-//        module.addDeserializer(TestSuiteWithPrefixes, deser)
-//        module.registerSubtypes(SparqlTestSuite.class);
         result.registerModule(module);
         result.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return configureObjectMapper(result);
@@ -80,7 +88,6 @@ public abstract class AbstractMappingTest<T> {
 
     @Test
     public void testMapping() throws URISyntaxException, IOException {
-        Mapper<T, ?, ?, T> mapper = getMapper();
         List<TestSuite<T>> testSuites = getTestSuits();
         int failCountSuites = 0;
         for (TestSuite<T> testSuite : testSuites) {
@@ -113,7 +120,7 @@ public abstract class AbstractMappingTest<T> {
         boolean result = false;
         try {
             Mapper<T, ?, ?, T> mapper = getMapper();
-            T mapped = mapper.map(input, mapping);
+            T mapped = mapper.map(input, mapping, config);
             result = equals(mapped, expected);
             if (!result) {
                 System.out.println("mapping failed:");

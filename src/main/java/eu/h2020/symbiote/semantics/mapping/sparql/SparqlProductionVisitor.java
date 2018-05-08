@@ -5,14 +5,15 @@
  */
 package eu.h2020.symbiote.semantics.mapping.sparql;
 
+import eu.h2020.symbiote.semantics.mapping.model.MappingConfig;
 import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
+import eu.h2020.symbiote.semantics.mapping.model.RetentionPolicy;
 import eu.h2020.symbiote.semantics.mapping.model.production.AbstractProductionVisitor;
 import eu.h2020.symbiote.semantics.mapping.model.production.ClassProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.DataPropertyProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.IndividualProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyTypeProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyValueProduction;
-import eu.h2020.symbiote.semantics.mapping.model.value.TransformationValue;
 import eu.h2020.symbiote.semantics.mapping.model.value.Value;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.IndividualMatch;
 import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlElementMatch;
@@ -48,9 +49,14 @@ public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, Li
     private Query query = null;
 
     @Override
-    public void init(Query query) {
-        super.init(query);
-        this.query = query;
+    public void init(MappingConfig config, Query query) {
+        super.init(config, query);
+        if (config.getRetentionPolicy() == RetentionPolicy.RemoveAllInput) {
+            this.query = query.cloneQuery();
+            this.query.setQueryPattern(new ElementGroup());
+        } else {
+            this.query = query;
+        }
     }
 
     @Override
@@ -64,7 +70,9 @@ public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, Li
     }
 
     private Query remove(Query query, List<SparqlElementMatch> matchInfo) {
-        matchInfo.forEach(x -> x.removeFromQuery(query));
+        if (config.getRetentionPolicy() == RetentionPolicy.RemoveMatchedInput) {
+            matchInfo.forEach(x -> x.removeFromQuery(query));
+        }
         return query;
     }
 

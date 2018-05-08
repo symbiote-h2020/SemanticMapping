@@ -5,6 +5,7 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.production;
 
+import eu.h2020.symbiote.semantics.mapping.model.MappingConfig;
 import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +38,7 @@ public class ProductionWalker {
         }
 
         @Override
-        public void init(I input) {
+        public void init(MappingConfig config, I input) {
         }
 
         @Override

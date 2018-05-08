@@ -5,7 +5,7 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.production;
 
-import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
+import eu.h2020.symbiote.semantics.mapping.model.MappingConfig;
 
 /**
  *
@@ -17,10 +17,12 @@ import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
  */
 public abstract class AbstractProductionVisitor<I, TC, TP, O> implements ProductionVisitor<I, TC, TP, O> {
 
+    protected MappingConfig config;
     protected I input;
 
     @Override
-    public void init(I input) {
+    public void init(MappingConfig config, I input) {
+        this.config = config;
         this.input = input;
     }
 
