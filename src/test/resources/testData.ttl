@@ -16,3 +16,10 @@
 
 :somePerson rdf:type test:Person ,
                   owl:NamedIndividual .
+
+:personA rdf:type test:Person ,
+                  owl:NamedIndividual ;
+                  test:knows :personB .
+
+:personB rdf:type test:Person ,
+                  owl:NamedIndividual .

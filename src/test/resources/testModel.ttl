@@ -19,6 +19,8 @@
 :hasChild rdf:type owl:ObjectProperty ;
     rdfs:range :Person .
 
+:knows rdf:type owl:ObjectProperty .
+
 #################################################################
 #
 #    Data properties
