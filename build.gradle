@@ -50,31 +50,16 @@ repositories {
 }
 
 dependencies {
-    // Symbiote Security section
-    //    compile('com.github.symbiote-h2020:SymbIoTeLibraries:[5.8,5.999]'){ changing = true }
-    compile('org.apache.jena:jena-core:3.4.0'){
-        exclude group: 'org.slf4j'
-    }
-    compile('org.apache.jena:jena-querybuilder:3.4.0'){
-        exclude group: 'org.slf4j'
-    }
+    compile('org.apache.jena:jena-core:3.4.0')
+    compile('org.apache.jena:jena-querybuilder:3.4.0')
     compile('org.apache.jena:jena-arq:3.4.0')
-    {
-        exclude group: 'org.slf4j'
-    }
-    compile('org.apache.jena:jena-cmds:3.4.0') {
-        exclude group: 'org.slf4j'
-    }
-    compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.25'
-    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
-    compile group: 'log4j', name: 'log4j', version: '1.2.17'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.4'
+    compile('org.apache.jena:jena-cmds:3.4.0')
+
+    //compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.4'
     // https://mvnrepository.com/artifact/org.reflections/reflections
     compile group: 'org.reflections', name: 'reflections', version: '0.9.11'
-
     // common testing
-    testCompile('junit:junit:[4.12,4.999]')
-    testCompile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
+    testCompile('junit:junit:4.+')
 }
 
 // code quality below
