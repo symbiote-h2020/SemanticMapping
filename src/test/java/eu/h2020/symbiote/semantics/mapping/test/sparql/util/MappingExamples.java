@@ -137,6 +137,25 @@ public class MappingExamples {
                     + "   CONDITION CLASS :Person :age VALUE > 18 \n"
                     + "   PRODUCTION CLASS :Adult"),
             /**
+             * condition class with data property REGEX
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new UriClassCondition(TEST_MODEL.Person,
+                                            new DataPropertyValueCondition(
+                                                    TEST_MODEL.name,
+                                                    new ValueCondition(
+                                                            Comparator.Matches,
+                                                            ConstantValue.fromString("[A-Z]{2,4}")))),
+                                    new ClassProduction(TEST_MODEL.Adult)))
+                            .build(),
+                    BASE
+                    + "RULE \n"
+                    + "   CONDITION CLASS :Person :name VALUE MATCHES ([A-Z]{2,4})  \n"
+                    + "   PRODUCTION CLASS :Adult"),
+            /**
              * condition class with data property type
              */
             new Pair<Mapping, String>(

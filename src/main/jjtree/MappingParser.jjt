@@ -124,6 +124,7 @@ TOKEN [IGNORE_CASE] :
 |       <TRANSFORMATION: "TRANSFORMATION">
 |       <REFERENCE: "REFERENCE">
 |       <ANY: "ANY">
+|       <MATCHES: "MATCHES"> : REGEX_STATE
 }
 
 TOKEN:
@@ -180,13 +181,16 @@ void Prefix() : {Token tp; Token ti;}
 
 TOKEN_MGR_DECLS : {
     int bracketNestingDepth ;
-    int quotesNestingDepth ;
+    int quotesNestingDepth ; 
+    static int regexBracketNestingDepth = 0;   
 }
 
 SKIP : {  "{" { bracketNestingDepth = 1 ; } : JS_CODE }
 <JS_CODE>  SKIP : {  "{" { bracketNestingDepth += 1 ; } }
 <JS_CODE>  TOKEN : {  <CODE:"}"> { bracketNestingDepth -= 1; SwitchTo( bracketNestingDepth==0 ? DEFAULT : JS_CODE ) ; }}
 <JS_CODE>  MORE : {  < ~[] > }
+
+
 
 void Transformation(Mapping m) : {Token name; Token t;}
 {
@@ -292,7 +296,7 @@ IndividualCondition ConditionIndividual() : {Node n = null;}
 
 PropertyCondition ConditionPropertyUnary() : {PropertyCondition c = null;}
 {
-    ( LOOKAHEAD(3) c=ConditionPropertyDataValue() 
+    ( LOOKAHEAD(30) c=ConditionPropertyDataValue() 
     | LOOKAHEAD(3) c=ConditionPropertyDataType()
     | LOOKAHEAD(3) c=ConditionPropertyObjectValue()
     | LOOKAHEAD(3) c=ConditionPropertyObjectType()
@@ -518,9 +522,42 @@ Node IRIPrefix() : {Token t;}
     }
 }
 
-ValueCondition ValueCondition() : {Comparator c; ConstantValue v;}
+JAVACODE
+String skip_to_matching_brace() {
+  Token tok;
+  MappingParserTokenManager.regexBracketNestingDepth = 0;
+  String temp = "";
+  while (true) {
+    tok = getToken(1);
+    temp += tok.image;
+    if (tok.kind == REGEX_OPEN) MappingParserTokenManager.regexBracketNestingDepth++;
+    if (tok.kind == REGEX_CLOSE) {
+      MappingParserTokenManager.regexBracketNestingDepth--;
+         if (MappingParserTokenManager.regexBracketNestingDepth == 0) break;
+    }
+    tok = getNextToken();
+  }
+  getNextToken();
+  temp = temp.trim();
+  temp = temp.substring(1, temp.length() -1);
+  return temp;
+}
+
+<REGEX_STATE> TOKEN :  
 {
-    (c=Comparator() v=ConstantValue())
+    <REGEX_OPEN:<LB>>
+    | <REGEX_CLOSE:<RB>> {
+            if (regexBracketNestingDepth == 1) {
+                SwitchTo(DEFAULT);
+            }
+        }
+    | <REGEX_ESCAPED: "\\" ~[]>
+    | <REGEX_ANY: ~[]>
+}
+
+ValueCondition ValueCondition() : {Comparator c; ConstantValue v; String t;}
+{
+    ((c=Comparator() v=ConstantValue()) | (<MATCHES> t=skip_to_matching_brace() { c=Comparator.Matches; v=ConstantValue.fromString(t); }))
     {
         return new ValueCondition(c, v);
     }

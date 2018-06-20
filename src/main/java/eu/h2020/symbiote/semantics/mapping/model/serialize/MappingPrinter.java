@@ -427,8 +427,19 @@ public class MappingPrinter implements ConditionVisitorVoid, ValueVisitor<Boolea
     }
 
     private void visit(ValueCondition valueCondition) {
-        print(valueCondition.getComparator().getSymbol());
-        visit(valueCondition.getValue(), true);
+        switch (valueCondition.getComparator()) {
+            case Matches: {
+                print(valueCondition.getComparator().getSymbol());
+                print(LEFT_BRACKET, false);
+                print(valueCondition.getValue().getValue().toString(), false);
+                print(RIGHT_BRACKET, false);
+                break;
+            }
+            default: {
+                print(valueCondition.getComparator().getSymbol());
+                visit(valueCondition.getValue(), true);
+            }
+        }        
     }
 
     @Override

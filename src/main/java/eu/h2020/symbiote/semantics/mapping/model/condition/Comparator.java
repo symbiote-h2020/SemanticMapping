@@ -15,7 +15,8 @@ public enum Comparator {
     GreaterThan(">"),
     GreaterEqual(">="),
     LessThan("<"),
-    LessEqual("<=");
+    LessEqual("<="),
+    Matches("MATCHES");
     
     private final String symbol;
     

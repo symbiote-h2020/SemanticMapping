@@ -59,6 +59,7 @@ import org.apache.jena.sparql.expr.E_GreaterThanOrEqual;
 import org.apache.jena.sparql.expr.E_LessThan;
 import org.apache.jena.sparql.expr.E_LessThanOrEqual;
 import org.apache.jena.sparql.expr.E_NotEquals;
+import org.apache.jena.sparql.expr.E_Regex;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprVar;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -211,6 +212,8 @@ public class DataConditionVisitor implements ConditionVisitor<List<IndividualMat
                 return new E_LessThan(left, right);
             case NotEqual:
                 return new E_NotEquals(left, right);
+            case Matches:
+                return new E_Regex(left, condition.getValue().getValue().toString(), null);
             default:
                 throw new IllegalStateException("unkown comparator: " + condition.getComparator());
         }
