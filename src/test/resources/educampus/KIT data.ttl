@@ -1,0 +1,44 @@
+@prefix : <http://cm.kit.edu/smartcampus/pim#>
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <http://www.symbiote-h2020.eu/ontology/core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+
+:building1-kit a :Building, owl:NamedIndividual ;
+	core:name "building1-kit-name"^^xsd:string .
+	
+:floor1-kit a :Floor, owl:NamedIndividual ;
+	core:name "floor1-kit-name"^^xsd:string ;
+	:isInBuilding :building1-kit .
+	
+	
+
+:beacon1-kit a :Beacon, owl:NamedIndividual ;
+	:uuid "beacon1-kit-uuid"^^xsd:string ;
+	:minor "11"^^xsd:integer ;
+	:major "22"^^xsd:integer .
+	
+:area1-kit a :Office, :Area, owl:NamedIndividual ;
+	core:name "area1-kit-name"^^xsd:string ;
+	core:description "area1-kit-description" ;
+	:roomNo "area1-kit-roomNo"^^xsd:string ;
+	:hasFeature [
+		a :SeatingCapability, owl:NamedIndividual ;
+		:capacity "17"^^xsd:integer
+	] .
+	
+:area2-kit a :LectureHall, :Area, owl:NamedIndividual ;
+	core:name "area2-kit-name"^^xsd:string ;
+	core:description "area2-kit-description" ;
+	:roomNo "area2-kit-roomNo"^^xsd:string ;
+	:hasFeature [
+		a :Wallplug, owl:NamedIndividual 
+	] ;
+	:hasFeature [
+		a :Ethernet, owl:NamedIndividual 
+	] ;
+	:hasFeature [
+		a :AirConditioning, owl:NamedIndividual 
+	] .

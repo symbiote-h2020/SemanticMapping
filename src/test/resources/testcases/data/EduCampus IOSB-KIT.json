@@ -1,0 +1,95 @@
+{
+  "name" : "EduCampus IOSB to KIT mapping",
+  "commonBase": "http://iosb.fraunhofer.de/ilt/ontologies/educampus#",
+  "commonPrefixes" : {
+	"kit": "http://cm.kit.edu/smartcampus/pim#",    
+	"rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",    
+    "owl" : "http://www.w3.org/2002/07/owl#",
+	"xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "core" : "http://www.symbiote-h2020.eu/ontology/core#"
+  },
+  "inputs" : [ 
+	":beacon1-iosb a :BleBeacon ;
+	:beaconId \"beacon1-iosb-beaconId\"^^xsd:string ;
+	:minor \"1\"^^xsd:integer ;
+	:major \"2\"^^xsd:integer .
+	
+:room1-iosb a :Room ;
+	core:name \"room1-iosb-name\" ;
+	core:description \"room1-iosb-description\" ;
+	:capacity \"42\"^^xsd:integer ;
+	:roomNo \"room1-iosb-roomNo\"^^xsd:string ;
+	:hasFeature :airConditioning , :whiteboard, :projector .
+	
+:room2-iosb a :Room ;
+	core:name \"room2-iosb-name\" ;
+	core:description \"room2-iosb-description\" ;
+	:capacity \"17\"^^xsd:integer ;
+	:roomNo \"room2-iosb-roomNo\"^^xsd:string ."
+  ],
+  "expectedResult" : {
+	"RemoveAllInput": ":beacon1-iosb a kit:Beacon ;
+	kit:uuid \"beacon1-iosb-beaconId\"^^xsd:string ;
+	kit:minor \"1\"^^xsd:integer ;
+	kit:major \"2\"^^xsd:integer ;
+	core:description \"mapped beacon from IOSB EduCampus\"^^xsd:string .
+	
+:room1-iosb a kit:Area ;
+	core:name \"room1-iosb-name\" ;
+	core:description \"room1-iosb-description\" ;
+	kit:roomNo \"room1-iosb-roomNo\"^^xsd:string ;
+	kit:hasFeature [
+		a kit:SeatingCapability ;
+		kit:capacity \"42\"^^xsd:integer
+	] ;
+	kit:hasFeature [
+		a kit:AirConditioning
+	] .
+	
+:room2-iosb a kit:Area ;
+	core:name \"room2-iosb-name\" ;
+	core:description \"room2-iosb-description\" ;
+	kit:roomNo \"room2-iosb-roomNo\"^^xsd:string ;
+	kit:hasFeature [
+		a kit:SeatingCapability ;
+		kit:capacity \"17\"^^xsd:integer
+	] ."
+  },
+  "mapping" : 
+	"RULE
+   CONDITION
+	  CLASS :BleBeacon
+		:beaconId TYPE xsd:string
+	AND :minor TYPE xsd:integer
+	AND :major TYPE xsd:integer
+   PRODUCTION 
+	  CLASS kit:Beacon
+		 kit:uuid VALUE REFERENCE :beaconId
+	 AND kit:minor VALUE REFERENCE :minor
+	 AND kit:major VALUE REFERENCE :major
+	 AND core:description VALUE \"mapped beacon from IOSB EduCampus\"
+		 
+		 
+RULE
+	CONDITION
+		CLASS :Room 
+			core:name TYPE xsd:string
+		AND core:description TYPE xsd:string
+		AND :capacity TYPE xsd:integer
+		AND :roomNo TYPE xsd:string
+	PRODUCTION
+		CLASS kit:Area
+			core:name VALUE REFERENCE core:name
+		AND core:description VALUE REFERENCE core:description
+		AND kit:roomNo VALUE REFERENCE :roomNo
+		AND kit:hasFeature TYPE CLASS kit:SeatingCapability
+			kit:capacity VALUE REFERENCE :capacity
+
+RULE
+	CONDITION CLASS :Room
+		:hasFeature VALUE :airConditioning
+	PRODUCTION CLASS kit:Area	
+		kit:hasFeature TYPE CLASS kit:AirConditioning
+"  
+}

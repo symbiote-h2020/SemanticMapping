@@ -16,7 +16,7 @@ public class Constants {
 
     public static final String PREFIX_TEST = "test";
     public static final String QUERY_DIR = "queries";
-    public static final String MAPPING_DIR = "mappings";
+    public static final String EDUCAMPUS_DIR = "educampus";
     public static final String SPARQL_TEST_CASE_DIR = "testcases/sparql";
     public static final String DATA_TEST_CASE_DIR = "testcases/data";
     public static final String QUERY_FILE_EXTENSION = "sparql";
@@ -39,6 +39,7 @@ public class Constants {
     
     /* MAPPINGS */
     public static final String MAPPING_EDUCAMPUS_IOSB_TO_KIT = "IOSB to KIT";
+    public static final String MAPPING_EDUCAMPUS_KIT_TO_IOSB = "KIT to IOSB";
 
     /* REPLACEMENTS */
     public static final String VALUE_STRING_TAG = "[STRING_VALUE]";

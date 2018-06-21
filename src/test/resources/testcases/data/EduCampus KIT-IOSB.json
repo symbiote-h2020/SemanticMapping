@@ -1,0 +1,108 @@
+{
+  "name" : "EduCampus KIT to IOSB mapping",
+  "commonBase": "http://cm.kit.edu/smartcampus/pim#",
+  "commonPrefixes" : {
+	"iosb": "http://iosb.fraunhofer.de/ilt/ontologies/educampus#",    
+	"rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",    
+    "owl" : "http://www.w3.org/2002/07/owl#",
+	"xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "core" : "http://www.symbiote-h2020.eu/ontology/core#"
+  },
+  "inputs" : [ 
+	":building1-kit a :Building, owl:NamedIndividual ;
+	core:name \"building1-kit-name\"^^xsd:string .
+	
+:floor1-kit a :Floor, owl:NamedIndividual ;
+	core:name \"floor1-kit-name\"^^xsd:string ;
+	:isInBuilding :building1-kit .
+	
+	
+
+:beacon1-kit a :Beacon, owl:NamedIndividual ;
+	:uuid \"beacon1-kit-uuid\"^^xsd:string ;
+	:minor \"11\"^^xsd:integer ;
+	:major \"22\"^^xsd:integer .
+	
+:area1-kit a :Office, :Area, owl:NamedIndividual ;
+	core:name \"area1-kit-name\"^^xsd:string ;
+	core:description \"area1-kit-description\" ;
+	:roomNo \"area1-kit-roomNo\"^^xsd:string ;
+	:hasFeature [
+		a :SeatingCapability, owl:NamedIndividual ;
+		:capacity \"17\"^^xsd:integer
+	] .
+	
+:area2-kit a :LectureHall, :Area, owl:NamedIndividual ;
+	core:name \"area2-kit-name\"^^xsd:string ;
+	core:description \"area2-kit-description\" ;
+	:roomNo \"area2-kit-roomNo\"^^xsd:string ;
+	:hasFeature [
+		a :Wallplug, owl:NamedIndividual 
+	] ;
+	:hasFeature [
+		a :Ethernet, owl:NamedIndividual 
+	] ;
+	:hasFeature [
+		a :AirConditioning, owl:NamedIndividual 
+	] ."
+  ],
+  "expectedResult" : {
+	"RemoveAllInput": ":area2-kit  a             iosb:Room ;
+        iosb:hasFeature   iosb:airConditioning ;
+        iosb:roomNo       \"area2-kit-roomNo\" ;
+        core:description  \"area2-kit-description\" ;
+        core:name         \"area2-kit-name\" .
+
+:beacon1-kit  a        iosb:BleBeacon ;
+        iosb:beaconId  \"beacon1-kit-uuid\" ;
+        iosb:major     22 ;
+        iosb:minor     11 .
+
+:area1-kit  a             iosb:Room ;
+        iosb:capacity     17 ;
+        iosb:roomNo       \"area1-kit-roomNo\" ;
+        core:description  \"area1-kit-description\" ;
+        core:name         \"area1-kit-name\" ."
+  },
+  "mapping" : 
+	"### Beacon -> BleBeacon
+RULE
+   CONDITION
+	  CLASS :Beacon
+		:uuid TYPE xsd:string
+	AND :minor TYPE xsd:integer
+	AND :major TYPE xsd:integer
+   PRODUCTION 
+	  CLASS iosb:BleBeacon
+		 iosb:beaconId VALUE REFERENCE :uuid
+	 AND iosb:minor VALUE REFERENCE :minor
+	 AND iosb:major VALUE REFERENCE :major		 
+
+### Area -> Room
+RULE
+	CONDITION
+		CLASS :Area
+			core:name TYPE xsd:string
+		AND core:description TYPE xsd:string
+		AND :roomNo TYPE xsd:string			
+	PRODUCTION
+		CLASS iosb:Room 
+			core:name VALUE REFERENCE core:name
+		AND core:description VALUE REFERENCE core:description
+		AND iosb:roomNo VALUE REFERENCE :roomNo
+
+# Area.SeatingCapability
+RULE
+	CONDITION CLASS :Area
+		:hasFeature TYPE CLASS :SeatingCapability
+			:capacity TYPE xsd:integer
+	PRODUCTION CLASS iosb:Room
+		iosb:capacity VALUE REFERENCE :capacity	
+# Area: AirConditioning -> airConditioning
+RULE
+	CONDITION CLASS :Area
+		:hasFeature TYPE CLASS :AirConditioning
+	PRODUCTION CLASS iosb:Room
+		iosb:hasFeature VALUE iosb:airConditioning"  
+}
