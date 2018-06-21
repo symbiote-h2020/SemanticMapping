@@ -53,7 +53,9 @@ import org.apache.jena.query.Syntax;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.algebra.walker.Walker;
 import org.apache.jena.sparql.expr.E_Datatype;
+import org.apache.jena.sparql.expr.E_Regex;
 import org.apache.jena.sparql.expr.ExprAggregator;
+import org.apache.jena.sparql.expr.ExprFunction;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.ExprVars;
 import org.apache.jena.sparql.expr.ExprVisitorBase;
@@ -448,25 +450,36 @@ public class JenaHelper {
         ElementWalker.walk(query.getQueryPattern(), new ElementVisitorBase() {
             @Override
             public void visit(ElementFilter el) {
-                if (!(el.getExpr() instanceof ExprFunction2)) {
+                if (!(el.getExpr() instanceof ExprFunction)) {
                     return;
                 }
-                ExprFunction2 expr = (ExprFunction2) el.getExpr();
+
+                ExprFunction expr = (ExprFunction) el.getExpr();
                 Var varArg;
                 Node value;
                 Comparator comparator = valueRestriction.getComparator();
-                if (expr.getArg1().isVariable() && expr.getArg2().isConstant()) {
-                    varArg = expr.getArg1().asVar();
-                    value = expr.getArg2().getConstant().asNode();
-                } else if (expr.getArg2().isVariable() && expr.getArg1().isConstant()) {
+                if (expr.getArg(1).isVariable() && expr.getArg(2).isConstant()) {
+                    varArg = expr.getArg(1).asVar();
+                    value = expr.getArg(2).getConstant().asNode();
+                } else if (expr.getArg(2).isVariable() && expr.getArg(1).isConstant()) {
                     comparator = Comparator.invert(comparator);
-                    varArg = expr.getArg2().asVar();
-                    value = expr.getArg1().getConstant().asNode();
+                    varArg = expr.getArg(2).asVar();
+                    value = expr.getArg(1).getConstant().asNode();
                 } else {
                     return;
                 }
-                if (!expr.getOpName().equals(comparator.getSymbol())) {
-                    return;
+                switch (valueRestriction.getComparator()) {
+                    case Matches: {
+                        if (!(expr instanceof E_Regex)) {
+                            return;
+                        }
+                        break;
+                    }
+                    default: {
+                        if (!expr.getOpName().equals(comparator.getSymbol())) {
+                            return;
+                        }
+                    }
                 }
                 if (varArg.equals(var)
                         && value.equals(valueRestriction.getValue().asNode())) {

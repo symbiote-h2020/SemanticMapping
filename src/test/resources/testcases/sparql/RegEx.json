@@ -1,5 +1,5 @@
 {
-  "name" : "1:1 individual mapping with object match",
+  "name" : "1:1 mappings",
   "commonBase": "http://www.symbiote-h2020.eu/ontology/semanticmapping/testModel#",
   "commonPrefixes" : {
     "xsd" : "http://www.w3.org/2001/XMLSchema#",
@@ -8,23 +8,23 @@
     "owl" : "http://www.w3.org/2002/07/owl#",
     "dc" : "http://purl.org/dc/elements/1.1/"
   },
-  "inputs" : [
-	"SELECT ?x WHERE 
+  "inputs" : [ 
+	"SELECT ?x WHERE
 	{ 
-		?x :hasValue ?y. 
-		?y :hasValue :instanceOfA . 
-	}" 
-  ],
+		?x rdf:type :Person ;
+		   :name ?name .
+		FILTER regex(?name, \"[A-Z]{2,4}\")
+	}"],
   "expectedResult" : {
-	"RemoveMatchedInput": 
-		"SELECT ?x WHERE 
+	"RemoveMatchedInput":  
+		"SELECT ?x WHERE
 		{ 
-		?x :hasValue ?y. 
-		?y :hasValue :instanceOfB . 
+			?x a :B ;
 		}"
-	}		,
+	},
   "mapping" : 
 	"RULE 
-	    CONDITION INDIVIDUAL :instanceOfA 
-		PRODUCTION INDIVIDUAL :instanceOfB"
+		CONDITION CLASS :Person
+			:name VALUE MATCHES ([A-Z]{2,4})
+		PRODUCTION CLASS :B"  
 }

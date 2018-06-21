@@ -120,6 +120,7 @@ public class SparqlConditionVisitor implements ConditionVisitor<List<SparqlMatch
 
     @Override
     public List<SparqlMatch> visit(DataPropertyValueCondition condition, Query query) {
+        List<SparqlMatch> matches = null;
         List<SparqlMatch> tripleMatches = toSparqlMatch(JenaHelper.findPropertyValueRestrictionInTriplesPerSubject(query, condition.getPath(), condition.getValueRestrictions()));
         List<SparqlMatch> filterMatches = toSparqlMatch(JenaHelper.findPropertyValueRestrictionInFiltersPerSubject(query, condition.getPath(), condition.getValueRestrictions()));
         // check if all conditions are matched
