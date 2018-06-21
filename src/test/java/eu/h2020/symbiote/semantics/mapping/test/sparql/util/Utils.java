@@ -53,7 +53,7 @@ public class Utils {
     }
 
     private static File getMappingFile(String filename) throws URISyntaxException {
-        return getFile(Constants.MAPPING_DIR, filename, Constants.MAPPING_FILE_EXTENSION);
+        return getFile(Constants.EDUCAMPUS_DIR, filename, Constants.MAPPING_FILE_EXTENSION);
     }
 
     private static File getFile(String folder, String filename, String extension) throws URISyntaxException {

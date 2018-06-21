@@ -5,6 +5,8 @@
  */
 package eu.h2020.symbiote.semantics.mapping.data.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 import javafx.util.Pair;
 import org.apache.jena.graph.impl.LiteralLabel;
@@ -15,11 +17,11 @@ import org.apache.jena.graph.impl.LiteralLabel;
  */
 public interface DataElementMatch {
 
-    public default Pair<String, LiteralLabel> getValue() {
-        return null;
+    public default List<Pair<String, LiteralLabel>> getValues() {
+        return new ArrayList<>();
     }
     
-    public default boolean hasValue() {
+    public default boolean hasValues() {
         return false;
     }
     

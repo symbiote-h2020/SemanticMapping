@@ -5,55 +5,35 @@
  */
 package eu.h2020.symbiote.semantics.mapping.data.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javafx.util.Pair;
-import org.apache.jena.graph.impl.LiteralLabel;
-import org.apache.jena.ontology.Individual;
 import org.apache.jena.rdf.model.Resource;
 
 /**
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public class IndividualMatch implements DataElementMatch {
+public class IndividualMatch extends ElementMatch {
 
-    private Resource individual;
-    private List<DataElementMatch> elementMatches;
-
-    public IndividualMatch(Resource individual) {
-        this.elementMatches = new ArrayList<>();
-        this.individual = individual;
+    public static enum MatchType {
+        Subject, Predicate, Object
     }
 
-    public IndividualMatch(Resource individual, List<DataElementMatch> elementMatches) {
-        this(individual);
-        this.elementMatches = elementMatches;
+    private MatchType matchType;
+
+    public IndividualMatch(Resource individual, MatchType matchType) {
+        super(individual);
+        this.matchType = matchType;
     }
 
-    public IndividualMatch(Resource individual, DataElementMatch... elementMatches) {
-        this(individual);
-        this.elementMatches.addAll(Arrays.asList(elementMatches));
+    public IndividualMatch(Resource individual, MatchType matchType, List<DataElementMatch> elementMatches) {
+        super(individual, elementMatches);
+        this.matchType = matchType;
     }
 
-    public Resource getIndividual() {
-        return individual;
-    }
-
-    public void setIndividual(Resource individual) {
-        this.individual = individual;
-    }
-
-    @Override
-    public Stream<DataElementMatch> flatten() {
-        return Stream.concat(
-                Stream.of(this),
-                elementMatches.stream().flatMap(x -> x.flatten())
-        );
+    public IndividualMatch(Resource individual, MatchType matchType, DataElementMatch... elementMatches) {
+        super(individual, elementMatches);
+        this.matchType = matchType;
     }
 
     @Override
@@ -69,7 +49,8 @@ public class IndividualMatch implements DataElementMatch {
         }
         final IndividualMatch other = (IndividualMatch) obj;
         return Objects.equals(this.individual, other.individual)
-                && Objects.equals(this.elementMatches, this.elementMatches);
+                && Objects.equals(this.elementMatches, this.elementMatches)
+                && Objects.equals(this.matchType, other.matchType);
     }
 
     @Override
@@ -77,22 +58,16 @@ public class IndividualMatch implements DataElementMatch {
         int hash = 7;
         hash = 79 * hash + Objects.hashCode(this.individual);
         hash = 79 * hash + Objects.hashCode(this.elementMatches);
+        hash = 79 * hash + Objects.hashCode(this.matchType);
         return hash;
     }
 
-    public List<DataElementMatch> getElementMatches() {
-        return elementMatches;
+    public MatchType getMatchType() {
+        return matchType;
     }
 
-    public void setElementMatches(List<DataElementMatch> tripleMatchs) {
-        this.elementMatches = tripleMatchs;
-    }
-
-    public List<Pair<String, LiteralLabel>> getValues() {
-        return elementMatches.stream()
-                .map(x -> x.getValue())
-                .filter(x -> x != null)
-                .collect(Collectors.toList());
+    public void setMatchType(MatchType matchType) {
+        this.matchType = matchType;
     }
 
 }

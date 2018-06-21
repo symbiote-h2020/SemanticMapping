@@ -14,13 +14,16 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -363,6 +366,34 @@ public class Utils {
             }
         }
         return result;
+    }
+
+    public static <T, S extends Stream<T>> Collector<S, ?, Set<T>> intersecting() {
+        class Acc {
+
+            Set<T> result;
+
+            void accept(S s) {
+                if (result == null) {
+                    result = s.collect(Collectors.toSet());
+                } else {
+                    result.retainAll(s.collect(Collectors.toList()));
+                }
+            }
+
+            Acc combine(Acc other) {
+                if (result == null) {
+                    return other;
+                }
+                if (other.result != null) {
+                    result.retainAll(other.result);
+                }
+                return this;
+            }
+        }
+        return Collector.of(Acc::new, Acc::accept, Acc::combine,
+                acc -> acc.result == null ? Collections.emptySet() : acc.result,
+                Collector.Characteristics.UNORDERED);
     }
 
 //    private static <T> List<List<T>> getPermutations(List<T> values, int size) {

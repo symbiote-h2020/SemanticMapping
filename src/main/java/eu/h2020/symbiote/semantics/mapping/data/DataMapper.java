@@ -5,7 +5,7 @@
  */
 package eu.h2020.symbiote.semantics.mapping.data;
 
-import eu.h2020.symbiote.semantics.mapping.data.model.IndividualMatch;
+import eu.h2020.symbiote.semantics.mapping.data.model.ElementMatch;
 import eu.h2020.symbiote.semantics.mapping.model.Mapper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,7 +19,7 @@ import org.apache.jena.riot.RDFLanguages;
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public class DataMapper extends Mapper<Model, List<IndividualMatch>, Void, Model> {
+public class DataMapper extends Mapper<Model, List<ElementMatch>, Void, Model> {
 
     public DataMapper() {
         super(new DataConditionVisitor(), new DataProductionVisitor());

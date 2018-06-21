@@ -6,6 +6,8 @@
 package eu.h2020.symbiote.semantics.mapping.data.model;
 
 import eu.h2020.symbiote.semantics.mapping.sparql.utils.JenaHelper;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import javafx.util.Pair;
 import org.apache.jena.graph.Triple;
@@ -31,7 +33,7 @@ public class TripleMatch implements DataElementMatch{
         this.triple = triple;
     }
     
-    public boolean hasValue() {
+    public boolean hasValues() {
         return triple != null && triple.getObject().isLiteral();        
     }
 
@@ -58,11 +60,12 @@ public class TripleMatch implements DataElementMatch{
     }
 
     @Override
-    public Pair<String, LiteralLabel> getValue() {
-        if (!hasValue()) {
-            return null;
+    public List<Pair<String, LiteralLabel>> getValues() {
+        List<Pair<String, LiteralLabel>> result = new ArrayList<>();
+        if (hasValues()) {
+            result.add (new Pair(JenaHelper.getParameterName(triple.getPredicate()), triple.getObject().getLiteral()));            
         }
-        return new Pair(JenaHelper.getParameterName(triple.getPredicate()), triple.getObject().getLiteral());
+        return result;        
     }
 
 }

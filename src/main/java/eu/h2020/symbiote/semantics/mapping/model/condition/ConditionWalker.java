@@ -5,7 +5,7 @@
  */
 package eu.h2020.symbiote.semantics.mapping.model.condition;
 
-import eu.h2020.symbiote.semantics.mapping.data.model.IndividualMatch;
+import eu.h2020.symbiote.semantics.mapping.data.model.ElementMatch;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;

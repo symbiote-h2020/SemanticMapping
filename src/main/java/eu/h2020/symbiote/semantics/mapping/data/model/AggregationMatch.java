@@ -5,8 +5,8 @@
  */
 package eu.h2020.symbiote.semantics.mapping.data.model;
 
-import eu.h2020.symbiote.semantics.mapping.data.model.DataElementMatch;
-import java.util.UUID;
+import java.util.Arrays;
+import java.util.List;
 import javafx.util.Pair;
 import org.apache.jena.graph.impl.LiteralLabel;
 
@@ -34,12 +34,12 @@ public class AggregationMatch implements DataElementMatch {
     }
 
     @Override
-    public Pair<String, LiteralLabel> getValue() {
-        return new Pair<>(name, value);
+    public List<Pair<String, LiteralLabel>> getValues() {
+        return Arrays.asList(new Pair<>(name, value));
     }
 
     @Override
-    public boolean hasValue() {
+    public boolean hasValues() {
         return value != null;
     }
 

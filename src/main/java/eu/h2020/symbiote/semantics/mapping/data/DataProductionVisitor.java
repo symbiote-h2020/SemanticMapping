@@ -6,6 +6,7 @@
 package eu.h2020.symbiote.semantics.mapping.data;
 
 import eu.h2020.symbiote.semantics.mapping.data.model.TripleMatch;
+import eu.h2020.symbiote.semantics.mapping.data.model.ElementMatch;
 import eu.h2020.symbiote.semantics.mapping.data.model.IndividualMatch;
 import eu.h2020.symbiote.semantics.mapping.model.MappingConfig;
 import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
@@ -17,11 +18,13 @@ import eu.h2020.symbiote.semantics.mapping.model.production.IndividualProduction
 import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyTypeProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.ObjectPropertyValueProduction;
 import eu.h2020.symbiote.semantics.mapping.model.production.ProductionVisitorSimple;
+import eu.h2020.symbiote.semantics.mapping.model.production.ProductionWalker;
 import eu.h2020.symbiote.semantics.mapping.model.value.Value;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -36,30 +39,61 @@ import org.apache.jena.vocabulary.RDF;
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public class DataProductionVisitor extends AbstractProductionVisitor<Model, List<IndividualMatch>, Void, Model> implements ProductionVisitorSimple<Model, List<IndividualMatch>, Model> {
+public class DataProductionVisitor extends AbstractProductionVisitor<Model, List<ElementMatch>, Void, Model> implements ProductionVisitorSimple<Model, List<ElementMatch>, Model> {
 
     private Model model;
 
     @Override
-    public void visit(IndividualProduction production, MappingContext context, List<IndividualMatch> args) {
+    public void visit(IndividualProduction production, MappingContext context, List<ElementMatch> args) {
         remove(args);
-        // filter for TripleMatch
-        args.forEach(
-                x -> x.getElementMatches().stream()
+        for (ElementMatch match : args) {
+            if (match instanceof IndividualMatch) {
+                // individual to individual mapping
+                // meaning: replace in every occurance
+                // TODO handle properly
+                match.getElementMatches().stream()
                         .filter(y -> y instanceof TripleMatch)
                         .map(y -> ((TripleMatch) y))
                         .forEach(
-                                y -> add(x.getIndividual(), y.getTriple().getPredicate(), production.getUri())));
+                                y -> add(match.getIndividual(), y.getTriple().getPredicate(), production.getUri()));
+            } else {
+                // class to individual mapping
+                // meaning: replace occurance of instance of class as object with individual  
+                match.flatten()
+                        .filter(x -> x instanceof TripleMatch)
+                        .map(x -> ((TripleMatch) x))
+                        .filter(x -> x.getTriple().getObject().equals(match.getIndividual()))
+                        .forEach(x -> add(x.getTriple().getSubject(), x.getTriple().getPredicate(), production.getUri()));
+            }
+        }
+
+        // filter for TripleMatch
     }
 
     @Override
-    public void visit(ClassProduction production, MappingContext context, List<IndividualMatch> args) {
+    public void visit(ClassProduction production, MappingContext context, List<ElementMatch> args) {
         remove(args);
-        args.forEach(x -> add(x.getIndividual(), RDF.type, production.getUri()));
+        args.forEach(x -> {
+            if (x instanceof IndividualMatch) {
+                IndividualMatch y = ((IndividualMatch) x);
+                if (y.getMatchType() == IndividualMatch.MatchType.Object) {
+                    Resource node = model.createResource();
+                    add(node, RDF.type, production.getUri());
+                    y.getElementMatches().stream()
+                            .filter(z -> z instanceof TripleMatch)
+                            .map(z -> (TripleMatch) z)
+                            .forEach(z -> {
+                                add(z.getTriple().getSubject(), z.getTriple().getPredicate(), node.asNode());
+                            });
+                }
+            } else {
+                add(x.getIndividual(), RDF.type, production.getUri());
+            }
+        });
     }
 
     @Override
-    public void visit(DataPropertyProduction production, MappingContext context, List<IndividualMatch> args) {
+    public void visit(DataPropertyProduction production, MappingContext context, List<ElementMatch> args) {
         remove(args);
         args.forEach(x -> {
             List<Node> values = Value.eval(production.getValue(), context, x.getValues());
@@ -84,16 +118,28 @@ public class DataProductionVisitor extends AbstractProductionVisitor<Model, List
     }
 
     @Override
-    public void visit(ObjectPropertyTypeProduction production, MappingContext context, List<IndividualMatch> args) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void visit(ObjectPropertyTypeProduction production, MappingContext context, List<ElementMatch> args) {
+        remove(args);
+        args.forEach(x -> {
+            // create anaon node
+//            Node node = NodeFactory.createBlankNode();      
+            Resource node = model.createResource();
+            ElementMatch match = new ElementMatch(node);
+            match.setElementMatches(x.getElementMatches());
+            ProductionWalker.walk(production.getDatatype(), this, context, Arrays.asList(match));
+            add(x.getIndividual(), production.getPath(), node.asNode());
+        });
     }
 
     @Override
-    public void visit(ObjectPropertyValueProduction production, MappingContext context, List<IndividualMatch> args) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void visit(ObjectPropertyValueProduction production, MappingContext context, List<ElementMatch> args) {
+        remove(args);
+        args.forEach(x -> {
+            add(x.getIndividual(), production.getPath(), production.getUri());
+        });
     }
 
-    private void remove(List<IndividualMatch> matches) {
+    private void remove(List<ElementMatch> matches) {
         if (config.getRetentionPolicy() == RetentionPolicy.RemoveMatchedInput) {
             matches.stream().flatMap(x -> x.flatten())
                     .filter(x -> x instanceof TripleMatch)
