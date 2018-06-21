@@ -43,6 +43,9 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.Selector;
+import org.apache.jena.rdf.model.SimpleSelector;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.core.VarAlloc;
@@ -131,22 +134,44 @@ public class DataConditionVisitor implements ConditionVisitor<List<ElementMatch>
         }
     }
 
-    @Override
-    public List<ElementMatch> visit(IndividualCondition condition, Model model) {
+    private List<ElementMatch> findTripleMatches(Model model, Node node, IndividualMatch.MatchType matchType) {
+        Selector selector = null;
+        switch (matchType) {
+            case Subject: {
+                selector = new SimpleSelector(model.createResource(node.getURI()), null, (RDFNode) null);
+                break;
+            }
+            case Predicate: {
+                selector = new SimpleSelector(null, model.createProperty(node.getURI()), (RDFNode) null);
+                break;
+            }
+            case Object: {
+                selector = new SimpleSelector(null, null, model.createProperty(node.getURI()));
+                break;
+            }
+        }
         return model
-                .listStatements(null, null, model.createResource(condition.getUri().getURI()))
+                .listStatements(selector)
                 .toList().stream()
                 .collect(Collectors.groupingBy(x -> x.getSubject()))
                 .entrySet().stream()
                 .map(x -> {
                     return new IndividualMatch(
                             x.getKey(),
-                            IndividualMatch.MatchType.Object,
+                            matchType,
                             x.getValue().stream()
                                     .map(y -> new TripleMatch(y.asTriple()))
                                     .collect(Collectors.toList()));
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ElementMatch> visit(IndividualCondition condition, Model model) {
+        return mergeOr(Stream.of(
+                findTripleMatches(model, condition.getUri(), IndividualMatch.MatchType.Subject),
+                findTripleMatches(model, condition.getUri(), IndividualMatch.MatchType.Predicate),
+                findTripleMatches(model, condition.getUri(), IndividualMatch.MatchType.Object)));
     }
 
     private Query createQuery(Path path, Node value) {

@@ -50,12 +50,26 @@ public class DataProductionVisitor extends AbstractProductionVisitor<Model, List
             if (match instanceof IndividualMatch) {
                 // individual to individual mapping
                 // meaning: replace in every occurance
-                // TODO handle properly
+                // distinguish subject, predicate and object match
                 match.getElementMatches().stream()
                         .filter(y -> y instanceof TripleMatch)
                         .map(y -> ((TripleMatch) y))
-                        .forEach(
-                                y -> add(match.getIndividual(), y.getTriple().getPredicate(), production.getUri()));
+                        .forEach(y -> {
+                            switch (((IndividualMatch) match).getMatchType()) {
+                                case Subject: {
+                                    add(production.getUri(), y.getTriple().getPredicate(), y.getTriple().getObject());
+                                    break;
+                                }
+                                case Predicate: {
+                                    add(y.getTriple().getSubject(), production.getUri(), y.getTriple().getObject());
+                                    break;
+                                }
+                                case Object: {
+                                    add(y.getTriple().getSubject(), y.getTriple().getPredicate(), production.getUri());
+                                    break;
+                                }
+                            }
+                        });
             } else {
                 // class to individual mapping
                 // meaning: replace occurance of instance of class as object with individual  
