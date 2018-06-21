@@ -145,6 +145,11 @@ TOKEN:
 |	<FCT_NAME: (<PN_CHARS_BASE>)+>
 }
 
+SKIP :
+{
+    <"#" (~["\n","\r"])* ("\n" | "\r" | "\r\n")>
+}
+
 
 
 /** Main production. */
