@@ -696,6 +696,36 @@ public class MappingExamples {
                     + "      :hasChild TYPE ( CLASS ANY \n"
                     + "         AGGREGATION COUNT >=2 \n"
                     + "		:age VALUE >=18 )\n"
-                    + "	   PRODUCTION CLASS :PersonWithTwoAdultChildren"));
+                    + "	   PRODUCTION CLASS :PersonWithTwoAdultChildren"),
+            /**
+             * multi-level production
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .rules(new MappingRule(
+                                    new UriClassCondition(TEST_MODEL.A),
+                                    new ClassProduction(
+                                            TEST_MODEL.B,
+                                            new ObjectPropertyTypeProduction(
+                                                    TEST_MODEL.hasValue,
+                                                    new ClassProduction(TEST_MODEL.C,
+                                                            new ObjectPropertyTypeProduction(
+                                                                    TEST_MODEL.hasValue,
+                                                                    new ClassProduction(
+                                                                            TEST_MODEL.D,
+                                                                            new DataPropertyProduction(
+                                                                                    TEST_MODEL.hasValue2,
+                                                                                    ConstantValue.fromString("foo")))))))))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "RULE \n"
+                    + "   CONDITION CLASS :A \n"
+                    + "   PRODUCTION CLASS :B"
+                    + "      :hasValue TYPE CLASS :C"
+                    + "         :hasValue TYPE CLASS :D"
+                    + "            :hasValue2 VALUE \"foo\"")
+    );
 
 }

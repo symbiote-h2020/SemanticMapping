@@ -461,9 +461,10 @@ IndividualProduction ProductionIndividual() : {Node n = null;}
     }
 }
 
-ClassProduction ProductionClass() : {Node n; PropertyProduction p; List<PropertyProduction> ps = new ArrayList<PropertyProduction>();}
+ClassProduction ProductionClass() : {Node n; PropertyProduction p; List<PropertyProduction> ps = new ArrayList<PropertyProduction>(); ClassProduction c;}
 {
-    (<CLASS> n=IRI() (LOOKAHEAD(2147483647)(p=ProductionProperty(){ ps.add(p); }) (LOOKAHEAD(2147483647)<AND> (p=ProductionProperty(){ ps.add(p); }))*)?)
+    LOOKAHEAD(20000) (<LB> c = ProductionClass() <RB>) {return c;}
+    | (<CLASS> n=IRI() (LOOKAHEAD(2147483647)(p=ProductionProperty(){ ps.add(p); }) (LOOKAHEAD(2147483647)<AND> (p=ProductionProperty(){ ps.add(p); }))*)?)
     {
         return new ClassProduction(n, ps);
     }
