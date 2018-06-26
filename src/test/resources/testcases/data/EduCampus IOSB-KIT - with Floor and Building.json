@@ -1,0 +1,119 @@
+{
+  "name" : "EduCampus IOSB to KIT mapping including Floor and Building class",
+  "commonBase": "http://iosb.fraunhofer.de/ilt/ontologies/educampus#",
+  "commonPrefixes" : {
+	"kit": "http://cm.kit.edu/smartcampus/pim#",    
+	"rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",    
+    "owl" : "http://www.w3.org/2002/07/owl#",
+	"xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "core" : "http://www.symbiote-h2020.eu/ontology/core#"
+  },
+  "inputs" : [ 
+	":beacon1-iosb a :BleBeacon ;
+	:beaconId \"beacon1-iosb-beaconId\"^^xsd:string ;
+	:minor \"1\"^^xsd:integer ;
+	:major \"2\"^^xsd:integer .
+	
+	:RoomS021 a :Room ;
+	core:name \"S021\" ;
+	core:description \"ILT meeting room\" ;
+	:capacity \"10\"^^xsd:integer ;
+	:roomNo \"S021\"^^xsd:string ;
+	:hasFeature :airConditioning , :whiteboard, :projector . "
+  ],
+  "expectedResult" : {
+	"RemoveAllInput": ":beacon1-iosb a kit:Beacon ;
+	kit:uuid \"beacon1-iosb-beaconId\"^^xsd:string ;
+	kit:minor \"1\"^^xsd:integer ;
+	kit:major \"2\"^^xsd:integer ;
+	core:description \"mapped beacon from IOSB EduCampus\"^^xsd:string .
+	
+	:RoomS021 a kit:Area ;
+	core:name \"S021\" ;
+	core:description \"ILT meeting room\" ;
+	kit:roomNo \"S021\"^^xsd:string ;
+	kit:hasFeature [
+		a kit:SeatingCapability ;
+		kit:capacity \"10\"^^xsd:integer
+	] ;
+	kit:hasFeature [
+		a kit:AirConditioning
+	] ;
+	kit:isOnFloor [
+		a kit:Floor ;
+		core:name \"ground floor\" ;
+		kit:isInBuilding [
+			a kit:Building ;
+			core:name \"Fraunhofer IOSB building Karlsruhe\";
+		]
+	]."
+  },
+  "mapping" : 
+	"
+	TRANSFORMATION getFloorName { 
+		var level = parameters[0].substring(1,2);
+		switch(level) {
+			case \"0\": {
+				\"ground floor\";
+				break;
+			}
+			case \"1\": {
+				\"first floor\";
+				break;
+			}
+			case \"2\": {
+				\"second floor\";
+				break;
+			}
+			case \"3\": {
+				\"third floor\";
+				break;
+			}
+			default: {
+				level + \"th floor\";
+			}
+			
+		}
+	}
+	
+	RULE
+   CONDITION
+	  CLASS :BleBeacon
+		:beaconId TYPE xsd:string
+	AND :minor TYPE xsd:integer
+	AND :major TYPE xsd:integer
+   PRODUCTION 
+	  CLASS kit:Beacon
+		 kit:uuid VALUE REFERENCE :beaconId
+	 AND kit:minor VALUE REFERENCE :minor
+	 AND kit:major VALUE REFERENCE :major
+	 AND core:description VALUE \"mapped beacon from IOSB EduCampus\"
+		 
+		 
+RULE
+	CONDITION
+		CLASS :Room 
+			core:name TYPE xsd:string
+		AND core:description TYPE xsd:string
+		AND :capacity TYPE xsd:integer
+		AND :roomNo TYPE xsd:string
+	PRODUCTION 
+		 ( CLASS kit:Area
+			core:name VALUE REFERENCE core:name
+		AND core:description VALUE REFERENCE core:description
+		AND kit:roomNo VALUE REFERENCE :roomNo
+		AND kit:hasFeature TYPE ( CLASS kit:SeatingCapability
+				kit:capacity VALUE REFERENCE :capacity )
+		AND kit:isOnFloor TYPE CLASS kit:Floor
+				core:name VALUE getFloorName(REFERENCE :roomNo)
+			AND kit:isInBuilding TYPE CLASS kit:Building
+					core:name VALUE \"Fraunhofer IOSB building Karlsruhe\" )
+
+RULE
+	CONDITION CLASS :Room
+		:hasFeature VALUE :airConditioning
+	PRODUCTION CLASS kit:Area	
+		kit:hasFeature TYPE CLASS kit:AirConditioning
+"  
+}

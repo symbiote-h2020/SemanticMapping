@@ -33,7 +33,6 @@ public class EduCampusMappingTest {
     private static final String PREFIX_KIT = "PREFIX kit: <" + KIT + "> \n";
     private static final String PREFIX_IOSB = "PREFIX iosb: <" + IOSB + "> \n";
 
-    
     public void dataTransformationIOSBtoKIT() throws IOException, ParseException, URISyntaxException, UnsupportedMappingException {
         OntModel input = ModelFactory.createOntologyModel();
         input.read(Constants.EDUCAMPUS_DIR + "//IOSB data.ttl");
