@@ -628,6 +628,32 @@ public class MappingExamples {
                     + "   PRODUCTION CLASS :B \n"
                     + "      :hasValue2 VALUE toStringLocal(REFERENCE :hasValue)"),
             /**
+             * production class with complex transformation function (including curly brackets)
+             */
+            new Pair<Mapping, String>(
+                    new Mapping.Builder()
+                            .base(TEST_MODEL.NS)
+                            .transformations(new JavaScriptTransformation("complexFunction", "if (true) { parameters[0].toString(); } else null"))
+                            .rules(new MappingRule(
+                                    new UriClassCondition(
+                                            TEST_MODEL.A,
+                                            new PropertyPathCondition(TEST_MODEL.hasValue)),
+                                    new ClassProduction(
+                                            TEST_MODEL.B,
+                                            new DataPropertyProduction(
+                                                    TEST_MODEL.hasValue2,
+                                                    new TransformationValue("complexFunction",
+                                                            new ReferenceValue(TEST_MODEL.hasValue))))))
+                            .build(),
+                    BASE
+                    + PREFIX_XSD
+                    + "TRANSFORMATION complexFunction { if (true) { parameters[0].toString(); } else null } "
+                    + "RULE \n"
+                    + "   CONDITION CLASS :A \n"
+                    + "      :hasValue"
+                    + "   PRODUCTION CLASS :B \n"
+                    + "      :hasValue2 VALUE complexFunction(REFERENCE :hasValue)"),
+            /**
              * production class with global transformation property data value
              */
             new Pair<Mapping, String>(
