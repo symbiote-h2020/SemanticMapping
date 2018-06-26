@@ -65,7 +65,7 @@ TOKEN :
     <#WS: " " | "\t" | "\r" | "\n" | "\f">
 }
 
-SKIP :
+<DEFAULT, TRANSFORMATION_STATE> SKIP :
 {
     <WHITESPACE: <WS>>
 }
@@ -121,7 +121,6 @@ TOKEN [IGNORE_CASE] :
 |       <MAX: "MAX">
 |       <COUNT: "COUNT">
 |       <AGGREGATION: "AGGREGATION">
-|       <TRANSFORMATION: "TRANSFORMATION">
 |       <REFERENCE: "REFERENCE">
 |       <ANY: "ANY">
 |       <MATCHES: "MATCHES"> : REGEX_STATE
@@ -142,7 +141,9 @@ TOKEN:
 | 	<IRIABS: "<" (~[ ">","<", "\"", "{", "}", "^", "\\", "|", "`", "\u0000"-"\u0020"])* ">">
 |       <PNAME_NS: (<PN_PREFIX>)? ":">
 |	<PNAME_LN: <PNAME_NS> <PN_LOCAL>>
+|       <TRANSFORMATION: "TRANSFORMATION"> : TRANSFORMATION_STATE
 |	<FCT_NAME: (<PN_CHARS_BASE>)+>
+
 }
 
 SKIP :
@@ -185,28 +186,61 @@ void Prefix() : {Token tp; Token ti;}
 }
 
 TOKEN_MGR_DECLS : {
-    int bracketNestingDepth ;
+    static int bracketNestingDepth ;
     int quotesNestingDepth ; 
     static int regexBracketNestingDepth = 0;   
 }
 
-SKIP : {  "{" { bracketNestingDepth = 1 ; } : JS_CODE }
-<JS_CODE>  SKIP : {  "{" { bracketNestingDepth += 1 ; } }
-<JS_CODE>  TOKEN : {  <CODE:"}"> { bracketNestingDepth -= 1; SwitchTo( bracketNestingDepth==0 ? DEFAULT : JS_CODE ) ; }}
-<JS_CODE>  MORE : {  < ~[] > }
+<TRANSFORMATION_STATE> TOKEN :  
+{    
+    <JS_FCT_NAME: (~["{", " "])+ (<WS>)* "{"> : JS_CODE_STATE
+}
+
+<JS_CODE_STATE> TOKEN :  
+{
+    <JS_CODE_OPEN:"{"> 
+    | <JS_CODE_CLOSE:"}"> {
+            if (bracketNestingDepth == 1) {
+                SwitchTo(DEFAULT);
+            }
+        }
+    | <JS_CODE_ESCAPED: "\\" ~[]>
+    | <JS_CODE_ANY: ~[]>
+}
+
+JAVACODE
+String js_code_skip_to_matching_brace() {
+  Token tok;
+  MappingParserTokenManager.bracketNestingDepth = 1;
+  String temp = "";
+  while (true) {
+    tok = getToken(1);
+    temp += tok.image;
+    if (tok.kind == JS_CODE_OPEN) MappingParserTokenManager.bracketNestingDepth++;
+    if (tok.kind == JS_CODE_CLOSE) {
+      MappingParserTokenManager.bracketNestingDepth--;
+         if (MappingParserTokenManager.bracketNestingDepth == 0) break;
+    }
+    tok = getNextToken();
+  }
+  getNextToken();
+  temp = temp.trim();
+  temp = temp.substring(0, temp.length() -1).trim();
+  return temp;
+}
 
 
-
-void Transformation(Mapping m) : {Token name; Token t;}
+void Transformation(Mapping m) : {Token t; Token name; String code;}
 {
     (
-        <TRANSFORMATION> 
-        name = <FCT_NAME> 
-        t = <CODE>
+        t=<TRANSFORMATION>
+        name = <JS_FCT_NAME>
+        code = js_code_skip_to_matching_brace()
     )
     {
-        String code = t.image.substring(0, t.image.length()-1).trim();
-        m.getTransformations().add(new JavaScriptTransformation(name.image, code));
+        m.getTransformations().add(new JavaScriptTransformation(
+            name.image.substring(0, name.image.length()-1).trim(), 
+            code));
     }    
 }
 
@@ -529,7 +563,7 @@ Node IRIPrefix() : {Token t;}
 }
 
 JAVACODE
-String skip_to_matching_brace() {
+String regex_skip_to_matching_brace() {
   Token tok;
   MappingParserTokenManager.regexBracketNestingDepth = 0;
   String temp = "";
@@ -549,6 +583,8 @@ String skip_to_matching_brace() {
   return temp;
 }
 
+
+
 <REGEX_STATE> TOKEN :  
 {
     <REGEX_OPEN:<LB>>
@@ -563,7 +599,7 @@ String skip_to_matching_brace() {
 
 ValueCondition ValueCondition() : {Comparator c; ConstantValue v; String t;}
 {
-    ((c=Comparator() v=ConstantValue()) | (<MATCHES> t=skip_to_matching_brace() { c=Comparator.Matches; v=ConstantValue.fromString(t); }))
+    ((c=Comparator() v=ConstantValue()) | (<MATCHES> t=regex_skip_to_matching_brace() { c=Comparator.Matches; v=ConstantValue.fromString(t); }))
     {
         return new ValueCondition(c, v);
     }
