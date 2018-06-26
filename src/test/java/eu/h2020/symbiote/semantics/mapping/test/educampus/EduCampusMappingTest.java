@@ -58,7 +58,6 @@ public class EduCampusMappingTest {
         return out.toString();
     }
 
-    @Test
     public void testParseMappingIOSBtoKIT() throws IOException, ParseException, URISyntaxException {
         Mapping parsed = Utils.getMapping(Constants.MAPPING_EDUCAMPUS_IOSB_TO_KIT);
         String printed = parsed.asString();
