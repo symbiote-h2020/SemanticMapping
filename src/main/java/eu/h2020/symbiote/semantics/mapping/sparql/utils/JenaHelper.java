@@ -680,16 +680,36 @@ public class JenaHelper {
     }
 
     public static void addToQuery(Query query, ElementPathBlock pathBlock, TriplePath path) {
+        ElementPathBlock toAdd = pathBlock;
+        if (query.getQueryPattern() instanceof ElementGroup) {
+            ElementGroup group = (ElementGroup) query.getQueryPattern();
+            if (group.isEmpty()) {
+                toAdd = new ElementPathBlock();
+                group.addElement(toAdd);
+            }
+        }
         Element result = org.apache.jena.sparql.syntax.syntaxtransform.ElementTransformer.transform(query.getQueryPattern(), new ElementTransformCopyBase() {
+            private ElementPathBlock blockToAddTo;
+
+            public ElementTransformCopyBase init(ElementPathBlock blockToAddTo) {
+                this.blockToAddTo = blockToAddTo;
+                return this;
+            }
+
+            @Override
+            public Element transform(ElementGroup el, List<Element> elts) {
+                return super.transform(el, elts); //To change body of generated methods, choose Tools | Templates.
+            }
+
             @Override
             public Element transform(ElementPathBlock el) {
-                if (!el.equals(pathBlock)) {
+                if (!el.equals(blockToAddTo)) {
                     super.transform(el);
                 }
                 el.getPattern().add(path);
                 return el;
             }
-        });
+        }.init(toAdd));
         query.setQueryPattern(result);
     }
 

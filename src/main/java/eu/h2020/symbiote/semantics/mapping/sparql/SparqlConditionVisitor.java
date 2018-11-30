@@ -60,7 +60,7 @@ public class SparqlConditionVisitor implements ConditionVisitor<List<SparqlMatch
                     return new IndividualMatch(tripleMatch.getPathBlock(), tripleMatch.getPath(), IndividualMatch.Position.Subject);
                 });
 
-        List<SparqlMatch> matchesAsPredicate = toSparqlMatch(JenaHelper.findMatchesPerPredicate(query, x -> x.getObject().equals(condition.getUri())),
+        List<SparqlMatch> matchesAsPredicate = toSparqlMatch(JenaHelper.findMatchesPerPredicate(query, x -> x.getPredicate().equals(condition.getUri())),
                 x -> {
                     TriplePathMatch tripleMatch = (TriplePathMatch) x;
                     return new IndividualMatch(tripleMatch.getPathBlock(), tripleMatch.getPath(), IndividualMatch.Position.Predicate);
