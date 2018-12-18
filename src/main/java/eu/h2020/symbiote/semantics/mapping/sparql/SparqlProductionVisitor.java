@@ -187,6 +187,7 @@ public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, Li
                     TriplePath newTriple = new TriplePath(subject, predicate, object);
                     JenaHelper.removeFromQuery(query, individualMatch.getPathBlock(), individualMatch.getPath());
                     JenaHelper.addToQuery(query, individualMatch.getPathBlock(), newTriple);
+                    
                 }
             } else {
                 // if VAR is in selected parameters, add Filter                

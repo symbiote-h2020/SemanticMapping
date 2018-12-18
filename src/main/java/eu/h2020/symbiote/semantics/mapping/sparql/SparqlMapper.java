@@ -46,6 +46,10 @@ public class SparqlMapper extends Mapper<Query, List<SparqlMatch>, Void, Query> 
         postprocessQuery(result);
         return result;
     }
+        
+    public String map(String input, Mapping mapping, MappingConfig config) throws UnsupportedMappingException {
+        return map(QueryFactory.create(input), mapping, config).toString();
+    }
 
     public void preprocessQuery(Query query) {
         QueryTransformer.transform(

@@ -75,7 +75,7 @@ public class SparqlConditionVisitor implements ConditionVisitor<List<SparqlMatch
 
     @Override
     public List<SparqlMatch> visit(UriClassCondition condition, Query query) {
-        return toSparqlMatch(JenaHelper.findVarsByClass(query, condition.getUri()));
+        return toSparqlMatch(JenaHelper.findVarsByObjectClass(query, condition.getUri()));
     }
 
     @Override
