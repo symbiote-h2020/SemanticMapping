@@ -1,0 +1,132 @@
+[ a                               <http://example.org#PersonA> ;
+  <http://example.org#age>        30 ;
+  <http://example.org#firstName>  "Rishi" ;
+  <http://example.org#hasChild>   [ a                               <http://example.org#PersonA> ;
+                                    <http://example.org#age>        13 ;
+                                    <http://example.org#firstName>  "Layne" ;
+                                    <http://example.org#lastName>   "Mariam Santana"
+                                  ] ;
+  <http://example.org#lastName>   "Trevino"
+] .
+
+[ a                               <http://example.org#PersonA> ;
+  <http://example.org#age>        79 ;
+  <http://example.org#firstName>  "Presley" ;
+  <http://example.org#lastName>   "Santos"
+] .
+
+[ a                               <http://example.org#PersonA> ;
+  <http://example.org#age>        20 ;
+  <http://example.org#firstName>  "Leonel" ;
+  <http://example.org#hasChild>   [ a                               <http://example.org#PersonA> ;
+                                    <http://example.org#age>        3 ;
+                                    <http://example.org#firstName>  "Richard" ;
+                                    <http://example.org#lastName>   "Adams"
+                                  ] ;
+  <http://example.org#lastName>   "Adams"
+] .
+
+[ a                               <http://example.org#PersonA> ;
+  <http://example.org#age>        19 ;
+  <http://example.org#firstName>  "Liberty" ;
+  <http://example.org#hasChild>   [ a                               <http://example.org#PersonA> ;
+                                    <http://example.org#age>        1 ;
+                                    <http://example.org#firstName>  "Mollie" ;
+                                    <http://example.org#lastName>   "Rogers"
+                                  ] ;
+  <http://example.org#hasChild>   [ a                               <http://example.org#PersonA> ;
+                                    <http://example.org#age>        1 ;
+                                    <http://example.org#firstName>  "Kayleigh" ;
+                                    <http://example.org#lastName>   "Frazier"
+                                  ] ;
+  <http://example.org#hasChild>   [ a                               <http://example.org#PersonA> ;
+                                    <http://example.org#age>        3 ;
+                                    <http://example.org#firstName>  "Ryleigh" ;
+                                    <http://example.org#lastName>   "Hebert"
+                                  ] ;
+  <http://example.org#hasChild>   [ a                               <http://example.org#PersonA> ;
+                                    <http://example.org#age>        3 ;
+                                    <http://example.org#firstName>  "Rhett" ;
+                                    <http://example.org#lastName>   "Blevins"
+                                  ] ;
+  <http://example.org#lastName>   "Trevino" ;
+  <http://example.org#owns>       [ a                              <http://example.org#Car> ;
+                                    <http://example.org#hasFeature>
+                                            [ a                          <http://example.org#Feature> ;
+                                              <http://example.org#name>  "ABS"
+                                            ] ;
+                                    <http://example.org#hasFeature>
+                                            [ a                          <http://example.org#Feature> ;
+                                              <http://example.org#name>  "sun roof"
+                                            ] ;
+                                    <http://example.org#hasSeats>  1
+                                  ]
+] .
+
+[ a                               <http://example.org#PersonA> ;
+  <http://example.org#age>        53 ;
+  <http://example.org#firstName>  "Presley" ;
+  <http://example.org#hasChild>   [ a                               <http://example.org#PersonA> ;
+                                    <http://example.org#age>        6 ;
+                                    <http://example.org#firstName>  "Mariam" ;
+                                    <http://example.org#lastName>   "Evans"
+                                  ] ;
+  <http://example.org#hasChild>   [ a                               <http://example.org#PersonA> ;
+                                    <http://example.org#age>        33 ;
+                                    <http://example.org#firstName>  "Julius" ;
+                                    <http://example.org#lastName>   "Mcknight"
+                                  ] ;
+  <http://example.org#lastName>   "Jennings"
+] .
+
+[ a                               <http://example.org#PersonA> ;
+  <http://example.org#age>        32 ;
+  <http://example.org#firstName>  "Avery" ;
+  <http://example.org#hasChild>   [ a                               <http://example.org#PersonA> ;
+                                    <http://example.org#age>        15 ;
+                                    <http://example.org#firstName>  "Robert" ;
+                                    <http://example.org#lastName>   "Barrera"
+                                  ] ;
+  <http://example.org#hasChild>   [ a                               <http://example.org#PersonA> ;
+                                    <http://example.org#age>        4 ;
+                                    <http://example.org#firstName>  "Richard" ;
+                                    <http://example.org#lastName>   "Bailey"
+                                  ] ;
+  <http://example.org#hasChild>   [ a                               <http://example.org#PersonA> ;
+                                    <http://example.org#age>        1 ;
+                                    <http://example.org#firstName>  "Phoebe" ;
+                                    <http://example.org#lastName>   "Mariam Santana"
+                                  ] ;
+  <http://example.org#hasChild>   [ a                               <http://example.org#PersonA> ;
+                                    <http://example.org#age>        13 ;
+                                    <http://example.org#firstName>  "Rishi" ;
+                                    <http://example.org#lastName>   "Carroll"
+                                  ] ;
+  <http://example.org#lastName>   "Santos" ;
+  <http://example.org#owns>       [ a                              <http://example.org#Car> ;
+                                    <http://example.org#hasSeats>  2
+                                  ]
+] .
+
+[ a                               <http://example.org#PersonA> ;
+  <http://example.org#age>        46 ;
+  <http://example.org#firstName>  "Emmett" ;
+  <http://example.org#hasChild>   [ a                               <http://example.org#PersonA> ;
+                                    <http://example.org#age>        1 ;
+                                    <http://example.org#firstName>  "Liberty" ;
+                                    <http://example.org#lastName>   "Carr"
+                                  ] ;
+  <http://example.org#hasChild>   [ a                               <http://example.org#PersonA> ;
+                                    <http://example.org#age>        14 ;
+                                    <http://example.org#firstName>  "Ryleigh" ;
+                                    <http://example.org#lastName>   "Humphrey"
+                                  ] ;
+  <http://example.org#lastName>   "Carroll" ;
+  <http://example.org#owns>       [ a                              <http://example.org#Car> ;
+                                    <http://example.org#hasFeature>
+                                            [ a                          <http://example.org#Feature> ;
+                                              <http://example.org#name>  "A/C"
+                                            ] ;
+                                    <http://example.org#hasSeats>  9
+                                  ]
+] .

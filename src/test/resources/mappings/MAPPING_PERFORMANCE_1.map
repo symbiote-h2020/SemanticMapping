@@ -1,0 +1,10 @@
+BASE <http://example.org#>
+
+TRANSFORMATION concat { Array.prototype.join.call(parameters, ' '); }
+
+RULE 
+    CONDITION CLASS :PersonA 
+            :firstName TYPE xsd:string 
+        AND :lastName TYPE xsd:string  
+    PRODUCTION CLASS :PersonB 
+            :name VALUE concat ( REFERENCE :firstName , REFERENCE :lastName )

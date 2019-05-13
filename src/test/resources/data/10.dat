@@ -1,0 +1,16 @@
+[ a                               <http://example.org#PersonA> ;
+  <http://example.org#age>        48 ;
+  <http://example.org#firstName>  "Julius" ;
+  <http://example.org#hasChild>   [ a                               <http://example.org#PersonA> ;
+                                    <http://example.org#age>        32 ;
+                                    <http://example.org#firstName>  "Layne" ;
+                                    <http://example.org#lastName>   "Rogers"
+                                  ] ;
+  <http://example.org#lastName>   "Davila"
+] .
+
+[ a                               <http://example.org#PersonA> ;
+  <http://example.org#age>        80 ;
+  <http://example.org#firstName>  "Emmett" ;
+  <http://example.org#lastName>   "Evans"
+] .

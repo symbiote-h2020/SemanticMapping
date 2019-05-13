@@ -23,7 +23,7 @@ import org.apache.jena.query.QueryFactory;
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public class SparqlMapper extends Mapper<Query, List<SparqlMatch>, Void, Query> {
+public class SparqlMapper extends Mapper<Query, List<SparqlMatch>, Void> {
 
     public SparqlMapper() {
         super(new SparqlSupportedChecker(), new SparqlConditionVisitor(), new SparqlProductionVisitor());

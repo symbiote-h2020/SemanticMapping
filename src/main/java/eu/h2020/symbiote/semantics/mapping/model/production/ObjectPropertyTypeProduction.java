@@ -31,8 +31,8 @@ public class ObjectPropertyTypeProduction extends ObjectPropertyProduction {
         super(path);
         this.datatype = datatype;
     }
-    
-        public ObjectPropertyTypeProduction(OntProperty property, ClassProduction datatype) {
+
+    public ObjectPropertyTypeProduction(OntProperty property, ClassProduction datatype) {
         super(property);
         this.datatype = datatype;
     }
@@ -75,7 +75,7 @@ public class ObjectPropertyTypeProduction extends ObjectPropertyProduction {
     }
 
     @Override
-    public <I, TC, TP, O> TP accept(MappingContext context, ProductionVisitor<I, TC, TP, O> visitor, TC args) {
+    public <T, TC, TP> TP accept(MappingContext context, ProductionVisitor<T, TC, TP> visitor, TC args) {
         return visitor.visit(context, this, args);
     }
 }

@@ -1,0 +1,8 @@
+BASE <http://example.org#>
+
+RULE
+    CONDITION CLASS :PersonA
+        :hasChild TYPE CLASS ANY
+                AGGREGATION COUNT >=2
+                    :age VALUE >=18
+    PRODUCTION CLASS :PersonWithTwoAdultChildren

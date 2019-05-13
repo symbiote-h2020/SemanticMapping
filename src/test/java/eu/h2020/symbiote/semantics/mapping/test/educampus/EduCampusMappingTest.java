@@ -36,7 +36,7 @@ public class EduCampusMappingTest {
     public void dataTransformationIOSBtoKIT() throws IOException, ParseException, URISyntaxException, UnsupportedMappingException {
         OntModel input = ModelFactory.createOntologyModel();
         input.read(Constants.EDUCAMPUS_DIR + "//IOSB data.ttl");
-        Mapping mapping = Utils.getMapping(Constants.MAPPING_EDUCAMPUS_IOSB_TO_KIT);
+        Mapping mapping = Utils.getMapping(Constants.EDUCAMPUS_DIR, Constants.MAPPING_EDUCAMPUS_IOSB_TO_KIT);
         Model result = new DataMapper().map(input, mapping);
         String t = modelToString(result);
         String g = "";
@@ -46,7 +46,7 @@ public class EduCampusMappingTest {
     public void dataTransformationKITtoIOSB() throws IOException, ParseException, URISyntaxException, UnsupportedMappingException {
         OntModel input = ModelFactory.createOntologyModel();
         input.read(Constants.EDUCAMPUS_DIR + "//KIT data.ttl");
-        Mapping mapping = Utils.getMapping(Constants.MAPPING_EDUCAMPUS_KIT_TO_IOSB);
+        Mapping mapping = Utils.getMapping(Constants.EDUCAMPUS_DIR, Constants.MAPPING_EDUCAMPUS_KIT_TO_IOSB);
         Model result = new DataMapper().map(input, mapping);
         String t = modelToString(result);
         String g = "";
@@ -59,7 +59,7 @@ public class EduCampusMappingTest {
     }
 
     public void testParseMappingIOSBtoKIT() throws IOException, ParseException, URISyntaxException {
-        Mapping parsed = Utils.getMapping(Constants.MAPPING_EDUCAMPUS_IOSB_TO_KIT);
+        Mapping parsed = Utils.getMapping(Constants.EDUCAMPUS_DIR, Constants.MAPPING_EDUCAMPUS_IOSB_TO_KIT);
         String printed = parsed.asString();
         Mapping reparsed = Mapping.parse(printed);
         assert (Objects.equal(parsed, reparsed));

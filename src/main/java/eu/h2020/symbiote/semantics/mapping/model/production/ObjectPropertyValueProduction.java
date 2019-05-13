@@ -97,7 +97,7 @@ public class ObjectPropertyValueProduction extends ObjectPropertyProduction {
     }
 
     @Override
-    public <I, TC, TP, O> TP accept(MappingContext context, ProductionVisitor<I, TC, TP, O> visitor, TC args) {
+    public <T, TC, TP> TP accept(MappingContext context, ProductionVisitor<T, TC, TP> visitor, TC args) {
         return visitor.visit(context, this, args);
     }
 }

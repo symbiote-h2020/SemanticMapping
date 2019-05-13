@@ -15,13 +15,13 @@ import eu.h2020.symbiote.semantics.mapping.model.MappingConfig;
  * @param <TP> temp result type of production visitor
  * @param <O> output type
  */
-public abstract class AbstractProductionVisitor<I, TC, TP, O> implements ProductionVisitor<I, TC, TP, O> {
+public abstract class AbstractProductionVisitor<T, TC, TP> implements ProductionVisitor<T, TC, TP> {
 
     protected MappingConfig config;
-    protected I input;
+    protected T input;
 
     @Override
-    public void init(MappingConfig config, I input) {
+    public void init(MappingConfig config, T input) {
         this.config = config;
         this.input = input;
     }
