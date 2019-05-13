@@ -58,6 +58,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFEvaluationWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -195,6 +196,7 @@ public class PerformanceTest {
         return formula;
     }
 
+    @Ignore
     @Test
     public void testQueryRewritingPerformance() throws ParseException, UnsupportedMappingException {
         try {
@@ -227,6 +229,7 @@ public class PerformanceTest {
         }
     }
 
+    @Ignore
     @Test
     public void testDataTransformationPerformance() throws ParseException, UnsupportedMappingException, IOException, URISyntaxException {
         final Workbook workbook = new XSSFWorkbook(new FileInputStream(new File("src/test/resources/evaluation_template_mapping.xlsx")));
