@@ -29,7 +29,7 @@ public class IndividualProduction implements Production {
     public IndividualProduction(String uri) {
         this.uri = NodeFactory.createURI(uri);
     }
-    
+
     public IndividualProduction(Individual individual) {
         this.uri = individual.asNode();
     }
@@ -76,7 +76,7 @@ public class IndividualProduction implements Production {
     }
 
     @Override
-    public <I, TC, TP, O> TP accept(MappingContext context, ProductionVisitor<I, TC, TP, O> visitor, TC args) {
+    public <T, TC, TP> TP accept(MappingContext context, ProductionVisitor<T, TC, TP> visitor, TC args) {
         return visitor.visit(context, this, args);
     }
 }

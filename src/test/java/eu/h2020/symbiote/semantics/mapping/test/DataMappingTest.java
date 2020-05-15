@@ -52,7 +52,7 @@ public class DataMappingTest extends AbstractMappingTest<Model> {
     }
 
     @Override
-    protected Mapper<Model, ?, ?, Model> getMapper() {
+    protected Mapper<Model, ?, ?> getMapper() {
         return new DataMapper();
     }
 }

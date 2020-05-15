@@ -1,0 +1,11 @@
+PREFIX :  <http://example.org#>
+
+SELECT ?parent WHERE
+{
+    ?parent a :PersonA;
+        :hasChild ?child .
+    ?child :age ?age .
+    FILTER(?age >= 18)
+}
+GROUP BY ?parent
+HAVING (COUNT(?child) >= 2)

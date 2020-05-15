@@ -1,0 +1,16 @@
+PREFIX :  <http://example.org#>
+
+SELECT ?person ?car WHERE 
+{
+	?person a :PersonA;
+		:firstName "Jane"^^xsd:string;
+		:lastName "Doe"^^xsd:string;
+		:hasCar ?car .
+		?car :hasFeature [
+			a :Feature;
+			:name "sun roof"
+		] .
+        ?car a :Car;
+            :hasSeats ?noSeats .
+	FILTER(?noSeats > 5)
+}

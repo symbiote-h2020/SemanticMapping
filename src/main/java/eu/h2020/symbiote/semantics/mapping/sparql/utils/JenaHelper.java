@@ -348,6 +348,25 @@ public class JenaHelper {
         return result;
     }
 
+    public static Map<Node, List<SparqlElementMatch>> findVarsByObjectClass(Query query, Node rdfClass) {
+      Map<Node, List<SparqlElementMatch>> result = new HashMap<>();
+      ElementWalker.walk(query.getQueryPattern(), new ElementVisitorBase() {
+          @Override
+          public void visit(ElementPathBlock el) {
+              el.getPattern().getList().stream()
+                      .filter(isVarWithObject(rdfClass))
+                      .forEach(x -> {
+                          Var var = (Var) x.getSubject();
+                          if (!result.containsKey(var)) {
+                              result.put(var, new ArrayList<>());
+                          }
+                          result.get(var).add(new TriplePathMatch(el, x));
+                      });
+          }
+      });
+      return result;
+  }
+
 //    public static Node Node(Value value) {
 //        // TODO find nicer & more robust implementation
 //        if (!(value instanceof ConstantValue)) {
@@ -636,6 +655,15 @@ public class JenaHelper {
                 && x.getPredicate().equals(RDF.type.asNode())
                 && x.getObject().equals(type);
     }
+
+    private static Predicate<TriplePath> isVarWithObject(Node type) {
+      if (type.equals(Node.ANY)) {
+          return x -> true;
+      }
+      return x -> x.isTriple()
+              && x.getSubject().isVariable()
+              && x.getObject().equals(type);
+  }
 
     public static void addElementToQuery(Query query, Element element) {
         if (!(query.getQueryPattern() instanceof ElementGroup)) {

@@ -13,7 +13,7 @@ import eu.h2020.symbiote.semantics.mapping.model.MappingContext;
  */
 public interface Production {
 
-    public <I, TC, TP, O> TP accept(MappingContext context, ProductionVisitor<I, TC, TP, O> visitor, TC args);
+    public <T, TC, TP> TP accept(MappingContext context, ProductionVisitor<T, TC, TP> visitor, TC args);
     public boolean validate();
     public boolean looseEquals(Object o);
 }

@@ -39,7 +39,7 @@ import org.apache.jena.vocabulary.RDF;
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public class DataProductionVisitor extends AbstractProductionVisitor<Model, List<ElementMatch>, Void, Model> implements ProductionVisitorSimple<Model, List<ElementMatch>, Model> {
+public class DataProductionVisitor extends AbstractProductionVisitor<Model, List<ElementMatch>, Void> implements ProductionVisitorSimple<Model, List<ElementMatch>> {
 
     private Model model;
 

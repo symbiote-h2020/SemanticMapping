@@ -13,7 +13,7 @@ import java.util.stream.Stream;
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public interface ProductionVisitorSimple<I, TC, O> extends ProductionVisitor<I, TC, Void, O> {
+public interface ProductionVisitorSimple<T, TC> extends ProductionVisitor<T, TC, Void> {
 
     public default void visit(Production production, MappingContext context, TC args) {
         production.accept(context, this, args);
@@ -26,7 +26,7 @@ public interface ProductionVisitorSimple<I, TC, O> extends ProductionVisitor<I, 
     public void visit(ObjectPropertyValueProduction production, MappingContext context, TC args);
 
     @Override
-    public default void init(MappingConfig config, I input) {
+    public default void init(MappingConfig config, T input) {
     }
 
     @Override

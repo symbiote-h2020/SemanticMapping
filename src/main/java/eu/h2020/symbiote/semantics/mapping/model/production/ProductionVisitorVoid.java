@@ -13,7 +13,7 @@ import java.util.stream.Stream;
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public interface ProductionVisitorVoid extends ProductionVisitor<Void, Void, Void, Void> {
+public interface ProductionVisitorVoid extends ProductionVisitor<Void, Void, Void> {
   
         
     public default void visit(Production production) {

@@ -19,7 +19,7 @@ import org.apache.jena.riot.RDFLanguages;
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public class DataMapper extends Mapper<Model, List<ElementMatch>, Void, Model> {
+public class DataMapper extends Mapper<Model, List<ElementMatch>, Void> {
 
     public DataMapper() {
         super(new DataConditionVisitor(), new DataProductionVisitor());

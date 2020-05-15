@@ -48,12 +48,20 @@ public class Utils {
         return Mapping.load(getMappingFile(filename));
     }
     
+    public static Mapping getMapping(String dir, String filename) throws IOException, URISyntaxException, ParseException {
+        return Mapping.load(getMappingFile(dir, filename));
+    }
+    
     public static boolean semanticallyEqual(Query query1, Query query2) {
         return QueryCompare.equal(query1, query2);
     }
 
+    private static File getMappingFile(String dir, String filename) throws URISyntaxException {
+        return getFile(dir, filename, Constants.MAPPING_FILE_EXTENSION);
+    }
+    
     private static File getMappingFile(String filename) throws URISyntaxException {
-        return getFile(Constants.EDUCAMPUS_DIR, filename, Constants.MAPPING_FILE_EXTENSION);
+        return getMappingFile(Constants.MAPPING_DIR, filename);
     }
 
     private static File getFile(String folder, String filename, String extension) throws URISyntaxException {
@@ -64,6 +72,10 @@ public class Utils {
         return new String(Files.readAllBytes(Paths.get(Utils.class.getClassLoader().getResource(folder + (folder != null ? File.separator : "") + filename + "." + extension).toURI())));
     }
 
+    public static void save(Mapping mapping, String dir, String filename) throws IOException, URISyntaxException {
+        mapping.save(getMappingFile(dir, filename));
+    }
+    
     public static void save(Mapping mapping, String filename) throws IOException, URISyntaxException {
         mapping.save(getMappingFile(filename));
     }

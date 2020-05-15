@@ -108,7 +108,7 @@ public abstract class AbstractMappingTest<T> {
         assert (failCountSuites == 0);
     }
 
-    protected abstract Mapper<T, ?, ?, T> getMapper();
+    protected abstract Mapper<T, ?, ?> getMapper();
 
     protected abstract boolean equals(T obj1, T obj2);
 
@@ -117,7 +117,7 @@ public abstract class AbstractMappingTest<T> {
     private boolean evaluateMapping(Mapping mapping, T input, T expected, RetentionPolicy retentionPolicy) {
         boolean result = false;
         try {
-            Mapper<T, ?, ?, T> mapper = getMapper();
+            Mapper<T, ?, ?> mapper = getMapper();
             MappingConfig config = new MappingConfig.Builder().retentionPolicy(retentionPolicy).build();
             T mapped = mapper.map(input, mapping, config);
             result = equals(mapped, expected);

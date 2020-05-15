@@ -52,6 +52,8 @@ dependencies {
     compile group: 'org.reflections', name: 'reflections', version: '0.9.11'
     // common testing
     testCompile('junit:junit:4.+')
+    testCompile('org.apache.poi:poi:4.0.1')
+    testCompile('org.apache.poi:poi-ooxml:4.0.1')
 }
 
 // code quality below
