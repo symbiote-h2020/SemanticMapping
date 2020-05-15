@@ -5,79 +5,81 @@
  */
 package eu.h2020.symbiote.semantics.mapping.sparql.utils;
 
-import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationInfo;
-import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationType;
-import eu.h2020.symbiote.semantics.mapping.model.condition.Comparator;
-import eu.h2020.symbiote.semantics.mapping.model.condition.ValueCondition;
-import eu.h2020.symbiote.semantics.mapping.sparql.model.FilterMatch;
-import eu.h2020.symbiote.semantics.mapping.sparql.model.TriplePathMatch;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import org.apache.jena.graph.Node;
-import org.apache.jena.query.Query;
-import org.apache.jena.sparql.core.TriplePath;
-import org.apache.jena.sparql.core.Var;
-import org.apache.jena.sparql.expr.Expr;
-import org.apache.jena.sparql.expr.ExprFunction2;
-import org.apache.jena.sparql.path.Path;
-import org.apache.jena.sparql.syntax.Element;
-import org.apache.jena.sparql.syntax.ElementFilter;
-import org.apache.jena.sparql.syntax.ElementGroup;
-import org.apache.jena.sparql.syntax.ElementPathBlock;
-import org.apache.jena.sparql.syntax.ElementVisitorBase;
-import org.apache.jena.sparql.syntax.ElementWalker;
-import org.apache.jena.vocabulary.RDF;
-import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlElementMatch;
-import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlHavingExpressionMatch;
-import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlMatch;
-import eu.h2020.symbiote.semantics.mapping.utils.Utils;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javafx.util.Pair;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.ext.com.google.common.base.Objects;
+import org.apache.jena.graph.Node;
+import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryException;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.Syntax;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.algebra.walker.Walker;
+import org.apache.jena.sparql.core.TriplePath;
+import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.E_Datatype;
 import org.apache.jena.sparql.expr.E_Regex;
+import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprAggregator;
 import org.apache.jena.sparql.expr.ExprFunction;
+import org.apache.jena.sparql.expr.ExprFunction2;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.ExprVars;
 import org.apache.jena.sparql.expr.ExprVisitorBase;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.aggregate.Aggregator;
+import org.apache.jena.sparql.path.Path;
 import org.apache.jena.sparql.path.PathParser;
+import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementAssign;
 import org.apache.jena.sparql.syntax.ElementBind;
 import org.apache.jena.sparql.syntax.ElementData;
 import org.apache.jena.sparql.syntax.ElementDataset;
 import org.apache.jena.sparql.syntax.ElementExists;
+import org.apache.jena.sparql.syntax.ElementFilter;
+import org.apache.jena.sparql.syntax.ElementGroup;
 import org.apache.jena.sparql.syntax.ElementMinus;
 import org.apache.jena.sparql.syntax.ElementNamedGraph;
 import org.apache.jena.sparql.syntax.ElementNotExists;
 import org.apache.jena.sparql.syntax.ElementOptional;
+import org.apache.jena.sparql.syntax.ElementPathBlock;
 import org.apache.jena.sparql.syntax.ElementService;
 import org.apache.jena.sparql.syntax.ElementSubQuery;
 import org.apache.jena.sparql.syntax.ElementTriplesBlock;
 import org.apache.jena.sparql.syntax.ElementUnion;
 import org.apache.jena.sparql.syntax.ElementVisitor;
+import org.apache.jena.sparql.syntax.ElementVisitorBase;
+import org.apache.jena.sparql.syntax.ElementWalker;
 import org.apache.jena.sparql.syntax.syntaxtransform.ElementTransformCopyBase;
 import org.apache.jena.sparql.util.NodeIsomorphismMap;
+import org.apache.jena.vocabulary.RDF;
+
+import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationInfo;
+import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationType;
+import eu.h2020.symbiote.semantics.mapping.model.condition.Comparator;
+import eu.h2020.symbiote.semantics.mapping.model.condition.ValueCondition;
+import eu.h2020.symbiote.semantics.mapping.sparql.model.FilterMatch;
+import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlElementMatch;
+import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlHavingExpressionMatch;
+import eu.h2020.symbiote.semantics.mapping.sparql.model.SparqlMatch;
+import eu.h2020.symbiote.semantics.mapping.sparql.model.TriplePathMatch;
+import eu.h2020.symbiote.semantics.mapping.utils.Utils;
 
 /**
  *
@@ -350,10 +352,10 @@ public class JenaHelper {
 //        // TODO find nicer & more robust implementation
 //        if (!(value instanceof ConstantValue)) {
 //            return null;
-//        }        
+//        }
 //        ConstantValue constantValue = (ConstantValue) value;
 //        String tempValue = constantValue.getValue();
-//        RDFDatatype tempDatatype = constantValue.getDatatype();        
+//        RDFDatatype tempDatatype = constantValue.getDatatype();
 //        if (tempValue.contains("^^")) {
 //            String stringType = constantValue.getValue().substring(constantValue.getValue().indexOf("^^") + 2);
 //            if (stringType.startsWith("<") && stringType.endsWith(">")) {
@@ -365,7 +367,7 @@ public class JenaHelper {
 //        if (tempDatatype != null) {
 //            if (tempDatatype == XSDDatatype.XSDstring) {
 //                return NodeFactory.createLiteral(tempValue);
-//            } 
+//            }
 //            return ResourceFactory.createTypedLiteral(constantValue.getValue(), constantValue.getDatatype()).asNode();
 //        }
 //        return ResourceFactory.createPlainLiteral(constantValue.getValue()).asNode();
@@ -485,7 +487,7 @@ public class JenaHelper {
                         && value.equals(valueRestriction.getValue().asNode())) {
                     result.setExpr(expr);
                     if (value.isLiteral()) {
-                        result.setValue(new Pair(getParameterName(path), value.getLiteral()));
+                        result.setValue(new ImmutablePair<>(getParameterName(path), value.getLiteral()));
                     }
                     result.setFilter(el);
                 }
@@ -605,7 +607,7 @@ public class JenaHelper {
                         result.setExpr(expr);
                         result.setFilter(el);
                         String valueName = path.toString().substring(path.toString().lastIndexOf('#') + 1, path.toString().length() - 1);
-                        result.setValue(new Pair(getParameterName(path), value.getLiteral()));
+                        result.setValue(new ImmutablePair<>(getParameterName(path), value.getLiteral()));
                     }
                 } else if (expr.getArg1() instanceof E_Datatype && expr.getArg2().isConstant()) {
                     // case FILTER(datatype(?var)=type)

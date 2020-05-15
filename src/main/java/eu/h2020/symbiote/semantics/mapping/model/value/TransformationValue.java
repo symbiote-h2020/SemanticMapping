@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.impl.LiteralLabel;

@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javafx.util.Pair;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.graph.impl.LiteralLabel;
-import org.apache.jena.ontology.Individual;
 import org.apache.jena.rdf.model.Resource;
 
 /**
@@ -88,11 +88,12 @@ public class ElementMatch implements DataElementMatch {
         this.elementMatches = tripleMatchs;
     }
 
+    @Override
     public List<Pair<String, LiteralLabel>> getValues() {
 //        for (DataElementMatch match : elementMatches) {
 //            Pair<String, LiteralLabel> value = match.getValues();
 //        }
-        
+
         return elementMatches.stream()
                 .flatMap(x -> x.getValues().stream())
                 .filter(x -> x != null)
