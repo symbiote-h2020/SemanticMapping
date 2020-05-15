@@ -10,7 +10,7 @@ import eu.h2020.symbiote.semantics.mapping.model.transformation.JavaScriptTransf
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.graph.impl.LiteralLabel;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.ResourceFactory;

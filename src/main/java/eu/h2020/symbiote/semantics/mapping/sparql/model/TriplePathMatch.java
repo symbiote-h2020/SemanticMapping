@@ -5,14 +5,15 @@
  */
 package eu.h2020.symbiote.semantics.mapping.sparql.model;
 
-import eu.h2020.symbiote.semantics.mapping.sparql.utils.JenaHelper;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.graph.impl.LiteralLabel;
 import org.apache.jena.query.Query;
-import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementPathBlock;
+
+import eu.h2020.symbiote.semantics.mapping.sparql.utils.JenaHelper;
 
 /**
  *
@@ -81,6 +82,6 @@ public class TriplePathMatch implements SparqlElementMatch {
         if (!hasValue()) {
             return null;
         }
-        return new Pair(JenaHelper.getParameterName(path.getPredicate()), path.getObject().getLiteral());
+        return new ImmutablePair<>(JenaHelper.getParameterName(path.getPredicate()), path.getObject().getLiteral());
     }
 }

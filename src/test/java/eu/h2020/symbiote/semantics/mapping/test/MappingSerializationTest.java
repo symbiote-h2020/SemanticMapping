@@ -16,7 +16,7 @@ import eu.h2020.symbiote.semantics.mapping.model.production.ClassProduction;
 import eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue;
 import eu.h2020.symbiote.semantics.mapping.parser.ParseException;
 import eu.h2020.symbiote.semantics.mapping.test.ontology.TEST_MODEL;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 

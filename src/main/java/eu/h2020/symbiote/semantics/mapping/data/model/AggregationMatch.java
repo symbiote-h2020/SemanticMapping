@@ -7,7 +7,9 @@ package eu.h2020.symbiote.semantics.mapping.data.model;
 
 import java.util.Arrays;
 import java.util.List;
-import javafx.util.Pair;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.graph.impl.LiteralLabel;
 
 /**
@@ -24,9 +26,9 @@ public class AggregationMatch implements DataElementMatch {
         this.value = value;
         this.name = DEFAULT_NAME;
     }
-    
+
     public AggregationMatch(LiteralLabel value, String name) {
-        this.value = value;        
+        this.value = value;
         this.name = name;
         if (name == null || name.isEmpty()) {
             this.name = DEFAULT_NAME;
@@ -35,7 +37,8 @@ public class AggregationMatch implements DataElementMatch {
 
     @Override
     public List<Pair<String, LiteralLabel>> getValues() {
-        return Arrays.asList(new Pair<>(name, value));
+        return Arrays.asList(new ImmutablePair<>(name, value));
+
     }
 
     @Override

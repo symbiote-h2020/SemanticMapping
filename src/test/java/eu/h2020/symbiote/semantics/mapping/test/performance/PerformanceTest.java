@@ -5,16 +5,6 @@
  */
 package eu.h2020.symbiote.semantics.mapping.test.performance;
 
-import eu.h2020.symbiote.semantics.mapping.data.DataMapper;
-import eu.h2020.symbiote.semantics.mapping.model.Mapping;
-import eu.h2020.symbiote.semantics.mapping.model.MappingConfig;
-import eu.h2020.symbiote.semantics.mapping.model.RetentionPolicy;
-import eu.h2020.symbiote.semantics.mapping.model.UnsupportedMappingException;
-import eu.h2020.symbiote.semantics.mapping.parser.ParseException;
-import eu.h2020.symbiote.semantics.mapping.sparql.SparqlMapper;
-import eu.h2020.symbiote.semantics.mapping.test.sparql.util.Constants;
-import eu.h2020.symbiote.semantics.mapping.test.sparql.util.Utils;
-import eu.h2020.symbiote.semantics.mapping.utils.DataGenerator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -37,8 +27,10 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import javafx.util.Pair;
+
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.query.Query;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
@@ -61,10 +53,22 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import eu.h2020.symbiote.semantics.mapping.data.DataMapper;
+import eu.h2020.symbiote.semantics.mapping.model.Mapping;
+import eu.h2020.symbiote.semantics.mapping.model.MappingConfig;
+import eu.h2020.symbiote.semantics.mapping.model.RetentionPolicy;
+import eu.h2020.symbiote.semantics.mapping.model.UnsupportedMappingException;
+import eu.h2020.symbiote.semantics.mapping.parser.ParseException;
+import eu.h2020.symbiote.semantics.mapping.sparql.SparqlMapper;
+import eu.h2020.symbiote.semantics.mapping.test.sparql.util.Constants;
+import eu.h2020.symbiote.semantics.mapping.test.sparql.util.Utils;
+import eu.h2020.symbiote.semantics.mapping.utils.DataGenerator;
+
 /**
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
+@Ignore
 public class PerformanceTest {
 
     private static final int iterations = 100;
@@ -78,11 +82,11 @@ public class PerformanceTest {
         config = new MappingConfig();
         config.setRetentionPolicy(RetentionPolicy.RemoveMatchedInput);
         rewritingTestcases = Arrays.asList(
-                new Pair(Utils.getMapping(Constants.MAPPING_PERFORMANCE_1),
+                new ImmutablePair<>(Utils.getMapping(Constants.MAPPING_PERFORMANCE_1),
                         Utils.getQuery(Constants.QUERY_PERFORMANCE_1)),
-                new Pair(Utils.getMapping(Constants.MAPPING_PERFORMANCE_2),
+                new ImmutablePair<>(Utils.getMapping(Constants.MAPPING_PERFORMANCE_2),
                         Utils.getQuery(Constants.QUERY_PERFORMANCE_2)),
-                new Pair(Utils.getMapping(Constants.MAPPING_PERFORMANCE_3),
+                new ImmutablePair<>(Utils.getMapping(Constants.MAPPING_PERFORMANCE_3),
                         Utils.getQuery(Constants.QUERY_PERFORMANCE_3))
         );
         warmUpRun();
@@ -111,7 +115,7 @@ public class PerformanceTest {
         long endTime = System.nanoTime();
         return unit.convert(endTime - startTime, TimeUnit.NANOSECONDS);
     }
-   
+
 
     private void mapSafe(Mapping mapping, Query query) {
         try {
@@ -202,7 +206,7 @@ public class PerformanceTest {
         try {
             int noRuns = 11;
             final Workbook workbook = prepareQueryRewritingResult(noRuns);
-            for (int runs = 0; runs < noRuns; runs++) {                
+            for (int runs = 0; runs < noRuns; runs++) {
                 int count = 0;
                 for (Pair<Mapping, Query> testcase : rewritingTestcases) {
                     Sheet sheet = workbook.getSheetAt(count);
@@ -238,7 +242,7 @@ public class PerformanceTest {
         for (int runs = 1; runs <= 2; runs++) {
             List<Pair<Integer, Model>> dataSets = Files.list(Paths.get(Utils.class.getClassLoader().getResource(Constants.DATA_DIR).toURI()))
                     .filter(x -> FilenameUtils.getExtension(x.toString()).equalsIgnoreCase(Constants.DATA_EXTENSION))
-                    .map(x -> (Pair<Integer, Model>) new Pair(Integer.parseInt(x.toFile().getName().replace("." + Constants.DATA_EXTENSION, "")), RDFDataMgr.loadModel(x.toString(), Lang.TURTLE)))
+                    .map(x -> (Pair<Integer, Model>) new ImmutablePair<>(Integer.parseInt(x.toFile().getName().replace("." + Constants.DATA_EXTENSION, "")), RDFDataMgr.loadModel(x.toString(), Lang.TURTLE)))
                     .collect(Collectors.toList());
 
             String[][] dataPlot = new String[dataSets.size()][iterations + 1];

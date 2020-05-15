@@ -5,29 +5,28 @@
  */
 package eu.h2020.symbiote.semantics.mapping.sparql.utils;
 
-import eu.h2020.symbiote.semantics.mapping.utils.Utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.Query;
 import org.apache.jena.sparql.algebra.walker.Walker;
 import org.apache.jena.sparql.core.ComparisonException;
-import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.core.VarExprList;
-import org.apache.jena.sparql.engine.binding.BindingHashMap;
-import org.apache.jena.sparql.graph.NodeTransform;
 import org.apache.jena.sparql.graph.NodeTransformExpr;
 import org.apache.jena.sparql.syntax.PatternVars;
-import org.apache.jena.sparql.syntax.syntaxtransform.NodeTransformSubst;
 import org.apache.jena.sparql.syntax.syntaxtransform.QueryTransformOps;
 import org.apache.jena.sparql.util.Iso;
 import org.apache.jena.sparql.util.NodeIsomorphismMap;
+
+import eu.h2020.symbiote.semantics.mapping.utils.Utils;
 
 /**
  *
@@ -145,7 +144,7 @@ public class QueryCompare extends org.apache.jena.sparql.core.QueryCompare {
                                     createdNodes.add(newNode);
                                     return newNode;
                                 })));
-        return new Pair(resultQuery, createdNodes);
+        return new ImmutablePair<>(resultQuery, createdNodes);
     }
 
     @Override

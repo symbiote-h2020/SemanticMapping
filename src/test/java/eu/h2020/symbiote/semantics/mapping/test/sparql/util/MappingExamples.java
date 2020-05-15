@@ -5,6 +5,14 @@
  */
 package eu.h2020.symbiote.semantics.mapping.test.sparql.util;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.graph.Node;
+
 import eu.h2020.symbiote.semantics.mapping.model.Mapping;
 import eu.h2020.symbiote.semantics.mapping.model.MappingRule;
 import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationType;
@@ -32,11 +40,6 @@ import eu.h2020.symbiote.semantics.mapping.model.value.ConstantValue;
 import eu.h2020.symbiote.semantics.mapping.model.value.ReferenceValue;
 import eu.h2020.symbiote.semantics.mapping.model.value.TransformationValue;
 import eu.h2020.symbiote.semantics.mapping.test.ontology.TEST_MODEL;
-import java.util.Arrays;
-import java.util.List;
-import javafx.util.Pair;
-import org.apache.jena.datatypes.xsd.XSDDatatype;
-import org.apache.jena.graph.Node;
 
 /**
  *
@@ -51,7 +54,7 @@ public class MappingExamples {
     private static final String PREFIX_XSD = "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> \n";
 
     public static final List<Pair<Mapping, String>> EXAMPLES = Arrays.asList(
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -64,7 +67,7 @@ public class MappingExamples {
             /**
              * BASE
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -78,7 +81,7 @@ public class MappingExamples {
             /**
              * PREFIX
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -92,7 +95,7 @@ public class MappingExamples {
             /**
              * Full URI
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -105,7 +108,7 @@ public class MappingExamples {
             /**
              * condition class with property path
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -120,7 +123,7 @@ public class MappingExamples {
             /**
              * condition class with data property value
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -139,7 +142,7 @@ public class MappingExamples {
             /**
              * condition class with data property REGEX
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -158,7 +161,7 @@ public class MappingExamples {
             /**
              * condition class with data property type
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -176,7 +179,7 @@ public class MappingExamples {
             /**
              * condition class with object property value
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -194,7 +197,7 @@ public class MappingExamples {
             /**
              * condition class with object property type
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -213,7 +216,7 @@ public class MappingExamples {
             /**
              * condition class with simple AND
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -230,7 +233,7 @@ public class MappingExamples {
             /**
              * condition class with simple OR
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -249,7 +252,7 @@ public class MappingExamples {
              *
              * TODO currently, brackets are needed but should not be neccesarry
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -278,7 +281,7 @@ public class MappingExamples {
              *
              * TODO currently, brackets are needed but should not be neccesarry
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -314,7 +317,7 @@ public class MappingExamples {
             /**
              * condition class with nested AND and OR
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -337,7 +340,7 @@ public class MappingExamples {
             /**
              * condition property with AND
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -362,7 +365,7 @@ public class MappingExamples {
             /**
              * condition property with OR
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -395,7 +398,7 @@ public class MappingExamples {
             /**
              * condition class with aggregate
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -427,7 +430,7 @@ public class MappingExamples {
             /**
              * condition class with aggregate with result name
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -460,7 +463,7 @@ public class MappingExamples {
             /**
              * production individual
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -475,7 +478,7 @@ public class MappingExamples {
             /**
              * production class with property object value
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -495,7 +498,7 @@ public class MappingExamples {
             /**
              * production class with property object datatype
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -516,7 +519,7 @@ public class MappingExamples {
              * production class with property data value (without explicit data
              * type)
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -537,7 +540,7 @@ public class MappingExamples {
              * production class with property data value (with explicit data
              * type)
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -557,7 +560,7 @@ public class MappingExamples {
             /**
              * production class multiple property
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -581,7 +584,7 @@ public class MappingExamples {
             /**
              * production class with reference property data value
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -604,7 +607,7 @@ public class MappingExamples {
             /**
              * production class with local transformation property data value
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .transformations(new JavaScriptTransformation("toStringLocal", "parameters[0].toString();"))
@@ -630,7 +633,7 @@ public class MappingExamples {
             /**
              * production class with complex transformation function (including curly brackets)
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .transformations(new JavaScriptTransformation("complexFunction", "if (true) { parameters[0].toString(); } else null"))
@@ -656,7 +659,7 @@ public class MappingExamples {
             /**
              * production class with global transformation property data value
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -680,7 +683,7 @@ public class MappingExamples {
             /**
              * predicate mapping
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -695,7 +698,7 @@ public class MappingExamples {
             /**
              * aggregation inside object property type
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
@@ -726,7 +729,7 @@ public class MappingExamples {
             /**
              * multi-level production
              */
-            new Pair<Mapping, String>(
+            (Pair<Mapping, String>) new ImmutablePair<>(
                     new Mapping.Builder()
                             .base(TEST_MODEL.NS)
                             .rules(new MappingRule(
