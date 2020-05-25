@@ -5,32 +5,15 @@
  */
 package eu.h2020.symbiote.semantics.mapping.data;
 
-import eu.h2020.symbiote.semantics.mapping.data.model.AggregationMatch;
-import eu.h2020.symbiote.semantics.mapping.data.model.DataElementMatch;
-import eu.h2020.symbiote.semantics.mapping.data.model.TripleMatch;
-import eu.h2020.symbiote.semantics.mapping.data.model.ElementMatch;
-import eu.h2020.symbiote.semantics.mapping.data.model.IndividualMatch;
-import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationType;
-import eu.h2020.symbiote.semantics.mapping.model.condition.ConditionVisitor;
-import eu.h2020.symbiote.semantics.mapping.model.condition.ConditionWalker;
-import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyTypeCondition;
-import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyValueCondition;
-import eu.h2020.symbiote.semantics.mapping.model.condition.IndividualCondition;
-import eu.h2020.symbiote.semantics.mapping.model.condition.ObjectPropertyTypeCondition;
-import eu.h2020.symbiote.semantics.mapping.model.condition.ObjectPropertyValueCondition;
-import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyAggregationCondition;
-import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyPathCondition;
-import eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition;
-import eu.h2020.symbiote.semantics.mapping.model.condition.ValueCondition;
-import eu.h2020.symbiote.semantics.mapping.utils.StreamHelper;
-import eu.h2020.symbiote.semantics.mapping.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javafx.util.Pair;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
@@ -45,7 +28,6 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Selector;
 import org.apache.jena.rdf.model.SimpleSelector;
-import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.core.VarAlloc;
@@ -75,6 +57,26 @@ import org.apache.jena.sparql.syntax.ElementFilter;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import org.apache.jena.sparql.syntax.ElementPathBlock;
 import org.apache.jena.vocabulary.RDF;
+
+import eu.h2020.symbiote.semantics.mapping.data.model.AggregationMatch;
+import eu.h2020.symbiote.semantics.mapping.data.model.DataElementMatch;
+import eu.h2020.symbiote.semantics.mapping.data.model.ElementMatch;
+import eu.h2020.symbiote.semantics.mapping.data.model.IndividualMatch;
+import eu.h2020.symbiote.semantics.mapping.data.model.TripleMatch;
+import eu.h2020.symbiote.semantics.mapping.model.condition.AggregationType;
+import eu.h2020.symbiote.semantics.mapping.model.condition.ConditionVisitor;
+import eu.h2020.symbiote.semantics.mapping.model.condition.ConditionWalker;
+import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyTypeCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.DataPropertyValueCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.IndividualCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.ObjectPropertyTypeCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.ObjectPropertyValueCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyAggregationCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.PropertyPathCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.UriClassCondition;
+import eu.h2020.symbiote.semantics.mapping.model.condition.ValueCondition;
+import eu.h2020.symbiote.semantics.mapping.utils.StreamHelper;
+import eu.h2020.symbiote.semantics.mapping.utils.Utils;
 
 /**
  *
@@ -300,7 +302,7 @@ public class DataConditionVisitor implements ConditionVisitor<List<ElementMatch>
                 model,
                 query,
                 x -> {
-                    return new Pair<>(mapFunctionKey.apply(x.get(varKey)), mapFunctionValue.apply(x.get(varValue)));
+                    return new ImmutablePair<>(mapFunctionKey.apply(x.get(varKey)), mapFunctionValue.apply(x.get(varValue)));
                 });
     }
 

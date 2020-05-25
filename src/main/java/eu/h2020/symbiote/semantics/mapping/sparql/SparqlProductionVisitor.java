@@ -22,6 +22,7 @@ import eu.h2020.symbiote.semantics.mapping.sparql.utils.JenaHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.Query;
@@ -44,7 +45,7 @@ import org.apache.jena.vocabulary.RDF;
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, List<SparqlMatch>, Void, Query> {
+public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, List<SparqlMatch>, Void> {
 
     private Query query = null;
 
@@ -106,10 +107,8 @@ public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, Li
 
     @Override
     public Void visit(MappingContext context, ClassProduction production, List<SparqlMatch> temp) {
-        temp.forEach(x -> {
-            remove(query, x.getMatchedElements());
-            add(query, x.getMatchedNode(), RDF.type, production.getUri());
-        });
+        remove(query, temp.stream().flatMap(x -> x.getMatchedElements().stream()).collect(Collectors.toList()));
+        temp.forEach(x -> add(query, x.getMatchedNode(), RDF.type, production.getUri()));
         return null;
     }
 
@@ -187,6 +186,7 @@ public class SparqlProductionVisitor extends AbstractProductionVisitor<Query, Li
                     TriplePath newTriple = new TriplePath(subject, predicate, object);
                     JenaHelper.removeFromQuery(query, individualMatch.getPathBlock(), individualMatch.getPath());
                     JenaHelper.addToQuery(query, individualMatch.getPathBlock(), newTriple);
+
                 }
             } else {
                 // if VAR is in selected parameters, add Filter                

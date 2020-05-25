@@ -18,27 +18,27 @@ import java.util.stream.Stream;
  */
 public class ProductionWalker {
 
-    public static <I, TC, TP, O> O walk(Production production, ProductionVisitor<I, TC, TP, O> visitor, MappingContext context, TC args) {
-        ProductionVisitorInternal<I, TC, TP, O> visitorInternal = new ProductionVisitorInternal<>(visitor);
+    public static <T, TC, TP> T walk(Production production, ProductionVisitor<T, TC, TP> visitor, MappingContext context, TC args) {
+        ProductionVisitorInternal<T, TC, TP> visitorInternal = new ProductionVisitorInternal<>(visitor);
         production.accept(context, visitorInternal, args);
         return visitorInternal.getResult();
     }
 
-    static class ProductionVisitorInternal<I, TC, TP, O> implements ProductionVisitor<I, TC, TP, O> {
+    static class ProductionVisitorInternal<T, TC, TP> implements ProductionVisitor<T, TC, TP> {
 
-        protected final ProductionVisitor<I, TC, TP, O> visitor;
+        protected final ProductionVisitor<T, TC, TP> visitor;
 
-        public ProductionVisitorInternal(ProductionVisitor<I, TC, TP, O> visitor) {
+        public ProductionVisitorInternal(ProductionVisitor<T, TC, TP> visitor) {
             this.visitor = visitor;
         }
 
         @Override
-        public O getResult() {
+        public T getResult() {
             return visitor.getResult();
         }
 
         @Override
-        public void init(MappingConfig config, I input) {
+        public void init(MappingConfig config, T input) {
         }
 
         @Override

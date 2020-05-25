@@ -22,33 +22,33 @@ import org.apache.jena.riot.RDFLanguages;
  * @param <TP> temp result type of production visitor
  * @param <O> output type
  */
-public abstract class Mapper<I, TC, TP, O> {
+public abstract class Mapper<T, TC, TP> {
 
     protected final SupportChecker mappingSupportedChecker;
-    protected final ConditionVisitor<TC, I> conditionVisitor;
-    protected final ProductionVisitor<I, TC, TP, O> productionVisitor;
+    protected final ConditionVisitor<TC, T> conditionVisitor;
+    protected final ProductionVisitor<T, TC, TP> productionVisitor;
 
-    public Mapper(SupportChecker mappingSupportedChecker, ConditionVisitor<TC, I> conditionVisitor, ProductionVisitor<I, TC, TP, O> productionVisitor) {
+    public Mapper(SupportChecker mappingSupportedChecker, ConditionVisitor<TC, T> conditionVisitor, ProductionVisitor<T, TC, TP> productionVisitor) {
         this.mappingSupportedChecker = mappingSupportedChecker;
         this.conditionVisitor = conditionVisitor;
         this.productionVisitor = productionVisitor;
     }
 
-    public Mapper(ConditionVisitor<TC, I> conditionVisitor, ProductionVisitor<I, TC, TP, O> productionVisitor) {
+    public Mapper(ConditionVisitor<TC, T> conditionVisitor, ProductionVisitor<T, TC, TP> productionVisitor) {
         this.mappingSupportedChecker = null;
         this.conditionVisitor = conditionVisitor;
         this.productionVisitor = productionVisitor;
     }
 
-    public O map(I input, Mapping mapping, MappingConfig config) throws UnsupportedMappingException {
+    public T map(T input, Mapping mapping, MappingConfig config) throws UnsupportedMappingException {
         if (mappingSupportedChecker != null) {
             mappingSupportedChecker.checkMappingSupported(mapping);
         }
-        I inputCopy = clone(input);
+        T inputCopy = clone(input);
         productionVisitor.init(config == null ? new MappingConfig() : config, inputCopy);
         MappingContext context = new MappingContext();
         context.register(mapping.getTransformations());
-        O result = null;
+        T result = null;
         for (MappingRule rule : mapping.getMappingRules()) {
             TC conditionMatches = ConditionWalker.walk(rule.getCondition(), conditionVisitor, inputCopy);
             result = ProductionWalker.walk(rule.getProduction(), productionVisitor, context, conditionMatches);
@@ -56,11 +56,11 @@ public abstract class Mapper<I, TC, TP, O> {
         return result;
     }
 
-    public final O map(I input, Mapping mapping) throws UnsupportedMappingException {
+    public final T map(T input, Mapping mapping) throws UnsupportedMappingException {
         return map(input, mapping, null);
     }
 
     public abstract void init(Map<String, String> parameters);
 
-    public abstract I clone(I input);
+    public abstract T clone(T input);
 }

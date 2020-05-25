@@ -23,7 +23,7 @@ import org.apache.jena.query.QueryFactory;
  *
  * @author Michael Jacoby <michael.jacoby@iosb.fraunhofer.de>
  */
-public class SparqlMapper extends Mapper<Query, List<SparqlMatch>, Void, Query> {
+public class SparqlMapper extends Mapper<Query, List<SparqlMatch>, Void> {
 
     public SparqlMapper() {
         super(new SparqlSupportedChecker(), new SparqlConditionVisitor(), new SparqlProductionVisitor());
@@ -45,6 +45,10 @@ public class SparqlMapper extends Mapper<Query, List<SparqlMatch>, Void, Query> 
         result = super.map(result, mapping, config);
         postprocessQuery(result);
         return result;
+    }
+        
+    public String map(String input, Mapping mapping, MappingConfig config) throws UnsupportedMappingException {
+        return map(QueryFactory.create(input), mapping, config).toString();
     }
 
     public void preprocessQuery(Query query) {

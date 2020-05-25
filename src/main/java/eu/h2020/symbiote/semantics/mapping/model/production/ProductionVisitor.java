@@ -17,10 +17,10 @@ import java.util.stream.Stream;
  * @param <TP> args result type of production visitor
  * @param <O> output type
  */
-public interface ProductionVisitor<I, TC, TP, O> {
+public interface ProductionVisitor<T, TC, TP> {
     
-    public void init(MappingConfig config, I input);
-    public O getResult();
+    public void init(MappingConfig config, T input);
+    public T getResult();
     public default TP visit(MappingContext context, Production production, TC args) {
         return production.accept(context, this, args);
     }
